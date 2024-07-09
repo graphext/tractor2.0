@@ -1,17 +1,16 @@
 <script lang="ts">
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
+    import { cleanText } from "$lib/utils.js";
     import Input from "$lib/components/Input.svelte";
+
+    import { createEventDispatcher } from "svelte";
+    const dispatch = createEventDispatcher();
 
     export let data;
     const apifyData = data.data;
     console.log(apifyData);
 
-    let prompt = "";
-
     let value: string;
-    let inputToken: string;
-
-    let list: HTMLUListElement;
 </script>
 
 <div class="mb-10">
@@ -27,9 +26,13 @@
         bind:value
         on:paste={(e) => {
             if (e.clipboardData) {
-                const data = e.clipboardData.getData("text/plain");
-                const noFormat = data.replaceAll("\t", "").trim();
+                e.preventDefault();
+
+                const text = e.clipboardData.getData("text/plain");
+                const noFormat = cleanText(text);
+
                 value = noFormat;
+                dispatch("textarea", noFormat);
             }
         }}
     />
@@ -37,7 +40,7 @@
     <div class="sticky bottom-1 flex flex-col gap-1">
         <ApifyKeyInput />
         <a href="/token-info" class="underline opacity-70"
-            >Learn more about the token</a
+            >Learn more about the APIFY token</a
         >
     </div>
 </form>
