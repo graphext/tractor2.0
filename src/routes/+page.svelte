@@ -1,27 +1,43 @@
 <script lang="ts">
-    import Input from '$lib/components/Input.svelte'
+    import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
+    import Input from "$lib/components/Input.svelte";
 
-    let prompt = ''
+    export let data;
+    const apifyData = data.data;
+    console.log(apifyData);
 
-    let value: string
-    let list: HTMLUListElement
+    let prompt = "";
 
-    import { messages } from '../store'
+    let value: string;
+    let inputToken: string;
+
+    let list: HTMLUListElement;
 </script>
 
-<h1 class="text-xl font-bold text-center md:text-left">Tractor</h1>
-<h2 class="w-1/2 md:w-full mx-auto text-center text-balance md:text-left">
-    Scraping made easy. Put your Apify key, and let us do the rest.
-</h2>
-
-<div class="h-96 border overflow-y-scroll">
-    <ul bind:this={list}>
-        {#each $messages as m}
-            <li>{m}</li>
-        {/each}
-    </ul>
+<div class="mb-10">
+    <h1 class="text-xl font-bold text-center md:text-left">Tractor</h1>
+    <h2 class="w-1/2 md:w-full mx-auto text-center text-balance md:text-left">
+        Scraping made easy. Put your Apify key, and let us do the rest.
+    </h2>
 </div>
 
-<div class="sticky bottom-1">
-    <Input bind:value />
-</div>
+<form class="flex flex-col justify-between h-[800px] gap-3">
+    <textarea
+        class="textarea textarea-bordered grow border overflow-y-scroll rounded"
+        bind:value
+        on:paste={(e) => {
+            if (e.clipboardData) {
+                const data = e.clipboardData.getData("text/plain");
+                const noFormat = data.replaceAll("\t", "").trim();
+                value = noFormat;
+            }
+        }}
+    />
+
+    <div class="sticky bottom-1 flex flex-col gap-1">
+        <ApifyKeyInput />
+        <a href="/token-info" class="underline opacity-70"
+            >Learn more about the token</a
+        >
+    </div>
+</form>

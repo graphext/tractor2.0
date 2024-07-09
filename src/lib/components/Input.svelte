@@ -1,17 +1,14 @@
 <script lang="ts">
-    export let value: string = ''
-    export let enter: string | undefined = undefined
+    export let value: string = "";
+    export let enter: string | undefined = undefined;
+    export let placeholder = "";
 
-    import { messages } from '../../store'
-
-    let element: HTMLInputElement
-    $: console.log(enter)
+    let element: HTMLInputElement;
 
     function onEnter(e: KeyboardEvent) {
-        if (e.key === 'Enter') {
-            enter = value
-            value = ''
-            $messages = [...$messages, enter]
+        if (e.key === "Enter") {
+            enter = value;
+            value = "";
         }
     }
 </script>
@@ -21,6 +18,6 @@
     class="input input-md input-bordered w-full"
     bind:value
     bind:this={element}
-    placeholder="Type in the tweets you want to find"
+    {placeholder}
     on:keydown={onEnter}
 />
