@@ -4,19 +4,20 @@ import { apifyKey } from "./stores/apifyStore";
 
 let client: ApifyClient | null = null;
 
-// Function to initialize or update the ApifyClient with a token
 export function initializeApifyClient() {
 	const token = get(apifyKey);
 	if (token) {
 		client = new ApifyClient({
 			token: token,
+			// Use browser-compatible configuration
+			baseUrl: "https://api.apify.com/v2/",
+			maxRetries: 3,
 		});
 	} else {
 		client = null;
 	}
 }
 
-// Wrapper function to ensure client is initialized before each operation
 function ensureClient<T>(operation: (client: ApifyClient) => T): T {
 	if (!client) {
 		throw new Error(
@@ -26,7 +27,6 @@ function ensureClient<T>(operation: (client: ApifyClient) => T): T {
 	return operation(client);
 }
 
-// Function to create a task
 export async function createTask(
 	actorId: string,
 	input: Record<string, unknown>,
@@ -34,8 +34,8 @@ export async function createTask(
 	return ensureClient(async (client) => {
 		try {
 			const task = await client.tasks().create({
-				actorId,
-				name: `Task for ${actorId}`,
+				actId: actorId,
+				name: `Twitter Scraping Task ${new Date().toISOString()}`,
 				options: {
 					build: "latest",
 				},
@@ -49,11 +49,10 @@ export async function createTask(
 	});
 }
 
-// Function to run a task
 export async function runTask(taskId: string) {
 	return ensureClient(async (client) => {
 		try {
-			const run = await client.task(taskId).run();
+			const run = await client.task(taskId).start();
 			return run;
 		} catch (error) {
 			console.error("Error running task:", error);
@@ -62,9 +61,48 @@ export async function runTask(taskId: string) {
 	});
 }
 
-// ... (implement other functions similarly)
+export async function getDataset(datasetId: string) {
+	return ensureClient(async (client) => {
+		try {
+			const { items } = await client.dataset(datasetId).listItems();
+			return items;
+		} catch (error) {
+			console.error("Error retrieving dataset:", error);
+			throw error;
+		}
+	});
+}
 
-// Subscribe to changes in the apifyKey store
+export async function getRunStatus(runId: string) {
+	return ensureClient(async (client) => {
+		try {
+			const run = await client.run(runId).get();
+			return run && run.status;
+		} catch (error) {
+			console.error("Error getting run status:", error);
+			throw error;
+		}
+	});
+}
+
+export async function setupTwitterScrapingTask(queries: string[]) {
+	const actorId = "quacker/twitter-scraper"; // Replace with the actual Apify actor ID for Twitter scraping
+	const input = {
+		searchTerms: queries,
+		maxTweets: 100, // Adjust as needed
+		proxyConfiguration: { useApifyProxy: true },
+	};
+
+	try {
+		const task = await createTask(actorId, input);
+		const run = await runTask(task.id);
+		return run.id;
+	} catch (error) {
+		console.error("Error setting up Twitter scraping task:", error);
+		throw error;
+	}
+}
+
 apifyKey.subscribe(() => {
 	initializeApifyClient();
 });

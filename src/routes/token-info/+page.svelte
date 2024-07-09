@@ -1,4 +1,6 @@
-<a href="/" class="underline mb-10">Back</a>
+<div class="mb-10 hover:font-bold transition-all">
+    <a href="/" class="underline">Back</a>
+</div>
 
 <div class="md:w-1/2 text-pretty prose">
     <h2 class="">Information about APIFY Auth Tokens</h2>

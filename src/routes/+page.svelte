@@ -1,16 +1,55 @@
 <script lang="ts">
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
-    import { cleanText } from "$lib/utils.js";
-    import Input from "$lib/components/Input.svelte";
 
     import { createEventDispatcher } from "svelte";
-    const dispatch = createEventDispatcher();
 
-    export let data;
-    const apifyData = data.data;
-    console.log(apifyData);
+    import TwitterScraperSetup from "$lib/components/TwitterScraperSetup.svelte";
 
-    let value: string;
+    import { apifyKey } from "$lib/stores/apifyStore";
+
+    let queries = "";
+    let runId: string | null = null;
+    let status: string | undefined = undefined;
+    let results: any[] = [];
+    let error: string | null = null;
+
+    async function handleSubmit() {
+        if (!$apifyKey) {
+            error = "Please set your Apify API key first.";
+            return;
+        }
+
+        const queryList = queries.split("\n").filter((q) => q.trim() !== "");
+
+        try {
+            runId = await setupTwitterScrapingTask(queryList);
+            checkStatus();
+        } catch (err) {
+            error = "Failed to setup Twitter scraping task.";
+            console.error(err);
+        }
+    }
+
+    async function checkStatus() {
+        if (!runId) return;
+
+        try {
+            status = await getRunStatus(runId);
+            if (status === "SUCCEEDED") {
+                const run = await getDataset(runId);
+                results = run;
+            } else if (
+                status !== "FAILED" &&
+                status !== "TIMED-OUT" &&
+                status !== "ABORTED"
+            ) {
+                setTimeout(checkStatus, 5000); // Check again in 5 seconds
+            }
+        } catch (err) {
+            error = "Failed to check task status.";
+            console.error(err);
+        }
+    }
 </script>
 
 <div class="mb-10">
@@ -20,27 +59,11 @@
     </h2>
 </div>
 
-<form class="flex flex-col justify-between h-[800px] gap-3">
-    <textarea
-        class="textarea textarea-bordered grow border overflow-y-scroll rounded"
-        bind:value
-        on:paste={(e) => {
-            if (e.clipboardData) {
-                e.preventDefault();
+<div class="flex flex-col gap-1 mb-5">
+    <ApifyKeyInput />
+    <a href="/token-info" class="underline opacity-70"
+        >Learn more about the APIFY token</a
+    >
+</div>
 
-                const text = e.clipboardData.getData("text/plain");
-                const noFormat = cleanText(text);
-
-                value = noFormat;
-                dispatch("textarea", noFormat);
-            }
-        }}
-    />
-
-    <div class="sticky bottom-1 flex flex-col gap-1">
-        <ApifyKeyInput />
-        <a href="/token-info" class="underline opacity-70"
-            >Learn more about the APIFY token</a
-        >
-    </div>
-</form>
+<TwitterScraperSetup />
