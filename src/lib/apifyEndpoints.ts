@@ -69,10 +69,14 @@ export async function getRunLogs(runId: string) {
 }
 
 export async function getDatasetLink(
-	datasetId: string,
+	runId: string,
 	format: "csv" | "json" = "json",
 ) {
-	const endpoint = `/datasets/${datasetId}/items?attachment=true&clean=true&format=${format}`;
+	const token = get(apifyKey);
+	if (!token) {
+		throw new Error("Apify API token is not set");
+	}
+	const endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true`;
 	// const data = await apifyFetch(endpoint);
 	return `${BASE_URL}${endpoint}`;
 }

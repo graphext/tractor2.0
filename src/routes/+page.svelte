@@ -2,6 +2,8 @@
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
 
     import TwitterScraperSetup from "$lib/components/TwitterScraperSetup.svelte";
+
+    import { apifyKey } from "$lib/stores/apifyStore";
 </script>
 
 <div class="mb-10">
@@ -9,6 +11,7 @@
         <h1 class="text-xl font-bold md:text-left">Tractor</h1>
         <a
             class="underline text-primary"
+            target="_blank"
             href="https://console.apify.com/actors/runs">APIFY Runs Dashboard</a
         >
     </div>
@@ -19,9 +22,12 @@
 
 <div class="flex flex-col gap-1 mb-5">
     <ApifyKeyInput />
-    <a href="/token-info" class="underline opacity-70"
-        >Learn more about the APIFY token</a
-    >
+
+    {#if !$apifyKey}
+        <a href="/token-info" class="underline opacity-70"
+            >Learn more about the APIFY token</a
+        >
+    {/if}
 </div>
 
 <TwitterScraperSetup />

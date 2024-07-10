@@ -34,6 +34,7 @@
             bind:value={key}
             {placeholder}
             class="input input-bordered"
+            disabled={apikeyPresent}
             class:inputDisabled={apikeyPresent}
         />
         {#if !apikeyPresent}

@@ -141,7 +141,8 @@
 </div>
 
 {#if datasetLink}
-    <a href={datasetLink} class="btn btn-accent w-full">Download Dataset</a>
+    <a href={datasetLink} class="btn btn-accent w-full my-5">Download Dataset</a
+    >
 {/if}
 
 {#if error}
@@ -149,5 +150,5 @@
 {/if}
 
 {#if status}
-    <p class="mt-4">Task status: {status}</p>
+    <p class="mt-4 font-mono opacity-30">Task status: {status}</p>
 {/if}
