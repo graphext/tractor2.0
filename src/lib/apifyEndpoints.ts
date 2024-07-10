@@ -81,7 +81,10 @@ export async function getDatasetLink(
 	return `${BASE_URL}${endpoint}`;
 }
 
-export async function setupTwitterScrapingTask(queries: string[]) {
+export async function setupTwitterScrapingTask(
+	queries: string[],
+	numTweets: number,
+) {
 	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
 
 	const input = {
@@ -99,7 +102,7 @@ export async function setupTwitterScrapingTask(queries: string[]) {
 		onlyVideo: false,
 		sort: "Latest",
 		searchTerms: queries,
-		maxTweets: 10, // Adjust as needed
+		maxTweets: numTweets, // Adjust as needed
 		proxyConfiguration: { useApifyProxy: true },
 	};
 

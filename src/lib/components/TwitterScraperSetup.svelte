@@ -19,6 +19,11 @@
     let status: string | null = null;
     let logs: string | null = null;
 
+    let numTweets = 100;
+
+    let tweetCost = 0.3 / 1000;
+    $: totalApproximateCost = numTweets * tweetCost;
+
     let datasetLink: string | null = null;
     let error: string | null = null;
 
@@ -36,7 +41,7 @@
         try {
             loading = true;
 
-            runId = await setupTwitterScrapingTask(queryList);
+            runId = await setupTwitterScrapingTask(queryList, numTweets);
             error = null;
 
             checkStatus();
@@ -102,6 +107,17 @@
         bind:value={queries}
     />
 
+    <label for="Numtweets" class="self-end">
+        <span>Number of tweets to retrieve</span>
+        <input
+            class="input input-bordered font-mono text-right"
+            inputmode="numeric"
+            bind:value={numTweets}
+            type="number"
+            id="Numtweets"
+        />
+    </label>
+
     <div class="w-full relative">
         {#if loading}
             <progress
@@ -129,7 +145,9 @@
                 Current actor runs at <span class="font-semibold"
                     >$0.3/1K tweets</span
                 >. This operation will cost approximately
-                <span class="font-semibold">$0.5</span>
+                <span class="font-semibold"
+                    >${totalApproximateCost.toFixed(3)}</span
+                >
             </div>
             <button
                 on:click={handleSubmit}
