@@ -6,16 +6,10 @@
         setupTwitterScrapingTask,
         getRunStatus,
         getDatasetLink,
-        getRunLogs,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
-    import {
-        backOut,
-        bounceOut,
-        elasticInOut,
-        elasticOut,
-    } from "svelte/easing";
+    import { backOut } from "svelte/easing";
 
     let queries = "";
     let loading = false;
@@ -31,6 +25,7 @@
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     async function handleSubmit() {
+        confirmChoice = false;
         if (!$apifyKey) {
             error = "Please set your Apify API key first.";
             return;
@@ -58,21 +53,23 @@
 
         try {
             const runData = await getRunStatus(runId);
-            logs = await getRunLogs(runId);
-            console.log(logs);
+            console.log(runData.data);
             status = runData.data.status;
 
             const currentPrice = runData.data.usageTotalUsd;
 
             if (status === "SUCCEEDED" || currentPrice >= 2) {
+                console.log("nice");
                 datasetLink = await getDatasetLink(runId);
                 loading = false;
+                return;
             } else if (
                 status !== "FAILED" &&
                 status !== "TIMED-OUT" &&
                 status !== "ABORTED" &&
                 currentPrice < 1
             ) {
+                console.log("gonna check status again");
                 setTimeout(checkStatus, 5000); // Check again in 5 seconds
             } else if (
                 status !== "FAILED" &&
@@ -127,7 +124,7 @@
                 class="my-2 p-3 bg-warning
                 text-warning-content
                 font-semibold border border-warning-content/20 rounded-btn"
-                in:fly={{ y: -20, duration: 400, easing: backOut }}
+                transition:fly={{ y: -20, duration: 400, easing: backOut }}
             >
                 Current actor runs at $0.3/1K tweets. This operation will cost
                 approximately $0.5
@@ -145,12 +142,6 @@
 
 {#if datasetLink}
     <a href={datasetLink} class="btn btn-accent w-full">Download Dataset</a>
-{/if}
-
-{#if logs}
-    <div>
-        {logs.toString()}
-    </div>
 {/if}
 
 {#if error}

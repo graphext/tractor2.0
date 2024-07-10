@@ -16,6 +16,10 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 		...options.headers,
 	};
 
+	console.log("URL:", url);
+	console.log("Headers:", headers);
+	console.log("Options:", options);
+
 	const response = await fetch(url, { ...options, headers });
 
 	if (!response.ok) {
@@ -42,6 +46,8 @@ export async function createTask(
 		input,
 	});
 
+	console.log("Request Body:", body);
+
 	return apifyFetch(endpoint, { method: "POST", body });
 }
 
@@ -57,7 +63,7 @@ export async function getRunStatus(runId: string) {
 }
 
 export async function getRunLogs(runId: string) {
-	const endpoint = `/actor-runs/${runId}/log?stream=true`;
+	const endpoint = `/actor-runs/${runId}/log?stream=1`;
 	const data = await apifyFetch(endpoint);
 	return data;
 }
@@ -88,7 +94,7 @@ export async function setupTwitterScrapingTask(queries: string[]) {
 		onlyVerifiedUsers: false,
 		onlyVideo: false,
 		sort: "Latest",
-		startUrls: queries,
+		searchTerms: queries,
 		maxTweets: 10, // Adjust as needed
 		proxyConfiguration: { useApifyProxy: true },
 	};
