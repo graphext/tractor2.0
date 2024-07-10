@@ -1,7 +1,8 @@
 <script lang="ts">
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
 
-    import TwitterScraperSetup from "$lib/components/TwitterScraperSetup.svelte";
+    import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
+    import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
     import { apifyKey } from "$lib/stores/apifyStore";
 </script>
@@ -20,14 +21,22 @@
     </h2>
 </div>
 
-<div class="flex flex-col gap-1 mb-5">
-    <ApifyKeyInput />
+<section id="gpt" class="my-5 border-secondary/30 border p-3 rounded-box">
+    <div class="font-bold mb-3 opacity-60 text-secondary">Query Generation</div>
+    <ChatGPTQueries />
+</section>
 
-    {#if !$apifyKey}
-        <a href="/token-info" class="underline opacity-70"
-            >Learn more about the APIFY token</a
-        >
-    {/if}
-</div>
+<section id="apify" class="my-5 border border-primary/30 p-3 rounded-box">
+    <div class="font-bold mb-3 opacity-60 text-primary">APIFY</div>
+    <div class="flex flex-col gap-1 mb-5">
+        <ApifyKeyInput />
 
-<TwitterScraperSetup />
+        {#if !$apifyKey}
+            <a href="/token-info" class="underline opacity-70"
+                >Learn more about the APIFY token</a
+            >
+        {/if}
+    </div>
+
+    <ApifyScraper />
+</section>

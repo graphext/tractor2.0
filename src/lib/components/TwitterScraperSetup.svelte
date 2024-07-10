@@ -123,11 +123,13 @@
             <div
                 class="my-2 p-3 bg-warning
                 text-warning-content
-                font-semibold border border-warning-content/20 rounded-btn"
-                transition:fly={{ y: -20, duration: 400, easing: backOut }}
+                 border border-warning-content/20 rounded-btn"
+                in:fly={{ y: -20, duration: 400, easing: backOut }}
             >
-                Current actor runs at $0.3/1K tweets. This operation will cost
-                approximately $0.5
+                Current actor runs at <span class="font-semibold"
+                    >$0.3/1K tweets</span
+                >. This operation will cost approximately
+                <span class="font-semibold">$0.5</span>
             </div>
             <button
                 on:click={handleSubmit}

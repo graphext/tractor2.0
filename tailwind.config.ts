@@ -11,6 +11,20 @@ export default {
 
     daisyui: {
         logs: false,
-        themes: ["light", "dark", "cupcake"],
+        themes: [
+            {
+                light: {
+                    ...require("daisyui/src/theming/themes")["light"],
+                    secondary: "teal",
+                    "primary-content": "#FAF7FF",
+                    "secondary-content": "#F4FFFF",
+                    warning: "#FEC601",
+                    "warning-content": "#2E2400",
+                    "error-content": "#FFF5F5",
+                },
+            },
+            "dark",
+            "cupcake",
+        ],
     },
 } as Config;
