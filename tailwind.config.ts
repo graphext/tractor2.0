@@ -4,7 +4,12 @@ export default {
     content: ["./src/**/*.{html,js,svelte,ts}"],
 
     theme: {
-        extend: { fontFamily: { sans: ["Lato"] } },
+        extend: {
+            fontFamily: {
+                sans: ["Mona Sans"],
+                mono: ["Monaspace Neon", "monospaced"],
+            },
+        },
     },
 
     plugins: [require("@tailwindcss/typography"), require("daisyui")],

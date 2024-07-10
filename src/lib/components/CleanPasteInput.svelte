@@ -29,6 +29,6 @@
     {value}
     on:paste={handlePaste}
     on:input={handleInput}
-    class="textarea textarea-bordered w-full"
+    class="textarea textarea-bordered w-full font-mono"
     rows="5"
 ></textarea>

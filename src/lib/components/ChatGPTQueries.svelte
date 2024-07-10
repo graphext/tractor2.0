@@ -52,15 +52,6 @@
             </button>
         </div>
     </div>
-    {#if loading || queries}
-        <div class="w-full" in:fade>
-            <textarea
-                rows="5"
-                bind:value={queries}
-                class="response font-mono textarea textarea-secondary w-full"
-            />
-        </div>
-    {/if}
     {#if errorDisplay}
         <div class="text-error">
             {errorDisplay}

@@ -1,8 +1,7 @@
-<div class="mb-10 text-xl">
-    <a href="/" class="underline">Back</a>
-</div>
-
-<div class="md:w-1/2 text-pretty prose">
+<div class="xl:w-1/2 mx-auto text-pretty prose">
+    <div class="mb-10 text-xl">
+        <a href="/" class="underline">Back</a>
+    </div>
     <h2 class="">Information about APIFY Auth Tokens</h2>
     <p>
         In order to use this service, please head to <a
