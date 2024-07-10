@@ -9,9 +9,7 @@
     let queries: string;
 </script>
 
-<head>
-    <title>Tractor 2.0 — Download Tweets Easily</title>
-</head>
+<head> <title>Tractor 2.0 — Download Tweets Easily/title> </title></head>
 
 <div class="mb-10">
     <div class="flex justify-between">
