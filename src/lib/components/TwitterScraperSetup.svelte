@@ -93,12 +93,6 @@
             console.error(err);
         }
     }
-
-    onMount(() => {
-        if (!$apifyKey) {
-            error = "Please set your Apify API key in the settings.";
-        }
-    });
 </script>
 
 <div class="flex flex-col gap-3">
