@@ -1,7 +1,7 @@
 <script lang="ts">
     import { fade } from "svelte/transition";
     let userPrompt = "";
-    let response = "";
+    export let queries = "";
     let loading = false;
     let errorDisplay;
 
@@ -22,7 +22,7 @@
             }
 
             const data = await res.json();
-            response = data.message;
+            queries = data.message;
         } catch (error) {
             console.error("Error:", error);
         } finally {
@@ -52,11 +52,11 @@
             </button>
         </div>
     </div>
-    {#if loading || response}
+    {#if loading || queries}
         <div class="w-full" in:fade>
             <textarea
                 rows="5"
-                bind:value={response}
+                bind:value={queries}
                 class="response font-mono textarea textarea-secondary w-full"
             />
         </div>

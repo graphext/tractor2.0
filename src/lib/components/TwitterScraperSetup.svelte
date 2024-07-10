@@ -11,7 +11,7 @@
     import { apifyKey } from "../stores/apifyStore";
     import { backOut } from "svelte/easing";
 
-    let queries = "";
+    export let queries = "";
     let loading = false;
     let confirmChoice = false;
 

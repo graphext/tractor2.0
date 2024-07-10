@@ -31,6 +31,8 @@ If a twitter list url is provided extract the ID and use list:twitter_list_id.
 Always create monthly intervals for the dates that are given, unless a smaller interval (like weeks or days) is 
 specified, in which case, use that as the interval unit.
 
+If no time interval is specified, generate search terms for at least the last two months.
+
 Output all the queries together where each line is a different query so I can copy all queries
 
 No explanation, no yapping. Just provide the answer ready to be copied.

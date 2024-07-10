@@ -5,6 +5,8 @@
     import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
     import { apifyKey } from "$lib/stores/apifyStore";
+
+    let queries: string;
 </script>
 
 <div class="mb-10">
@@ -23,7 +25,7 @@
 
 <section id="gpt" class="my-5 border-secondary/30 border p-3 rounded-box">
     <div class="font-bold mb-3 opacity-60 text-secondary">Query Generation</div>
-    <ChatGPTQueries />
+    <ChatGPTQueries bind:queries />
 </section>
 
 <section id="apify" class="my-5 border border-primary/30 p-3 rounded-box">
@@ -38,5 +40,5 @@
         {/if}
     </div>
 
-    <ApifyScraper />
+    <ApifyScraper bind:queries />
 </section>
