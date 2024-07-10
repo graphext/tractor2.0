@@ -40,7 +40,7 @@
             <button
                 type="submit"
                 class:btnDisabled={apikeyPresent}
-                class="btn btn-primary">Set Key</button
+                class="btn btn-primary">Set Token</button
             >
         {/if}
     </div>
@@ -50,7 +50,7 @@
         class="btn btn-error text-white self-end"
         on:click={resetKey}
     >
-        Reset API Key
+        Reset API Token
     </button>
 </form>
 

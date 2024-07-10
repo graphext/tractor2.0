@@ -4,7 +4,7 @@ export default {
     content: ["./src/**/*.{html,js,svelte,ts}"],
 
     theme: {
-        extend: { fontFamily: { sans: ["General Sans"] } },
+        extend: { fontFamily: { sans: ["Lato"] } },
     },
 
     plugins: [require("@tailwindcss/typography"), require("daisyui")],

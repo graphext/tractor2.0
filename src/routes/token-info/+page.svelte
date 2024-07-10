@@ -1,4 +1,4 @@
-<div class="mb-10 hover:font-bold transition-all">
+<div class="mb-10 text-xl">
     <a href="/" class="underline">Back</a>
 </div>
 

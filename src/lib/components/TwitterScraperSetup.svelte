@@ -1,19 +1,34 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import {
         setupTwitterScrapingTask,
         getRunStatus,
-        getDataset,
+        getDatasetLink,
+        getRunLogs,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
+    import {
+        backOut,
+        bounceOut,
+        elasticInOut,
+        elasticOut,
+    } from "svelte/easing";
 
     let queries = "";
+    let loading = false;
+    let confirmChoice = false;
+
     let runId: string | null = null;
     let status: string | null = null;
-    let results: any[] = [];
+    let logs: string | null = null;
+
+    let datasetLink: string | null = null;
     let error: string | null = null;
+
+    $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     async function handleSubmit() {
         if (!$apifyKey) {
@@ -24,8 +39,11 @@
         const queryList = queries.split("\n").filter((q) => q.trim() !== "");
 
         try {
+            loading = true;
+
             runId = await setupTwitterScrapingTask(queryList);
             error = null;
+
             checkStatus();
         } catch (err) {
             error =
@@ -39,15 +57,32 @@
         if (!runId) return;
 
         try {
-            status = await getRunStatus(runId);
-            if (status === "SUCCEEDED") {
-                results = await getDataset(runId);
+            const runData = await getRunStatus(runId);
+            logs = await getRunLogs(runId);
+            console.log(logs);
+            status = runData.data.status;
+
+            const currentPrice = runData.data.usageTotalUsd;
+
+            if (status === "SUCCEEDED" || currentPrice >= 2) {
+                datasetLink = await getDatasetLink(runId);
+                loading = false;
+            } else if (
+                status !== "FAILED" &&
+                status !== "TIMED-OUT" &&
+                status !== "ABORTED" &&
+                currentPrice < 1
+            ) {
+                setTimeout(checkStatus, 5000); // Check again in 5 seconds
             } else if (
                 status !== "FAILED" &&
                 status !== "TIMED-OUT" &&
                 status !== "ABORTED"
             ) {
-                setTimeout(checkStatus, 5000); // Check again in 5 seconds
+                loading = false;
+                throw Error(
+                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
+                );
             }
         } catch (err) {
             error =
@@ -70,14 +105,53 @@
         bind:value={queries}
     />
 
-    <button
-        on:click={handleSubmit}
-        class="btn btn-primary w-full"
-        disabled={!$apifyKey || !queries.trim()}
-    >
-        Start Twitter Scraping Task
-    </button>
+    <div class="w-full relative">
+        {#if loading}
+            <progress
+                value="30"
+                max="100"
+                class="absolute h-full w-full opacity-30"
+            ></progress>
+        {/if}
+
+        {#if !confirmChoice}
+            <button
+                on:click={() => (confirmChoice = true)}
+                class="btn btn-primary w-full"
+                disabled={!$apifyKey || !queries.trim()}
+            >
+                {buttonText}
+            </button>
+        {:else}
+            <div
+                class="my-2 p-3 bg-warning
+                text-warning-content
+                font-semibold border border-warning-content/20 rounded-btn"
+                in:fly={{ y: -20, duration: 400, easing: backOut }}
+            >
+                Current actor runs at $0.3/1K tweets. This operation will cost
+                approximately $0.5
+            </div>
+            <button
+                on:click={handleSubmit}
+                class="btn btn-primary w-full"
+                disabled={!$apifyKey || !queries.trim()}
+            >
+                Sure. Let's go.
+            </button>
+        {/if}
+    </div>
 </div>
+
+{#if datasetLink}
+    <a href={datasetLink} class="btn btn-accent w-full">Download Dataset</a>
+{/if}
+
+{#if logs}
+    <div>
+        {logs.toString()}
+    </div>
+{/if}
 
 {#if error}
     <p class="mt-4 text-red-500">{error}</p>
@@ -85,16 +159,4 @@
 
 {#if status}
     <p class="mt-4">Task status: {status}</p>
-{/if}
-
-{#if results.length > 0}
-    <div class="mt-4">
-        <h3 class="text-lg font-semibold">Results:</h3>
-        <pre
-            class="mt-2 p-2 bg-gray-100 rounded whitespace-pre-wrap">{JSON.stringify(
-                results,
-                null,
-                2,
-            )}</pre>
-    </div>
 {/if}

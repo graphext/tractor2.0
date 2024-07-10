@@ -16,10 +16,6 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 		...options.headers,
 	};
 
-	console.log("URL:", url);
-	console.log("Headers:", headers);
-	console.log("Options:", options);
-
 	const response = await fetch(url, { ...options, headers });
 
 	if (!response.ok) {
@@ -39,14 +35,12 @@ export async function createTask(
 	const endpoint = "/actor-tasks"; // Ensure this is the correct endpoint
 	const body = JSON.stringify({
 		actId: actorId,
-		name: `Graphext-Run-${Math.floor(Math.random() * 1000)}`,
+		name: `Tractor-Run-${Math.floor(Math.random() * 1000)}`,
 		options: {
 			build: "latest",
 		},
 		input,
 	});
-
-	console.log("Request Body:", body);
 
 	return apifyFetch(endpoint, { method: "POST", body });
 }
@@ -59,17 +53,27 @@ export async function runTask(taskId: string) {
 export async function getRunStatus(runId: string) {
 	const endpoint = `/actor-runs/${runId}`;
 	const data = await apifyFetch(endpoint);
-	return data.status;
+	return data;
 }
 
-export async function getDataset(datasetId: string) {
-	const endpoint = `/datasets/${datasetId}/items`;
+export async function getRunLogs(runId: string) {
+	const endpoint = `/actor-runs/${runId}/log?stream=true`;
 	const data = await apifyFetch(endpoint);
 	return data;
 }
 
+export async function getDatasetLink(
+	datasetId: string,
+	format: "csv" | "json" = "json",
+) {
+	const endpoint = `/datasets/${datasetId}/items?attachment=true&clean=true&format=${format}`;
+	// const data = await apifyFetch(endpoint);
+	return `${BASE_URL}${endpoint}`;
+}
+
 export async function setupTwitterScrapingTask(queries: string[]) {
 	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
+
 	const input = {
 		customMapFunction: "(object) => { return {...object} }",
 		includeSearchTerms: false,
@@ -85,7 +89,7 @@ export async function setupTwitterScrapingTask(queries: string[]) {
 		onlyVideo: false,
 		sort: "Latest",
 		startUrls: queries,
-		maxTweets: 100, // Adjust as needed
+		maxTweets: 10, // Adjust as needed
 		proxyConfiguration: { useApifyProxy: true },
 	};
 
@@ -94,7 +98,7 @@ export async function setupTwitterScrapingTask(queries: string[]) {
 		const run = await runTask(task.data.id);
 		return run.data.id;
 	} catch (error) {
-		console.error("Error setting up Twitter scraping task:", error);
+		console.error("Error setting up scraping:", error);
 		throw error;
 	}
 }
