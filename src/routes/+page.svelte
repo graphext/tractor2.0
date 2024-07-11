@@ -9,7 +9,14 @@
     let queries: string;
 </script>
 
-<head> <title>Tractor 2.0 — Download Tweets Easily/title> </title></head>
+<head>
+    <title>Tractor 2.0 — Download Tweets Easily/title> </title>
+
+    <link
+        rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚜</text></svg>"
+    />
+</head>
 
 <div class="mb-10">
     <div class="flex justify-between">
