@@ -9,6 +9,9 @@ Strip your answer from any kind of formatting, no markdown, no code, nothing. Ju
 Always create monthly intervals for the dates that are given, unless a smaller interval (like weeks or days) is 
 specified, in which case, use that as the interval unit.
 
+Since results are better when time intervals are split, always split time intervals monthly, unless the specified time 
+interval is less than a month. This will make sure we can obtain the data we need.
+
 Output all the queries together where each line is a different query so I can copy all queries
 
 No explanation, no yapping. Just provide the answer ready to be copied.

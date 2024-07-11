@@ -25,8 +25,10 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 
 		console.log("Sending request to OpenAI API...");
 
-		const completion = await openai.chat.completions.create({
+		const stream = await openai.chat.completions.create({
 			model: "gpt-4",
+			temperature: 0.7,
+			stream: true,
 			messages: [
 				{
 					role: "system",
@@ -36,18 +38,24 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 			],
 		});
 
-		console.log("OpenAI API response received");
-
-		if (!completion.choices || completion.choices.length === 0) {
-			return json(
-				{ error: "No response generated from OpenAI" },
-				{ status: 500 },
-			);
-		}
-
-		const message = completion.choices[0].message.content;
-
-		return json({ message });
+		return new Response(
+			new ReadableStream({
+				async start(controller) {
+					for await (const part of stream) {
+						const content = part.choices[0]?.delta?.content || "";
+						controller.enqueue(content);
+					}
+					controller.close();
+				},
+			}),
+			{
+				headers: {
+					"Content-Type": "text/event-stream",
+					"Cache-Control": "no-cache",
+					Connection: "keep-alive",
+				},
+			},
+		);
 	} catch (error) {
 		console.error("Error in API route:", error);
 		return json(

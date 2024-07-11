@@ -30,6 +30,11 @@
     $: totalApproximateCost = numTweets * tweetCost;
 
     let datasetLink: string | null = null;
+    const churro =
+        "&omit=id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled,coverPicture,status,canDm,canMediaTag,fastFollowersCount,hasCustomTimelines,isTranslator,withheldInCountries,affiliatesHighlightedLabel&unwind=author";
+
+    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ""}`;
+
     let error: string | null = null;
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
@@ -167,7 +172,8 @@
 </div>
 
 {#if datasetLink}
-    <a href={datasetLink} class="btn btn-accent w-full my-5">Download Dataset</a
+    <a href={datasetLinkInButton} class="btn btn-accent w-full my-5"
+        >Download Dataset</a
     >
 {/if}
 

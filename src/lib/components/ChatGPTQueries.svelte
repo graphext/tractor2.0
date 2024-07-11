@@ -1,18 +1,13 @@
 <script lang="ts">
-    import { fade } from "svelte/transition";
-
-    import { userQuery } from "../stores/userQueryStore";
-
-    let userPrompt = $userQuery;
-
+    let userPrompt = "";
     export let queries = "";
-
+    let error = "";
     let loading = false;
-    let errorDisplay;
 
     async function generateResponse() {
-        $userQuery = userPrompt;
         loading = true;
+        error = "";
+        queries = "";
         try {
             const res = await fetch("/api/chat", {
                 method: "POST",
@@ -23,14 +18,27 @@
             });
 
             if (!res.ok) {
-                errorDisplay = (await res.json()).error;
-                throw new Error("Failed to fetch response. " + res.status);
+                const errorData = await res.json();
+                throw new Error(
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            const data = await res.json();
-            queries = data.message;
-        } catch (error) {
-            console.error("Error:", error);
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                queries += chunk;
+            }
+        } catch (err) {
+            console.error("Error:", err);
+            error =
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
         } finally {
             loading = false;
         }
@@ -60,9 +68,9 @@
             </div>
         </form>
     </div>
-    {#if errorDisplay}
+    {#if error}
         <div class="text-error">
-            {errorDisplay}
+            {error}
         </div>
     {/if}
 </div>

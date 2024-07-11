@@ -13,7 +13,11 @@
 
 <div class="mb-10">
     <div class="flex justify-between">
-        <h1 class="text-3xl font-bold md:text-left">Tractor</h1>
+        <h1
+            class="text-3xl font-bold md:text-left transition-all tracking-tight"
+        >
+            Tractor
+        </h1>
         <a
             class="underline text-primary"
             target="_blank"
@@ -44,3 +48,12 @@
 
     <ApifyScraper bind:queries />
 </section>
+
+<style>
+    h1 {
+        font-variation-settings: "ital" 12;
+    }
+    h1:hover {
+        font-variation-settings: "ital" 0;
+    }
+</style>
