@@ -1,11 +1,17 @@
 <script lang="ts">
     import { fade } from "svelte/transition";
-    let userPrompt = "";
+
+    import { userQuery } from "../stores/userQueryStore";
+
+    let userPrompt = $userQuery;
+
     export let queries = "";
+
     let loading = false;
     let errorDisplay;
 
     async function generateResponse() {
+        $userQuery = userPrompt;
         loading = true;
         try {
             const res = await fetch("/api/chat", {

@@ -1,4 +1,4 @@
-<div class="xl:w-1/2 mx-auto text-pretty prose">
+<div class="mx-auto text-pretty prose">
     <div class="mb-10 text-xl">
         <a href="/" class="underline">Back</a>
     </div>

@@ -1,9 +1,12 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import { cleanText } from "$lib/utils";
+    import { apifyTerms } from "$lib/stores/userQueryStore";
 
     export let placeholder = "Paste your text here";
     export let value = "";
+
+    $: if (value) apifyTerms.set(value);
 
     const dispatch = createEventDispatcher();
 

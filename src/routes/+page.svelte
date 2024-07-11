@@ -13,7 +13,7 @@
 
 <div class="mb-10">
     <div class="flex justify-between">
-        <h1 class="text-xl font-bold md:text-left">Tractor</h1>
+        <h1 class="text-3xl font-bold md:text-left">Tractor</h1>
         <a
             class="underline text-primary"
             target="_blank"

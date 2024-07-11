@@ -2,6 +2,9 @@
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
     import CleanPasteInput from "./CleanPasteInput.svelte";
+
+    import { apifyTerms } from "../stores/userQueryStore";
+
     import {
         setupTwitterScrapingTask,
         getRunStatus,
@@ -12,6 +15,7 @@
     import { backOut } from "svelte/easing";
 
     export let queries = "";
+
     let loading = false;
     let confirmChoice = false;
 
@@ -20,7 +24,6 @@
     let logs: string | null = null;
 
     let numTweets = 100;
-
     let prettyData = true;
 
     let tweetCost = 0.3 / 1000;
@@ -31,14 +34,22 @@
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
+    onMount(() => {
+        if ($apifyTerms) {
+            queries = $apifyTerms;
+        }
+    });
+
     async function handleSubmit() {
         confirmChoice = false;
+
         if (!$apifyKey) {
             error = "Please set your Apify API key first.";
             return;
         }
 
         const queryList = queries.split("\n").filter((q) => q.trim() !== "");
+        // const nQueries = queries.split("\n").length;
 
         try {
             loading = true;
@@ -60,23 +71,19 @@
 
         try {
             const runData = await getRunStatus(runId);
-            console.log(runData.data);
             status = runData.data.status;
 
-            const currentPrice = runData.data.usageTotalUsd;
+            // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
-            if (status === "SUCCEEDED" || currentPrice >= 2) {
-                console.log("nice");
+            if (status === "SUCCEEDED") {
                 datasetLink = await getDatasetLink(runId, "json", prettyData);
                 loading = false;
                 return;
             } else if (
                 status !== "FAILED" &&
                 status !== "TIMED-OUT" &&
-                status !== "ABORTED" &&
-                currentPrice < 1
+                status !== "ABORTED"
             ) {
-                console.log("gonna check status again");
                 setTimeout(checkStatus, 5000); // Check again in 5 seconds
             } else if (
                 status !== "FAILED" &&
@@ -104,7 +111,7 @@
     />
 
     <div class="self-end w-fit flex flex-col gap-3">
-        <label for="prettyData" class="flex items-center self-end gap-3">
+        <label for="prettyData" class="flex items-start self-end gap-3">
             <span>Pretty Data</span>
             <input
                 type="checkbox"
