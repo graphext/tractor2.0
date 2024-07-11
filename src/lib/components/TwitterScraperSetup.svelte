@@ -54,19 +54,23 @@
         }
 
         const queryList = queries.split("\n").filter((q) => q.trim() !== "");
-        // const nQueries = queries.split("\n").length;
+        const nQueries = queries.split("\n").length;
+        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
         try {
             loading = true;
 
-            runId = await setupTwitterScrapingTask(queryList, numTweets);
+            runId = await setupTwitterScrapingTask(
+                queryList,
+                numTweets,
+                maxTweetsPerQuery,
+            );
             error = null;
 
             checkStatus();
         } catch (err) {
             error =
-                "Failed to setup Twitter scraping task. " +
-                (err instanceof Error ? err.message : String(err));
+                "Error: " + (err instanceof Error ? err.message : String(err));
             console.error(err);
         }
     }

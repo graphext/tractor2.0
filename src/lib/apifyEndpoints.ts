@@ -86,21 +86,16 @@ export async function getDatasetLink(
 export async function setupTwitterScrapingTask(
 	queries: string[],
 	numTweets: number,
+	maxTweetsPerQuery: number,
 ) {
 	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
 
 	const input = {
 		customMapFunction: "(object) => { return {...object} }",
-		includeSearchTerms: false,
 		maxItems: numTweets,
-		onlyImage: false,
-		onlyQuote: false,
-		onlyTwitterBlue: false,
-		onlyVerifiedUsers: false,
-		onlyVideo: false,
+		maxTweetsPerQuery: maxTweetsPerQuery,
 		sort: "Top",
 		searchTerms: queries,
-		proxyConfiguration: { useApifyProxy: true },
 	};
 
 	try {

@@ -1,10 +1,20 @@
 <script lang="ts">
+    import { userQuery } from "$lib/stores/userQueryStore";
+    import { onMount } from "svelte";
+
     let userPrompt = "";
     export let queries = "";
     let error = "";
     let loading = false;
 
+    onMount(() => {
+        if ($userQuery) {
+            userPrompt = $userQuery;
+        }
+    });
+
     async function generateResponse() {
+        $userQuery = userPrompt;
         loading = true;
         error = "";
         queries = "";
