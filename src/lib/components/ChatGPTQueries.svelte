@@ -36,21 +36,23 @@
         {#if loading}
             <span class="loading loading-ring loading-lg text-secondary"></span>
         {/if}
-        <div class="join w-full">
-            <input
-                type="text"
-                class="input transition-all input-secondary w-full join-item"
-                bind:value={userPrompt}
-                placeholder="Enter your prompt here"
-            />
-            <button
-                on:click={generateResponse}
-                class="btn btn-secondary join-item"
-                disabled={loading}
-            >
-                {loading ? "Generating..." : "Generate Search Terms"}
-            </button>
-        </div>
+        <form class="w-full">
+            <div class="join w-full">
+                <input
+                    type="text"
+                    class="input transition-all input-secondary w-full join-item"
+                    bind:value={userPrompt}
+                    placeholder="Enter your prompt here"
+                />
+                <button
+                    on:click={generateResponse}
+                    class="btn btn-secondary join-item"
+                    disabled={loading}
+                >
+                    {loading ? "Generating..." : "Generate Search Terms"}
+                </button>
+            </div>
+        </form>
     </div>
     {#if errorDisplay}
         <div class="text-error">

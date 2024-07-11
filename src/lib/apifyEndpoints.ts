@@ -71,12 +71,22 @@ export async function getRunLogs(runId: string) {
 export async function getDatasetLink(
 	runId: string,
 	format: "csv" | "json" = "json",
+	pretty: boolean = true,
 ) {
 	const token = get(apifyKey);
 	if (!token) {
 		throw new Error("Apify API token is not set");
 	}
-	const endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true`;
+
+	const churro =
+		"&clean=true&omit=id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled,coverPicture,status,canDm,canMediaTag,fastFollowersCount,hasCustomTimelines,isTranslator,withheldInCountries,affiliatesHighlightedLabel&unwind=author";
+
+	let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true`;
+
+	if (pretty) {
+		endpoint += churro;
+	}
+
 	// const data = await apifyFetch(endpoint);
 	return `${BASE_URL}${endpoint}`;
 }
@@ -90,19 +100,14 @@ export async function setupTwitterScrapingTask(
 	const input = {
 		customMapFunction: "(object) => { return {...object} }",
 		includeSearchTerms: false,
-		maxItems: 10,
-		maxTweetsPerQuery: 10,
-		minimumFavorites: 10,
-		minimumReplies: 0,
-		minimumRetweets: 0,
+		maxItems: numTweets,
 		onlyImage: false,
 		onlyQuote: false,
 		onlyTwitterBlue: false,
 		onlyVerifiedUsers: false,
 		onlyVideo: false,
-		sort: "Latest",
+		sort: "Top",
 		searchTerms: queries,
-		maxTweets: numTweets, // Adjust as needed
 		proxyConfiguration: { useApifyProxy: true },
 	};
 

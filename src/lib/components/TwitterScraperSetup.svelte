@@ -21,6 +21,8 @@
 
     let numTweets = 100;
 
+    let prettyData = true;
+
     let tweetCost = 0.3 / 1000;
     $: totalApproximateCost = numTweets * tweetCost;
 
@@ -65,7 +67,7 @@
 
             if (status === "SUCCEEDED" || currentPrice >= 2) {
                 console.log("nice");
-                datasetLink = await getDatasetLink(runId);
+                datasetLink = await getDatasetLink(runId, "json", prettyData);
                 loading = false;
                 return;
             } else if (
@@ -101,26 +103,29 @@
         bind:value={queries}
     />
 
-    <label for="Numtweets" class="self-end">
-        <span>Number of tweets to retrieve</span>
-        <input
-            class="input input-bordered font-mono text-right"
-            inputmode="numeric"
-            bind:value={numTweets}
-            type="number"
-            id="Numtweets"
-        />
-    </label>
+    <div class="self-end w-fit flex flex-col gap-3">
+        <label for="prettyData" class="flex items-center self-end gap-3">
+            <span>Pretty Data</span>
+            <input
+                type="checkbox"
+                class="toggle toggle-primary"
+                bind:checked={prettyData}
+            />
+        </label>
+
+        <label for="Numtweets" class="self-end flex flex-col text-right">
+            <span>Number of tweets to retrieve</span>
+            <input
+                class="input input-bordered font-mono text-right"
+                inputmode="numeric"
+                bind:value={numTweets}
+                type="number"
+                id="Numtweets"
+            />
+        </label>
+    </div>
 
     <div class="w-full relative">
-        {#if loading}
-            <progress
-                value="30"
-                max="100"
-                class="absolute h-full w-full opacity-30"
-            ></progress>
-        {/if}
-
         {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
