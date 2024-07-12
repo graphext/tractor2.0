@@ -3,7 +3,11 @@ import { apifyKey } from "./stores/apifyStore";
 
 const BASE_URL = "https://api.apify.com/v2";
 
-async function apifyFetch(endpoint: string, options: RequestInit = {}) {
+async function apifyFetch(
+	endpoint: string,
+	options: RequestInit = {},
+	stream = false,
+) {
 	const token = get(apifyKey);
 	if (!token) {
 		throw new Error("Apify API token is not set");
@@ -29,7 +33,11 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 		);
 	}
 
-	return response.json();
+	if (stream) {
+		return response;
+	} else {
+		return response.json();
+	}
 }
 
 export async function createTask(
@@ -62,10 +70,12 @@ export async function getRunStatus(runId: string) {
 	return data;
 }
 
-export async function getRunLogs(runId: string) {
-	const endpoint = `/actor-runs/${runId}/log?stream=1`;
-	const data = await apifyFetch(endpoint);
-	return data;
+export async function getLogsForRun(runId: string) {
+	const endpoint = `/logs/${runId}?stream=true`;
+	const data = await apifyFetch(endpoint, {}, true);
+
+	const reader = data.body.getReader();
+	return reader;
 }
 
 export async function getDatasetLink(
@@ -94,7 +104,13 @@ export async function setupTwitterScrapingTask(
 		customMapFunction: "(object) => { return {...object} }",
 		maxItems: numTweets,
 		maxTweetsPerQuery: maxTweetsPerQuery,
-		sort: "Top",
+		includeSearchTerms: false,
+		onlyImage: false,
+		onlyQuote: false,
+		onlyTwitterBlue: false,
+		onlyVerifiedUsers: false,
+		onlyVideo: false,
+		sort: "Latest",
 		searchTerms: queries,
 	};
 

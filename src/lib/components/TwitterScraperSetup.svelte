@@ -9,6 +9,7 @@
         setupTwitterScrapingTask,
         getRunStatus,
         getDatasetLink,
+        getLogsForRun,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
@@ -22,6 +23,8 @@
     let runId: string | null = null;
     let status: string | null = null;
     let logs: string | null = null;
+    const regex = /Got (\d+) results/g;
+    let progressLogs: number = 0;
 
     let numTweets = 100;
     let prettyData = true;
@@ -47,6 +50,9 @@
 
     async function handleSubmit() {
         confirmChoice = false;
+        datasetLink = "";
+        progressLogs = 0;
+        logs = "";
 
         if (!$apifyKey) {
             error = "Please set your Apify API key first.";
@@ -75,17 +81,38 @@
         }
     }
 
+    async function processLogs(logsReader: ReadableStreamDefaultReader) {
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await logsReader.read();
+            if (done) break;
+            const chunk = decoder.decode(value);
+            logs += chunk;
+
+            let matches = [...logs?.matchAll(regex)];
+            for (const match of matches) {
+                progressLogs += parseInt(match[1]);
+                console.log(progressLogs);
+            }
+        }
+    }
+
     async function checkStatus() {
         if (!runId) return;
 
         try {
             const runData = await getRunStatus(runId);
+            const logsReader = await getLogsForRun(runId);
+
+            processLogs(logsReader);
+
             status = runData.data.status;
 
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
             if (status === "SUCCEEDED") {
-                datasetLink = await getDatasetLink(runId, "json", prettyData);
+                datasetLink = await getDatasetLink(runId, "json");
                 loading = false;
                 return;
             } else if (
@@ -142,6 +169,13 @@
     </div>
 
     <div class="w-full relative">
+        {#if !loading}
+            <progress
+                class="progress-overlay absolute h-full rounded-none w-full opacity-30"
+                max={numTweets}
+                value={30}
+            ></progress>
+        {/if}
         {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
@@ -186,5 +220,38 @@
 {/if}
 
 {#if status}
-    <p class="mt-4 font-mono opacity-30">Task status: {status}</p>
+    <div class="flex gap-3 items-end opacity-30 tabular-nums">
+        <p class="mt-4">Task status: {status}</p>
+        {#if status == "RUNNING"}
+            <span>{progressLogs} tweets fetched...</span>
+            <span class="loading loading-dots loading-sm"></span>
+        {:else if status == "SUCCEEDED"}
+            <span></span>
+        {:else if status == "FAILED"}
+            <span> </span>
+        {/if}
+    </div>
 {/if}
+
+<style>
+    progress {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+    }
+
+    /* For Chrome and Safari */
+    progress::-webkit-progress-bar {
+        background-color: transparent;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: white;
+    }
+
+    /* For Firefox */
+    progress::-moz-progress-bar {
+        background-color: white;
+    }
+</style>

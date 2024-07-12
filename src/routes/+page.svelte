@@ -19,7 +19,7 @@
 </head>
 
 <div class="mb-10">
-    <div class="flex justify-between">
+    <div class="flex justify-between items-baseline">
         <h1
             class="text-3xl font-bold md:text-left transition-all tracking-tight"
         >
