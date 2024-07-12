@@ -169,11 +169,11 @@
     </div>
 
     <div class="w-full relative">
-        {#if !loading}
+        {#if loading}
             <progress
                 class="progress-overlay absolute h-full rounded-none w-full opacity-30"
                 max={numTweets}
-                value={30}
+                value={progressLogs}
             ></progress>
         {/if}
         {#if !confirmChoice}
