@@ -2,9 +2,11 @@
     import Footer from "$lib/components/Footer.svelte";
     import "../app.css";
     import { Toaster } from "svelte-sonner";
+
+    import { dev } from "$app/environment";
     import { inject } from "@vercel/analytics";
 
-    inject();
+    inject({ mode: dev ? "development" : "production" });
 </script>
 
 <Toaster position="bottom-left" richColors />
