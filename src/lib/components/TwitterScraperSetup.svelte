@@ -27,7 +27,7 @@
     const regex = /Got (\d+) results/g;
     let progressLogs: number = 0;
 
-    let numTweets = 100;
+    let numTweets = 2000;
     let prettyData = true;
 
     let tweetCost = 0.3 / 1000;
