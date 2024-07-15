@@ -1,38 +1,9 @@
-# create-svelte
+# Tractor 2
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Scrape twitter leveraging the power of Apify, but with a much simpler, opinionated set of options. Download your data conveninently in a couple of clicks, ready to be used at [graphext.com](https://graphext.com).
 
-## Creating a project
+![image](https://github.com/user-attachments/assets/741de1d4-1019-41b3-b331-effbb38918f3)
 
-If you're seeing this, you've probably already done this step. Congrats!
+# Questions, support
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+If you have any questions, please write them out in the [issues](https://github.com/jesi-rgb/tractor2.0/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen) section, we'll reach out as soon as possible.
