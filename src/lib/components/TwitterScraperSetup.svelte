@@ -10,6 +10,7 @@
         getRunStatus,
         getDatasetLink,
         getLogsForRun,
+        getDatsetInfo,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
@@ -33,6 +34,7 @@
     $: totalApproximateCost = numTweets * tweetCost;
 
     let datasetLink: string | null = null;
+    let datasetSize: number | null = null;
     const churro =
         "&omit=id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled,coverPicture,status,canDm,canMediaTag,fastFollowersCount,hasCustomTimelines,isTranslator,withheldInCountries,affiliatesHighlightedLabel&unwind=author";
 
@@ -93,7 +95,6 @@
             let matches = [...logs?.matchAll(regex)];
             for (const match of matches) {
                 progressLogs += parseInt(match[1]);
-                console.log(progressLogs);
             }
         }
     }
@@ -113,7 +114,13 @@
 
             if (status === "SUCCEEDED") {
                 datasetLink = await getDatasetLink(runId, "json");
+
+                const datasetInfo = await getDatsetInfo(runId);
+
+                datasetSize = datasetInfo.data.itemCount;
+
                 loading = false;
+
                 return;
             } else if (
                 status !== "FAILED" &&
@@ -210,8 +217,14 @@
 </div>
 
 {#if datasetLink}
-    <a href={datasetLinkInButton} class="btn btn-accent w-full my-5"
-        >Download Dataset</a
+    <a
+        href={datasetLinkInButton}
+        class="btn btn-outline btn-primary w-full my-5"
+        >Download Dataset ({#if !datasetSize}
+            <span class="loading loading-ring loading-sm inline-block"></span>
+        {:else}
+            {datasetSize}
+        {/if} rows)</a
     >
 {/if}
 
@@ -220,7 +233,9 @@
 {/if}
 
 {#if status}
-    <div class="flex gap-3 items-end opacity-30 tabular-nums">
+    <div
+        class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
+    >
         <p class="mt-4">Task status: {status}</p>
         {#if status == "RUNNING"}
             <span>{progressLogs} tweets fetched...</span>

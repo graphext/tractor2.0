@@ -78,6 +78,16 @@ export async function getLogsForRun(runId: string) {
 	return reader;
 }
 
+export async function getDatsetInfo(runId: string) {
+	const runStatus = await getRunStatus(runId);
+
+	const datasetId = runStatus.data.defaultDatasetId;
+
+	let endpoint = `/datasets/${datasetId}`;
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
 export async function getDatasetLink(
 	runId: string,
 	format: "csv" | "json" = "json",
