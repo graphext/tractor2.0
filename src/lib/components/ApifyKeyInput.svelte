@@ -28,8 +28,6 @@
         apifyKey.set("");
     }
 
-    $: console.log(cancelConfirmationProgress);
-
     let timeout: number;
     let interval: number;
     let cancelConfirmationProgress: number = 0;

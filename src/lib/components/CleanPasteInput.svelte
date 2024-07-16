@@ -25,11 +25,16 @@
         value = cleanText(input.value);
         dispatch("input", value);
     }
+
+    let textarea: HTMLTextAreaElement;
+
+    $: value && textarea && (textarea.scrollTop = textarea.scrollHeight);
 </script>
 
 <textarea
     {placeholder}
     {value}
+    bind:this={textarea}
     on:paste={handlePaste}
     on:input={handleInput}
     class="textarea border border-primary/70 w-full font-mono"
