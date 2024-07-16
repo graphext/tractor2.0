@@ -161,15 +161,23 @@
         bind:value={queries}
     />
 
-    <div class="self-end w-fit flex flex-col gap-3">
-        <label for="prettyData" class="flex items-start self-end gap-3">
-            <span>Pretty Data</span>
-            <input
-                type="checkbox"
-                class="toggle toggle-primary"
-                bind:checked={prettyData}
-            />
-        </label>
+    <div class="self-end w-full flex flex-col gap-3">
+        <div class="flex justify-between">
+            <a
+                class="text-primary hover:underline"
+                target="_blank"
+                href="https://console.apify.com/actors/runs"
+                >APIFY Runs Dashboard</a
+            >
+            <label for="prettyData" class="flex items-start self-end gap-3">
+                <span>Pretty Data</span>
+                <input
+                    type="checkbox"
+                    class="toggle toggle-primary"
+                    bind:checked={prettyData}
+                />
+            </label>
+        </div>
 
         <label for="Numtweets" class="self-end flex flex-col text-right">
             <span>Number of tweets to retrieve</span>

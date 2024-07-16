@@ -41,7 +41,10 @@
         : "Enter your Apify API key";
 </script>
 
-<div class="flex h-fit flex-row justify-between w-full gap-3">
+<div
+    class:keyEntered={apikeyPresent}
+    class="flex h-fit flex-col md:flex-row justify-between items-center w-full gap-3"
+>
     {#if !apikeyPresent}
         <form on:submit|preventDefault={handleSubmit}>
             <div class="flex flex-col md:flex-row gap-3">
@@ -68,14 +71,14 @@
                 type="text"
                 bind:value={key}
                 {placeholder}
-                class="input input-bordered md:w-fit"
+                class="input input-bordered input-disabled input-sm md:w-fit"
                 disabled={apikeyPresent}
                 class:inputDisabled={apikeyPresent}
             />
         </div>
     {/if}
 
-    <div class="w-[200px] md:w-1/2 h-full relative self-end">
+    <div class="w-[200px] md:w-1/2 relative self-end">
         <div class="h-fit opacity-0 w-fit">
             <button class="btn btn-sm"></button>
         </div>
@@ -112,7 +115,9 @@
                 Are you sure?
             </button>
             <progress
-                class="w-[124px] pointer-events-none opacity-20 right-0 bottom-0 mix-blend-lighten dark:mix-blend-darken h-full rounded-none absolute"
+                in:fly={{ duration: 950, y: 10, easing: elasticOut }}
+                out:fly={{ duration: 650, y: 10, easing: backOut }}
+                class="w-[124px] pointer-events-none opacity-20 right-0 bottom-0 mix-blend-lighten dark:mix-blend-darken h-full absolute"
                 value={cancelConfirmationProgress}
                 max={1}
             ></progress>
@@ -126,5 +131,8 @@
     }
     .btnDisabled {
         @apply btn-disabled;
+    }
+    .keyEntered {
+        @apply flex-row;
     }
 </style>

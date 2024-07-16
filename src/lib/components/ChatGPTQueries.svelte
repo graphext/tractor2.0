@@ -64,7 +64,9 @@
             <span class="loading loading-ring loading-lg text-secondary"></span>
         {/if}
         <form class="w-full">
-            <div class="join w-full">
+            <div
+                class="md:join w-full flex flex-col md:flex-row md:gap-0 gap-3"
+            >
                 <input
                     type="text"
                     class="input transition-all input-secondary text-sm w-full join-item"

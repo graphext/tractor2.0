@@ -26,11 +26,6 @@
         >
             Tractor
         </h1>
-        <a
-            class="underline text-primary"
-            target="_blank"
-            href="https://console.apify.com/actors/runs">APIFY Runs Dashboard</a
-        >
     </div>
     <h2 class="w-full mx-auto text-balance md:text-left">
         Scraping made easy. Put your Apify key, and let us do the rest.
