@@ -41,12 +41,12 @@
         : "Enter your Apify API key";
 </script>
 
-<div class="flex flex-col h-fit md:flex-row justify-between w-full gap-3">
+<div class="flex h-fit flex-row justify-between w-full gap-3">
     {#if !apikeyPresent}
         <form on:submit|preventDefault={handleSubmit}>
-            <div class="flex flex-col md:flex-row md:w-1/2 gap-3">
+            <div class="flex flex-col md:flex-row gap-3">
                 <input
-                    type="text"
+                    type="password"
                     bind:value={key}
                     {placeholder}
                     class="input input-bordered w-full md:w-fit"
@@ -63,7 +63,7 @@
             </div>
         </form>
     {:else}
-        <div class="flex flex-col md:flex-row md:w-1/2 gap-3">
+        <div class="flex flex-col md:flex-row w-1/2 gap-3">
             <input
                 type="text"
                 bind:value={key}
@@ -112,7 +112,7 @@
                 Are you sure?
             </button>
             <progress
-                class="w-[124px] pointer-events-none opacity-20 right-0 bottom-0 mix-blend-lighten h-full rounded-none absolute"
+                class="w-[124px] pointer-events-none opacity-20 right-0 bottom-0 mix-blend-lighten dark:mix-blend-darken h-full rounded-none absolute"
                 value={cancelConfirmationProgress}
                 max={1}
             ></progress>

@@ -66,9 +66,7 @@
     id="apify"
     class="my-5 border border-primary/30 p-3 rounded-box relative"
 >
-    <div class="font-bold mb-3 text-primary dark:text-primary-content">
-        APIFY
-    </div>
+    <div class="font-bold mb-3 text-primary dark:text-primary">APIFY</div>
 
     <ApifyScraper bind:queries />
 
