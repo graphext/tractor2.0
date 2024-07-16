@@ -36,13 +36,20 @@
     </h2>
 </div>
 
-<section id="gpt" class="my-5 border-secondary/30 border p-3 rounded-box">
-    <div class="font-bold mb-3 opacity-60 text-secondary">Query Generation</div>
+<section
+    id="gpt"
+    class="my-5 border-secondary/30 dark:border-secondary border p-3 rounded-box"
+>
+    <div class="font-bold mb-3 text-secondary dark:text-secondary-content">
+        Query Generation
+    </div>
     <ChatGPTQueries bind:queries />
 </section>
 
 <section id="apify" class="my-5 border border-primary/30 p-3 rounded-box">
-    <div class="font-bold mb-3 opacity-60 text-primary">APIFY</div>
+    <div class="font-bold mb-3 text-primary dark:text-primary-content">
+        APIFY
+    </div>
     <div class="flex flex-col gap-1 mb-5">
         <ApifyKeyInput />
 

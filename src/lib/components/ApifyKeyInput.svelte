@@ -48,7 +48,7 @@
 
     <button
         class:btnDisabled={!apikeyPresent}
-        class="btn btn-error text-error-content self-end"
+        class="btn opacity-40 hover:opacity-100 hover:btn-error btn-outline self-end"
         on:click={resetKey}
     >
         Reset API Token
