@@ -111,7 +111,6 @@ export async function setupTwitterScrapingTask(
 	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
 
 	const input = {
-		customMapFunction: "(object) => { return {...object} }",
 		maxItems: numTweets,
 		maxTweetsPerQuery: maxTweetsPerQuery,
 		includeSearchTerms: false,
