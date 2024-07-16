@@ -47,11 +47,11 @@
             }
         } catch (err) {
             console.error("Error:", err);
-            toast.error(err);
             error =
                 err instanceof Error
                     ? err.message
                     : "An unknown error occurred";
+            toast.error(error);
         } finally {
             loading = false;
         }
@@ -67,7 +67,7 @@
             <div class="join w-full">
                 <input
                     type="text"
-                    class="input transition-all input-secondary w-full join-item"
+                    class="input transition-all input-secondary text-sm w-full join-item"
                     bind:value={userPrompt}
                     placeholder="Enter your prompt here"
                 />

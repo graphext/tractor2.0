@@ -20,7 +20,9 @@ export default {
             {
                 light: {
                     ...require("daisyui/src/theming/themes")["light"],
+                    "base-100": "#F0F0F0",
                     secondary: "teal",
+                    primary: "#2BA3E8",
                     "primary-content": "#FAF7FF",
                     "secondary-content": "#F4FFFF",
                     warning: "#FEC601",
@@ -31,9 +33,11 @@ export default {
             {
                 dark: {
                     ...require("daisyui/src/theming/themes")["dark"],
-                    primary: "#7480FF",
-                    "primary-content": "#DBDEFF",
+                    primary: "#2BA3E8",
+                    "primary-content": "#FFF",
                     secondary: "#004949",
+                    "base-100": "#1F2024",
+                    "base-content": "#FFF",
                     "secondary-content": "#C5EAEA",
                     warning: "#FEC601",
                     "warning-content": "#2E2400",

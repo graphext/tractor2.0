@@ -10,7 +10,7 @@
 </script>
 
 <Toaster position="bottom-center" richColors />
-<main class="w-[95%] max-w-4xl text-lg mx-auto my-20">
+<main class="w-[95%] max-w-4xl mx-auto my-20">
     <slot />
     <Footer />
 </main>

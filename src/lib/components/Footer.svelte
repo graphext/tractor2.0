@@ -1,6 +1,4 @@
-<footer
-    class="flex justify-between mt-20 opacity-70 border-t pt-4 border-base-content/10"
->
+<footer class="flex justify-between mt-20 border-t pt-4 border-base-content/10">
     <div class="inline-flex items-center gap-1.5">
         Made by the
         <a
