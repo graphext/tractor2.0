@@ -9,7 +9,7 @@
     inject({ mode: dev ? "development" : "production" });
 </script>
 
-<Toaster position="bottom-left" richColors />
+<Toaster position="bottom-center" richColors />
 <main class="w-[95%] max-w-4xl text-lg mx-auto my-20">
     <slot />
     <Footer />

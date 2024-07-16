@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
     import CleanPasteInput from "./CleanPasteInput.svelte";
+    import { toast } from "svelte-sonner";
 
     import { apifyTerms } from "../stores/userQueryStore";
 
@@ -57,6 +58,7 @@
         logs = "";
 
         if (!$apifyKey) {
+            toast.error("Please set your Apify API key first.");
             error = "Please set your Apify API key first.";
             return;
         }
@@ -64,6 +66,11 @@
         const queryList = queries.split("\n").filter((q) => q.trim() !== "");
         const nQueries = queries.split("\n").length;
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
+
+        toast.success("Task and run created sucessfully.");
+        setTimeout(() => {
+            toast.info("Fetching data. This may take a while...");
+        }, 1500);
 
         try {
             loading = true;
@@ -113,6 +120,7 @@
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
             if (status === "SUCCEEDED") {
+                toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await getDatasetLink(runId, "json");
 
                 const datasetInfo = await getDatsetInfo(runId);
