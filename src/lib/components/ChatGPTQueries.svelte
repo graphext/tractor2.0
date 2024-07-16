@@ -1,6 +1,7 @@
 <script lang="ts">
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
+    import { toast } from "svelte-sonner";
 
     let userPrompt = "";
     export let queries = "";
@@ -18,6 +19,7 @@
         loading = true;
         error = "";
         queries = "";
+
         try {
             const res = await fetch("/api/chat", {
                 method: "POST",
@@ -45,6 +47,7 @@
             }
         } catch (err) {
             console.error("Error:", err);
+            toast.error(err);
             error =
                 err instanceof Error
                     ? err.message
