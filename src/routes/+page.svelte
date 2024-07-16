@@ -37,7 +37,7 @@
     </h2>
 </div>
 
-<section class="my-5 border-base-content/30 border p-3 rounded-box relative">
+<section class="my-5 border-base-content/50 border p-3 rounded-box relative">
     <ApifyKeyInput />
     <Indicator color="base-content" index={1} />
 
@@ -52,7 +52,7 @@
 
 <section
     id="gpt"
-    class="my-5 border-secondary/30 dark:border-secondary border p-3 rounded-box relative"
+    class="my-5 border-secondary dark:border-secondary/50 border p-3 rounded-box relative"
 >
     <div class="font-bold mb-3 text-secondary dark:text-secondary-content">
         Query Generation
@@ -64,7 +64,7 @@
 
 <section
     id="apify"
-    class="my-5 border border-primary/30 p-3 rounded-box relative"
+    class="my-5 border border-primary/50 p-3 rounded-box relative"
 >
     <div class="font-bold mb-3 text-primary dark:text-primary">APIFY</div>
 
