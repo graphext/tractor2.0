@@ -35,8 +35,6 @@
     {placeholder}
     {value}
     bind:this={textarea}
-    on:paste={handlePaste}
-    on:input={handleInput}
     class="textarea border border-primary/70 w-full font-mono"
     rows="5"
 ></textarea>
