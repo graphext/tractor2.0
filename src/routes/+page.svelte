@@ -25,6 +25,12 @@
         property="og:image"
         content="https://tractor.graphext.com/ogimage.png"
     />
+
+    <meta
+        property="og:description"
+        content="Scraping made easy. Analyze tweets quickly and conveniently."
+    />
+    <meta property="og:url" content="https://tractor.graphext.com" />
 </head>
 
 <div class="mb-10">
