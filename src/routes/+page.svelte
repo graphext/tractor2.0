@@ -20,6 +20,8 @@
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#25272e" />
     <meta name="msapplication-TileColor" content="#25272e" />
     <meta name="theme-color" content="#25272e" />
+
+    <meta property="og:image" content="/ogimage.png" />
 </head>
 
 <div class="mb-10">
