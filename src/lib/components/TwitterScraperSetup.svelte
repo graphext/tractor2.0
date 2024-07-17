@@ -37,7 +37,7 @@
     let datasetLink: string | null = null;
     let datasetSize: number | null = null;
     const churro =
-        "&omit=id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
+        "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
 
     $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ""}`;
 

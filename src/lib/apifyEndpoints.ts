@@ -27,7 +27,7 @@ async function apifyFetch(
 	const response = await fetch(url, { ...options, headers });
 
 	if (!response.ok) {
-		const errorText = await response.text(); // Get the error message from response
+		const errorText = await response.text();
 		throw new Error(
 			`Apify API error: ${response.status} ${response.statusText} - ${errorText}`,
 		);
@@ -44,7 +44,7 @@ export async function createTask(
 	actorId: string,
 	input: Record<string, unknown>,
 ) {
-	const endpoint = "/actor-tasks"; // Ensure this is the correct endpoint
+	const endpoint = "/actor-tasks";
 	const body = JSON.stringify({
 		actId: actorId,
 		name: `Tractor-Run-${Math.floor(Math.random() * 1000)}`,
@@ -103,6 +103,40 @@ export async function getDatasetLink(
 	return `${BASE_URL}${endpoint}`;
 }
 
+//     "userName": "victorianoi",
+//     "url": "https://x.com/victorianoi",
+//     "twitterUrl": "https://twitter.com/victorianoi",
+//     "id": "10977452",
+//     "name": "Victoriano Izquierdo",
+//     "isVerified": true,
+//     "profilePicture": "https://pbs.twimg.com/profile_images/1739668248868605952/HtcGO3HA_normal.jpg",
+//     "coverPicture": "https://pbs.twimg.com/profile_banners/10977452/1531062649",
+//     "description": "Co-founder @graphext . Data Science, Product, Business \n🧠 https://t.co/N4c77ih17x 📷 https://t.co/SH0SjWlDbr",
+//     "location": "From Granada, in Madrid, Spain",
+//     "followers": 28146,
+//     "following": 998,
+//     "status": "",
+//     "canDm": true,
+//     "canMediaTag": true,
+//     "createdAt": "Sat Dec 08 19:36:45 +0000 2007",
+
+// function unwindAuthor(object) {
+// 	const { author } = object;
+// 	return {
+// 		...object,
+// 		authorUserName: author.userName,
+// 		authorUrl: author.url,
+// 		authorName: author.name,
+// 		authorIsVerified: author.isVerified,
+// 		authorProfilePicture: author.profilePicture,
+// 		authorCoverPicture: author.coverPicture,
+// 		authorDescription: author.description,
+// 		authorLocation: author.location,
+// 		authorFollowers: author.followers,
+// 		authorCreatedAt: author.createdAt,
+// 	};
+// }
+
 export async function setupTwitterScrapingTask(
 	queries: string[],
 	numTweets: number,
@@ -111,6 +145,7 @@ export async function setupTwitterScrapingTask(
 	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
 
 	const input = {
+		customMapFunction: `(object) => { const { author } = object; return { ...object, "authorUserName": author.userName, authorUrl: author.url, authorName: author.name, authorIsVerified: author.isVerified, authorProfilePicture: author.profilePicture, authorCoverPicture: author.coverPicture, authorDescription: author.description, authorLocation: author.location, authorFollowers: author.followers, authorCreatedAt: author.createdAt, } }`,
 		maxItems: numTweets,
 		maxTweetsPerQuery: maxTweetsPerQuery,
 		includeSearchTerms: false,
