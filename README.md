@@ -6,4 +6,6 @@ Scrape twitter leveraging the power of Apify, but with a much simpler, opinionat
 
 # Questions, support
 
-If you have any questions, please write them out in the [issues](https://github.com/jesi-rgb/tractor2.0/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen) section, we'll reach out as soon as possible.
+If you have any questions, please write them out in the [issues](https://github.com/jesi-rgb/tractor2.0/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen) section or email directly to [jesus@graphext.com](mailto:jesus@graphext.com), we'll reach out as soon as possible.
+
+Happy scraping!

@@ -34,7 +34,7 @@
 
 <section class="my-5 border-base-content/50 border p-3 rounded-box relative">
     <ApifyKeyInput />
-    <Indicator color="base-content" index={1} />
+    <Indicator color="base-content/50" index={1} />
 
     {#if !$apifyKey}
         <div class="mt-5 pl-1 hover:text-primary transition-colors">
@@ -47,25 +47,25 @@
 
 <section
     id="gpt"
-    class="my-5 border-secondary dark:border-secondary/50 border p-3 rounded-box relative"
+    class="my-5 border-secondary/80 border p-3 rounded-box relative"
 >
     <div class="font-bold mb-3 text-secondary dark:text-secondary-content">
         Query Generation
     </div>
     <ChatGPTQueries bind:queries />
 
-    <Indicator color="secondary" index={2} />
+    <Indicator color="secondary/80" index={2} />
 </section>
 
 <section
     id="apify"
-    class="my-5 border border-primary/50 p-3 rounded-box relative"
+    class="my-5 border border-primary/80 p-3 rounded-box relative"
 >
     <div class="font-bold mb-3 text-primary dark:text-primary">APIFY</div>
 
     <ApifyScraper bind:queries />
 
-    <Indicator index={3} />
+    <Indicator color="primary/80" index={3} />
 </section>
 
 <style>
