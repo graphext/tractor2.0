@@ -21,7 +21,10 @@
     <meta name="msapplication-TileColor" content="#25272e" />
     <meta name="theme-color" content="#25272e" />
 
-    <meta property="og:image" content="/ogimage.png" />
+    <meta
+        property="og:image"
+        content="https://tractor.graphext.com/ogimage.png"
+    />
 </head>
 
 <div class="mb-10">
