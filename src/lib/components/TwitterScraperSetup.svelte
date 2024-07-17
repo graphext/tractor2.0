@@ -119,7 +119,7 @@
 
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
-            if (status === "SUCCEEDED") {
+            if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await getDatasetLink(runId, "json");
 
@@ -130,17 +130,9 @@
                 loading = false;
 
                 return;
-            } else if (
-                status !== "FAILED" &&
-                status !== "TIMED-OUT" &&
-                status !== "ABORTED"
-            ) {
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
                 setTimeout(checkStatus, 5000); // Check again in 5 seconds
-            } else if (
-                status !== "FAILED" &&
-                status !== "TIMED-OUT" &&
-                status !== "ABORTED"
-            ) {
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
                 loading = false;
                 throw Error(
                     "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",

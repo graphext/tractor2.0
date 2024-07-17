@@ -20,6 +20,12 @@
         dispatch("input", cleanedText);
     }
 
+    function onPaste(event) {
+        value = event.clipboardData?.getData("text") || "";
+        apifyTerms.set(value);
+        console.log("on paste", value);
+    }
+
     function handleInput(event: Event) {
         const input = event.target as HTMLTextAreaElement;
         value = cleanText(input.value);
@@ -34,6 +40,8 @@
 <textarea
     {placeholder}
     {value}
+    on:paste={onPaste}
+    on:change={onPaste}
     bind:this={textarea}
     class="textarea border border-primary/70 w-full font-mono"
     rows="5"

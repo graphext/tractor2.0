@@ -146,8 +146,6 @@ export async function setupTwitterScrapingTask(
 
 	const input = {
 		customMapFunction: `(object) => { const { author } = object; return { ...object, "authorUserName": author.userName, authorUrl: author.url, authorName: author.name, authorIsVerified: author.isVerified, authorProfilePicture: author.profilePicture, authorCoverPicture: author.coverPicture, authorDescription: author.description, authorLocation: author.location, authorFollowers: author.followers, authorCreatedAt: author.createdAt, } }`,
-		maxItems: numTweets,
-		maxTweetsPerQuery: maxTweetsPerQuery,
 		includeSearchTerms: false,
 		onlyImage: false,
 		onlyQuote: false,
@@ -157,6 +155,16 @@ export async function setupTwitterScrapingTask(
 		sort: "Latest",
 		searchTerms: queries,
 	};
+
+	const numTweetsEmpty =
+		numTweets === 0 || numTweets === null || numTweets === undefined;
+
+	if (!numTweetsEmpty) {
+		input.maxItems = numTweets;
+		input.maxTweetsPerQuery = maxTweetsPerQuery;
+	} else {
+		console.log("num tweets empty or 0");
+	}
 
 	try {
 		const task = await createTask(actorId, input);
