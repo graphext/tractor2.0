@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { MetaTags } from "svelte-meta-tags";
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
 
     import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
@@ -10,28 +11,47 @@
     let queries: string;
 </script>
 
-<head>
-    <title>Tractor 2.0 — Download Tweets Easily</title>
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#25272e" />
-    <meta name="msapplication-TileColor" content="#25272e" />
-    <meta name="theme-color" content="#25272e" />
-
-    <meta
-        property="og:image"
-        content="https://tractor.graphext.com/ogimage.png"
-    />
-
-    <meta
-        property="og:description"
-        content="Scraping made easy. Analyze tweets quickly and conveniently."
-    />
-    <meta property="og:url" content="https://tractor.graphext.com" />
-</head>
+<MetaTags
+    title="Tractor 2.0"
+    description="Easiest way to Download & analyze Tweets"
+    canonical="https://tractor.graphext.com"
+    additionalLinkTags={[
+        { rel: "icon", href: "/favicon-32x32.png" },
+        { rel: "icon", href: "/favicon-16x16.png" },
+        { rel: "apple-touch-icon", href: "apple-touch-icon.png" },
+        { rel: "manifest", href: "/site.webmanifest" },
+    ]}
+    additionalMetaTags={[{ property: "theme-color", content: "#fff" }]}
+    keywords={[
+        "tweets",
+        "analysis",
+        "scraping",
+        "apify",
+        "graphext",
+        "tractor",
+    ]}
+    openGraph={{
+        url: "https://tractor.graphext.com",
+        title: "Tractor 2.0",
+        description: "Easiest way to Download & analyze Tweets",
+        images: [
+            {
+                url: "https://tractor.graphext.com/ogimage.png",
+                width: 1200,
+                height: 600,
+                alt: "Tractor",
+            },
+        ],
+    }}
+    twitter={{
+        handle: "@graphext",
+        cardType: "summary_large_image",
+        title: "Tractor",
+        description: "Easiest way to Download & analyze Tweets",
+        image: "https://tractor.graphext.com/ogimage.png",
+        imageAlt: "Tractor",
+    }}
+/>
 
 <div class="mb-10">
     <div class="flex justify-between items-baseline">
