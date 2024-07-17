@@ -11,21 +11,25 @@
 </script>
 
 <head>
-    <title>Tractor 2.0 — Download Tweets Easily/title> </title>
+    <title>Tractor 2.0 — Download Tweets Easily</title>
 
-    <link
-        rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚜</text></svg>"
-    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#25272e" />
+    <meta name="msapplication-TileColor" content="#25272e" />
+    <meta name="theme-color" content="#25272e" />
 </head>
 
 <div class="mb-10">
     <div class="flex justify-between items-baseline">
-        <h1
-            class="text-3xl font-bold md:text-left transition-all tracking-tight"
-        >
-            Tractor
-        </h1>
+        <div class="flex gap-3">
+            <img src="/tractor_icon.svg" width="24" alt="" />
+            <h1 class="text-3xl md:text-left transition-all tracking-tight">
+                Tractor
+            </h1>
+        </div>
     </div>
     <h2 class="w-full mx-auto text-balance md:text-left">
         Scraping made easy. Put your Apify key, and let us do the rest.
@@ -70,9 +74,15 @@
 
 <style>
     h1 {
-        font-variation-settings: "ital" 12;
+        font-variation-settings:
+            "ital" 12,
+            "wdth" 125,
+            "wght" 600;
     }
     h1:hover {
-        font-variation-settings: "ital" 0;
+        font-variation-settings:
+            "ital" 0,
+            "wdth" 125,
+            "wght" 600;
     }
 </style>
