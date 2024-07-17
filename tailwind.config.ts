@@ -20,7 +20,7 @@ export default {
             {
                 light: {
                     ...require("daisyui/src/theming/themes")["light"],
-                    "base-100": "#F0F0F0",
+                    "base-100": "#F7F7F7",
                     secondary: "teal",
                     primary: "#2BA3E8",
                     "primary-content": "#FAF7FF",
