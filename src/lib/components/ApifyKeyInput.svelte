@@ -1,12 +1,27 @@
 <script lang="ts">
     import { apifyKey } from "$lib/stores/apifyStore";
-    import { fly, blur } from "svelte/transition";
+    import { fly } from "svelte/transition";
     import { toast } from "svelte-sonner";
-    import { backOut, elasticIn, elasticOut } from "svelte/easing";
+    import { backOut, elasticOut } from "svelte/easing";
+    import { getPrivateUserData } from "$lib/apifyEndpoints";
+    import { onMount } from "svelte";
 
     let key = "";
 
     let confirmDelete = false;
+
+    let plan: string | null = null;
+
+    async function getPlanId() {
+        let data = await getPrivateUserData();
+        plan = data.data.plan.id;
+    }
+
+    $: if ($apifyKey) {
+        getPlanId();
+    } else {
+        plan = null;
+    }
 
     function handleSubmit() {
         if (!key.startsWith("apify_api_")) {
@@ -31,6 +46,16 @@
     let timeout: number;
     let interval: number;
     let cancelConfirmationProgress: number = 0;
+
+    let apikeyPresent: boolean;
+    let placeholder: string;
+
+    onMount(() => {
+        apikeyPresent = $apifyKey != "";
+        placeholder = apikeyPresent
+            ? "Key already set. Good to go!"
+            : "Enter your Apify API key";
+    });
 
     $: apikeyPresent = $apifyKey != "";
 
@@ -122,6 +147,25 @@
         {/if}
     </div>
 </div>
+
+{#if plan === "FREE"}
+    <div
+        class="mt-5 flex flex-col gap-2 shadow-error/30 shadow-sm rounded-btn p-3 border-2 border-error"
+    >
+        <p class="text-error font-semibold">
+            Apify does not allow remote access for FREE accounts.
+        </p>
+        <p>Please, sign up with a paid account and try again.</p>
+        <p>
+            Ask the <a
+                class="text-primary hover:underline"
+                href="mailto:jesus@graphext.com">team</a
+            > for help if needed.
+        </p>
+    </div>
+{:else}
+    <span></span>
+{/if}
 
 <style>
     .inputDisabled {

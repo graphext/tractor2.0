@@ -7,6 +7,7 @@
 
     import { apifyKey } from "$lib/stores/apifyStore";
     import Indicator from "$lib/components/Indicator.svelte";
+    import User from "$lib/components/User.svelte";
 
     let queries: string;
 </script>
@@ -55,11 +56,16 @@
 
 <div class="mb-10">
     <div class="flex justify-between items-baseline">
-        <div class="flex gap-3">
-            <img src="/tractor_icon.svg" width="24" alt="" />
-            <h1 class="text-3xl md:text-left transition-all tracking-tight">
-                Tractor
-            </h1>
+        <div class="flex gap-3 justify-between items-baseline w-full">
+            <div class="flex gap-3">
+                <img src="/tractor_icon.svg" width="24" alt="" />
+                <h1 class="text-3xl md:text-left transition-all tracking-tight">
+                    Tractor
+                </h1>
+            </div>
+            <div class="">
+                <User />
+            </div>
         </div>
     </div>
     <h2 class="w-full mx-auto text-balance md:text-left">
