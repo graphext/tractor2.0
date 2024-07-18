@@ -202,7 +202,7 @@
         {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
-                class="btn btn-primary w-full"
+                class="btn btn-primary w-full shadow-primary/20 shadow-md"
                 disabled={!$apifyKey || !queries.trim()}
             >
                 {buttonText}
@@ -223,7 +223,7 @@
             </div>
             <button
                 on:click={handleSubmit}
-                class="btn btn-primary w-full"
+                class="btn btn-primary w-full shadow-primary/20 shadow-md"
                 disabled={!$apifyKey || !queries.trim()}
             >
                 Sure. Let's go.
