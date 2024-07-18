@@ -22,7 +22,7 @@
             href="https://console.apify.com/settings/account"
             target="_blank"
         >
-            Logged as <span class="text-primary font-semibold">{name}</span>
+            Logged in as <span class="text-primary font-semibold">{name}</span>
         </a>
     </div>
 {:else}
