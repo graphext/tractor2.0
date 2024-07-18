@@ -113,39 +113,46 @@ export async function getPrivateUserData() {
 	return data;
 }
 
-//     "userName": "victorianoi",
-//     "url": "https://x.com/victorianoi",
-//     "twitterUrl": "https://twitter.com/victorianoi",
-//     "id": "10977452",
-//     "name": "Victoriano Izquierdo",
-//     "isVerified": true,
-//     "profilePicture": "https://pbs.twimg.com/profile_images/1739668248868605952/HtcGO3HA_normal.jpg",
-//     "coverPicture": "https://pbs.twimg.com/profile_banners/10977452/1531062649",
-//     "description": "Co-founder @graphext . Data Science, Product, Business \n🧠 https://t.co/N4c77ih17x 📷 https://t.co/SH0SjWlDbr",
-//     "location": "From Granada, in Madrid, Spain",
-//     "followers": 28146,
-//     "following": 998,
-//     "status": "",
-//     "canDm": true,
-//     "canMediaTag": true,
-//     "createdAt": "Sat Dec 08 19:36:45 +0000 2007",
+const typeMap = {
+	url: "category",
+	text: "text",
+	source: "category",
+	retweetCount: "number",
+	replyCount: "number",
+	likeCount: "number",
+	quoteCount: "number",
+	viewCount: "number",
+	createdAt: "date",
+	lang: "category",
+	bookmarkCount: "number",
+	isReply: "boolean",
+	isRetweet: "boolean",
+	isQuote: "boolean",
+	media: "list[category]",
+};
 
-// function unwindAuthor(object) {
-// 	const { author } = object;
-// 	return {
-// 		...object,
-// 		authorUserName: author.userName,
-// 		authorUrl: author.url,
-// 		authorName: author.name,
-// 		authorIsVerified: author.isVerified,
-// 		authorProfilePicture: author.profilePicture,
-// 		authorCoverPicture: author.coverPicture,
-// 		authorDescription: author.description,
-// 		authorLocation: author.location,
-// 		authorFollowers: author.followers,
-// 		authorCreatedAt: author.createdAt,
-// 	};
-// }
+const authorMap = {
+	authorUserName: "category",
+	authorUrl: "category",
+	authorName: "category",
+	authorIsVerified: "boolean",
+	authorProfilePicture: "category",
+	authorCoverPicture: "category",
+	authorDescription: "text",
+	authorLocation: "category",
+	authorFollowers: "number",
+	authorCreatedAt: "date",
+};
+
+function createFunctionString() {
+	return `(object) => { const { author, ${Object.keys(typeMap).join(", ")} } = object; return { ${Object.keys(
+		typeMap,
+	)
+		.map((e) => '"' + e + "<gx:" + typeMap[e] + ">" + '": ' + e)
+		.join(
+			", ",
+		)}, ${Object.keys(authorMap).map((e) => '"' + e + "<gx:" + authorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
+}
 
 export async function setupTwitterScrapingTask(
 	queries: string[],
@@ -155,7 +162,7 @@ export async function setupTwitterScrapingTask(
 	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
 
 	const input = {
-		customMapFunction: `(object) => { const { author } = object; return { ...object, "authorUserName": author.userName, authorUrl: author.url, authorName: author.name, authorIsVerified: author.isVerified, authorProfilePicture: author.profilePicture, authorCoverPicture: author.coverPicture, authorDescription: author.description, authorLocation: author.location, authorFollowers: author.followers, authorCreatedAt: author.createdAt, } }`,
+		customMapFunction: createFunctionString(),
 		maxItems: numTweets,
 		maxTweetsPerQuery: maxTweetsPerQuery,
 		includeSearchTerms: false,

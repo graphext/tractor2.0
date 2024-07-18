@@ -125,6 +125,8 @@
 
                 const datasetInfo = await getDatsetInfo(runId);
 
+                console.log(datasetInfo.data);
+
                 datasetSize = datasetInfo.data.itemCount;
 
                 loading = false;
