@@ -114,7 +114,7 @@ export async function getPrivateUserData() {
 }
 
 const typeMap = {
-	url: "category",
+	url: "url",
 	text: "text",
 	source: "category",
 	retweetCount: "number",
@@ -128,12 +128,12 @@ const typeMap = {
 	isReply: "boolean",
 	isRetweet: "boolean",
 	isQuote: "boolean",
-	media: "list[category]",
+	media: "list[url]",
 };
 
 const authorMap = {
 	authorUserName: "category",
-	authorUrl: "category",
+	authorUrl: "url",
 	authorName: "category",
 	authorIsVerified: "boolean",
 	authorProfilePicture: "category",
