@@ -103,6 +103,13 @@ export async function getDatasetLink(
 	return `${BASE_URL}${endpoint}`;
 }
 
+export async function getPrivateUserData() {
+	let endpoint = `/users/me`;
+
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
 //     "userName": "victorianoi",
 //     "url": "https://x.com/victorianoi",
 //     "twitterUrl": "https://twitter.com/victorianoi",

@@ -3,10 +3,25 @@
     import { fly, blur } from "svelte/transition";
     import { toast } from "svelte-sonner";
     import { backOut, elasticIn, elasticOut } from "svelte/easing";
+    import { getPrivateUserData } from "$lib/apifyEndpoints";
+    import { text } from "@sveltejs/kit";
 
     let key = "";
 
     let confirmDelete = false;
+
+    let plan: string | null = null;
+
+    async function getPlanId() {
+        let data = await getPrivateUserData();
+        plan = data.data.plan.id;
+    }
+
+    $: if ($apifyKey) {
+        getPlanId();
+    } else {
+        plan = null;
+    }
 
     function handleSubmit() {
         if (!key.startsWith("apify_api_")) {
@@ -122,6 +137,20 @@
         {/if}
     </div>
 </div>
+
+{#if plan === "FREE"}
+    <div
+        class="mt-5 rounded-btn p-3 border-2 border-error text-error font-semibold"
+    >
+        <p>
+            Free plans do not allow the use of remote access, like the one this
+            tool is using.
+        </p>
+        <p>Please, sign up with a paid account and try again.</p>
+    </div>
+{:else}
+    <span></span>
+{/if}
 
 <style>
     .inputDisabled {
