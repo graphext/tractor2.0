@@ -44,10 +44,13 @@ export async function createTask(
 	actorId: string,
 	input: Record<string, unknown>,
 ) {
+	const token = get(apifyKey);
+	const tokenEnd = token.slice(-4);
+
 	const endpoint = "/actor-tasks";
 	const body = JSON.stringify({
 		actId: actorId,
-		name: `Tractor-Run-${Math.floor(Math.random() * 1000)}`,
+		name: `TRCTR-${tokenEnd}-${Math.floor(Math.random() * 1000)}`,
 		options: {
 			build: "latest",
 		},
