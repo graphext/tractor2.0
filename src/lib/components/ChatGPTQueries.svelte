@@ -2,6 +2,7 @@
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
+    import DateRange from "./DateRange.svelte";
 
     let userPrompt = "";
     export let queries = "";
@@ -89,3 +90,5 @@
         </div>
     {/if}
 </div>
+
+<DateRange />
