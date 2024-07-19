@@ -26,8 +26,8 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 		console.log("Sending request to OpenAI API...");
 
 		const stream = await openai.chat.completions.create({
-			model: "gpt-4",
-			temperature: 0.7,
+			model: "gpt-4o-mini",
+			temperature: 0.4,
 			stream: true,
 			messages: [
 				{
