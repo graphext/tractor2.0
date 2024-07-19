@@ -22,11 +22,16 @@
             href="https://console.apify.com/settings/account"
             target="_blank"
         >
-            Logged in as <span class="text-primary font-semibold">{name}</span>
+            Logged in as <span class="text-primary font-semibold"
+                >{name}
+                <span class="font-mono font-normal opacity-50 text-base-content"
+                    >({$apifyKey.slice(-4)})</span
+                ></span
+            >
         </a>
     </div>
 {:else}
     <div class="opacity-0">
-        Logged in as <span class="text-primary font-semibold">{name}</span>
+        Logged in as <span class="text-primary font-semibold">{name} </span>
     </div>
 {/if}

@@ -4,6 +4,8 @@
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
 
+    import { tweened } from "svelte/motion";
+
     import { apifyTerms } from "../stores/userQueryStore";
 
     import {
@@ -12,6 +14,7 @@
         getDatasetLink,
         getLogsForRun,
         getDatsetInfo,
+        getDatsetLength,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
@@ -24,9 +27,11 @@
 
     let runId: string | null = null;
     let status: string | null = null;
+
     let logs: string | null = null;
     const regex = /Got (\d+) results/g;
-    let progressLogs: number = 0;
+    let outputProgress: number = 0;
+    const springProgress = tweened(outputProgress);
 
     let numTweets = 2000;
     let prettyData = true;
@@ -54,7 +59,7 @@
     async function handleSubmit() {
         confirmChoice = false;
         datasetLink = "";
-        progressLogs = 0;
+        outputProgress = 0;
         logs = "";
 
         if (!$apifyKey) {
@@ -90,36 +95,20 @@
         }
     }
 
-    async function processLogs(logsReader: ReadableStreamDefaultReader) {
-        const decoder = new TextDecoder();
-
-        while (true) {
-            const { done, value } = await logsReader.read();
-            if (done) break;
-            const chunk = decoder.decode(value);
-            logs += chunk;
-
-            let matches = [...logs?.matchAll(regex)];
-            for (const match of matches) {
-                progressLogs += parseInt(match[1]);
-            }
-        }
-    }
-
     async function checkStatus() {
         if (!runId) return;
 
         try {
             const runData = await getRunStatus(runId);
-            const logsReader = await getLogsForRun(runId);
 
-            processLogs(logsReader);
+            outputProgress = await getDatsetLength(runId);
+            springProgress.set(outputProgress);
 
             status = runData.data.status;
 
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
-            if (status === "SUCCEEDED") {
+            if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await getDatasetLink(runId, "json");
 
@@ -132,17 +121,9 @@
                 loading = false;
 
                 return;
-            } else if (
-                status !== "FAILED" &&
-                status !== "TIMED-OUT" &&
-                status !== "ABORTED"
-            ) {
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
                 setTimeout(checkStatus, 5000); // Check again in 5 seconds
-            } else if (
-                status !== "FAILED" &&
-                status !== "TIMED-OUT" &&
-                status !== "ABORTED"
-            ) {
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
                 loading = false;
                 throw Error(
                     "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
@@ -196,9 +177,9 @@
     <div class="w-full relative">
         {#if loading}
             <progress
-                class="progress-overlay absolute h-full rounded-none w-full opacity-30"
+                class="progress-overlay mix-blend-overlay absolute h-full rounded-none w-full opacity-40"
                 max={numTweets}
-                value={progressLogs}
+                value={$springProgress}
             ></progress>
         {/if}
         {#if !confirmChoice}
@@ -238,12 +219,10 @@
     <a
         href={datasetLinkInButton}
         class="btn btn-outline btn-primary w-full my-5"
-        >Download Dataset ({#if !datasetSize}
-            <span class="loading loading-ring loading-sm inline-block"></span>
-        {:else}
-            {datasetSize}
-        {/if} rows)</a
-    >
+        >Download Dataset {#if datasetSize}
+            — {datasetSize} rows
+        {/if}
+    </a>
 {/if}
 
 {#if error}
@@ -256,7 +235,7 @@
     >
         <p class="mt-4">Task status: {status}</p>
         {#if status == "RUNNING"}
-            <span>{progressLogs} tweets fetched...</span>
+            <span>{outputProgress} tweets analyzed...</span>
             <span class="loading loading-dots loading-sm"></span>
         {:else if status == "SUCCEEDED"}
             <span></span>

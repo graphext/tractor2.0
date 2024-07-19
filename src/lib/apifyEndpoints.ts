@@ -1,5 +1,6 @@
 import { get } from "svelte/store";
 import { apifyKey } from "./stores/apifyStore";
+import { cleanQueries, cleanText } from "./utils";
 
 const BASE_URL = "https://api.apify.com/v2";
 
@@ -89,6 +90,18 @@ export async function getDatsetInfo(runId: string) {
 	let endpoint = `/datasets/${datasetId}`;
 	const data = await apifyFetch(endpoint);
 	return data;
+}
+
+export async function getDatsetLength(runId: string) {
+	// https://api.apify.com/v2/datasets/YvjRu9xN1a62TS27A/items?token=***
+	const runStatus = await getRunStatus(runId);
+
+	const datasetId = runStatus.data.defaultDatasetId;
+
+	let endpoint = `/datasets/${datasetId}/items`;
+	const data = await apifyFetch(endpoint);
+
+	return data.length;
 }
 
 export async function getDatasetLink(

@@ -14,3 +14,13 @@ export function cleanText(text: string): string {
 
 	return text;
 }
+
+export function cleanQueries(queries: string[]): string[] {
+	let output: string[] = [];
+
+	for (const q of queries) {
+		output.push(cleanText(q));
+	}
+
+	return output;
+}

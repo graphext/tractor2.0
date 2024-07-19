@@ -90,7 +90,7 @@
     id="gpt"
     class="my-5 border-secondary/80 border p-3 rounded-box relative"
 >
-    <div class="font-bold mb-3 text-secondary dark:text-secondary-content">
+    <div class="font-bold mb-3 text-secondary dark:text-secondary">
         Query Generation
     </div>
     <ChatGPTQueries bind:queries />
