@@ -13,7 +13,7 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex h-input w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary bg-background px-2 py-3 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
+            class="flex h-input w-full max-w-[320px] px-3 rounded-btn select-none items-center rounded-input border border-secondary bg-background px-2 py-3 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
@@ -21,38 +21,26 @@
                         <DateRangePicker.Segment
                             type="start"
                             {part}
-                            class="p-1 text-muted-foreground"
+                            class="p-1"
                         >
                             {value}
                         </DateRangePicker.Segment>
                     {:else}
-                        <DateRangePicker.Segment
-                            type="start"
-                            {part}
-                            class="rounded-5px px-1 py-1 hover:bg-muted focus:bg-muted focus:text-foreground focus-visible:!ring-0 focus-visible:!ring-offset-0 aria-[valuetext=Empty]:text-muted-foreground"
-                        >
+                        <DateRangePicker.Segment type="start" {part} class="">
                             {value}
                         </DateRangePicker.Segment>
                     {/if}
                 </div>
             {/each}
-            <div aria-hidden class="px-1 text-muted-foreground">–</div>
+            <div aria-hidden class="px-3">—</div>
             {#each segments.end as { part, value }}
                 <div class="inline-block select-none">
                     {#if part === 'literal'}
-                        <DateRangePicker.Segment
-                            type="end"
-                            {part}
-                            class="p-1 text-muted-foreground"
-                        >
+                        <DateRangePicker.Segment type="end" {part} class="p-1">
                             {value}
                         </DateRangePicker.Segment>
                     {:else}
-                        <DateRangePicker.Segment
-                            type="end"
-                            {part}
-                            class="rounded-5px px-1 py-1 hover:bg-muted focus:bg-muted focus:text-foreground focus-visible:!ring-0 focus-visible:!ring-offset-0 aria-[valuetext=Empty]:text-muted-foreground"
-                        >
+                        <DateRangePicker.Segment type="end" {part} class="">
                             {value}
                         </DateRangePicker.Segment>
                     {/if}
