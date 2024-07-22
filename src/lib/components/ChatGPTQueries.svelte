@@ -4,9 +4,13 @@
     import { toast } from 'svelte-sonner'
     import type { DateRange } from 'bits-ui'
     import DatePicker from './DatePicker.svelte'
+    import { spreadQueriesOverTime } from '$lib/utils'
+    import Select from './Select.svelte'
+    import type { CountableTimeInterval } from 'd3-time'
 
     export let queries = ''
     export let queriesSpreadOverTime = ''
+    export let frequency: CountableTimeInterval
 
     let userPrompt = ''
     let error = ''
@@ -15,79 +19,11 @@
     let selectedRange: DateRange
     let timeSteps: Date[]
 
-    type TwitterInterval = {
-        until: string
-        since: string
-    }
-
     $: queriesSpreadOverTime = spreadQueriesOverTime(
         queries,
         timeSteps,
         selectedRange
     )
-
-    $: console.log(queriesSpreadOverTime)
-
-    function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
-        if (!timeSteps || !selectedRange) return
-
-        let output: TwitterInterval[] = []
-
-        let i = 1
-        for (i; i < timeSteps.length; i++) {
-            const since = twitterDateFormat(timeSteps[i - 1])
-            const until = twitterDateFormat(timeSteps[i])
-
-            output.push({ since: since, until: until })
-        }
-
-        output.push({
-            since: twitterDateFormat(timeSteps[i - 1]),
-            until: twitterDateFormat(
-                new Date(
-                    selectedRange.end?.year,
-                    selectedRange.end?.month - 1,
-                    selectedRange.end?.day
-                )
-            )
-        })
-
-        return output
-    }
-
-    function spreadQueriesOverTime(
-        queries: string,
-        timeSteps: Date[],
-        selectedRange: DateRange
-    ) {
-        if (!timeSteps || !selectedRange) return queries
-
-        const queriesSplit = queries.split('\n')
-        queriesSpreadOverTime = ''
-
-        const intervalsGrouped = groupTimeRanges(timeSteps, selectedRange)
-
-        for (let q of queriesSplit) {
-            for (let i = 0; i < intervalsGrouped.length; i++) {
-                const since = intervalsGrouped[i].since
-                const until = intervalsGrouped[i].until
-                q = q.trim()
-
-                queriesSpreadOverTime += `${q} since:${since} until:${until}\n`
-            }
-            queriesSpreadOverTime += '\n'
-        }
-
-        return queriesSpreadOverTime
-    }
-
-    function twitterDateFormat(date: Date) {
-        const day = date.getDate().toString().padStart(2, '0')
-        const month = (date.getMonth() + 1).toString().padStart(2, '0') //bitch
-        const year = date.getFullYear()
-
-        return `${year}-${month}-${day}`
-    }
 
     onMount(() => {
         if ($userQuery) {
@@ -169,4 +105,8 @@
     {/if}
 </div>
 
-<DatePicker bind:selectedRange bind:timeSteps />
+<div class="flex items-end gap-3">
+    <DatePicker bind:frequency bind:selectedRange bind:timeSteps />
+
+    <Select bind:value={frequency} />
+</div>

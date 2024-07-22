@@ -19,7 +19,7 @@
     } from '../apifyEndpoints'
 
     import { apifyKey } from '../stores/apifyStore'
-    import { backOut } from 'svelte/easing'
+    import { backOut, cubicInOut } from 'svelte/easing'
 
     export let queries = ''
     export let queriesSpreadOverTime = ''
@@ -33,7 +33,7 @@
     let logs: string | null = null
     const regex = /Got (\d+) results/g
     let outputProgress: number = 0
-    const springProgress = tweened(outputProgress)
+    const springProgress = tweened(outputProgress, { easing: cubicInOut })
 
     let numTweets = 2000
     let prettyData = true
@@ -223,7 +223,7 @@
             >
                 Current actor runs at <span class="font-semibold"
                     >$0.3/1K tweets</span
-                >. This operation will cost approximately
+                >. This operation will cost, at maximum,
                 <span class="font-semibold"
                     >${totalApproximateCost.toFixed(3)}</span
                 >

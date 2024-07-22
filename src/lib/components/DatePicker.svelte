@@ -10,14 +10,12 @@
 
     //TODO: think about defaulting to daily queries
 
-    const frequency = 1 // every day, every other day, etc...
+    export let frequency // every day, every other day, etc...
 
     const today = new Date()
 
     $: if (selectedRange && selectedRange.start && selectedRange.end) {
-        console.log(selectedRange)
-
-        timeSteps = utcDay.range(
+        timeSteps = frequency.range(
             new Date(
                 selectedRange.start.year,
                 selectedRange.start.month - 1,
@@ -28,7 +26,7 @@
                 selectedRange.end.month - 1,
                 selectedRange.end.day
             ),
-            frequency
+            1
         )
     }
 </script>
@@ -44,7 +42,7 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums h-input w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary bg-background pl-3 pr-2 py-1 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
+            class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary pl-3 pr-1 py-1 text-sm focus-within:border-primary-content"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
@@ -79,7 +77,7 @@
             {/each}
 
             <DateRangePicker.Trigger
-                class="ml-auto inline-flex hover:bg-base-content/10 size-8 items-center justify-center rounded-[5px] text-foreground/60 transition-all hover:bg-muted active:bg-dark-10"
+                class="inline-flex hover:bg-base-content/10 p-1 ml-3 items-center justify-center rounded-[5px] text-foreground/60 transition-all hover:bg-muted active:bg-dark-10"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
