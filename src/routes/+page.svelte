@@ -10,6 +10,7 @@
     import User from '$lib/components/User.svelte'
 
     let queries: string
+    let queriesSpreadOverTime: string
 </script>
 
 <MetaTags
@@ -92,7 +93,7 @@
     <div class="font-bold mb-3 text-secondary dark:text-secondary">
         Query Generation
     </div>
-    <ChatGPTQueries bind:queries />
+    <ChatGPTQueries bind:queriesSpreadOverTime bind:queries />
 
     <Indicator color="secondary/80" index={2} />
 </section>
@@ -103,7 +104,7 @@
 >
     <div class="font-bold mb-3 text-primary dark:text-primary">APIFY</div>
 
-    <ApifyScraper bind:queries />
+    <ApifyScraper bind:queries bind:queriesSpreadOverTime />
 
     <Indicator color="primary/80" index={3} />
 </section>

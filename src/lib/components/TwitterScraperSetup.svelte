@@ -1,148 +1,174 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { fly } from "svelte/transition";
-    import CleanPasteInput from "./CleanPasteInput.svelte";
-    import { toast } from "svelte-sonner";
+    import { onMount } from 'svelte'
+    import { fly } from 'svelte/transition'
+    import CleanPasteInput from './CleanPasteInput.svelte'
+    import { toast } from 'svelte-sonner'
 
-    import { tweened } from "svelte/motion";
+    import { PaneGroup, Pane, PaneResizer } from 'paneforge'
 
-    import { apifyTerms } from "../stores/userQueryStore";
+    import { tweened } from 'svelte/motion'
+
+    import { apifyTerms } from '../stores/userQueryStore'
 
     import {
         setupTwitterScrapingTask,
         getRunStatus,
         getDatasetLink,
-        getLogsForRun,
         getDatsetInfo,
-        getDatsetLength,
-    } from "../apifyEndpoints";
+        getDatsetLength
+    } from '../apifyEndpoints'
 
-    import { apifyKey } from "../stores/apifyStore";
-    import { backOut } from "svelte/easing";
+    import { apifyKey } from '../stores/apifyStore'
+    import { backOut } from 'svelte/easing'
 
-    export let queries = "";
+    export let queries = ''
+    export let queriesSpreadOverTime = ''
 
-    let loading = false;
-    let confirmChoice = false;
+    let loading = false
+    let confirmChoice = false
 
-    let runId: string | null = null;
-    let status: string | null = null;
+    let runId: string | null = null
+    let status: string | null = null
 
-    let logs: string | null = null;
-    const regex = /Got (\d+) results/g;
-    let outputProgress: number = 0;
-    const springProgress = tweened(outputProgress);
+    let logs: string | null = null
+    const regex = /Got (\d+) results/g
+    let outputProgress: number = 0
+    const springProgress = tweened(outputProgress)
 
-    let numTweets = 2000;
-    let prettyData = true;
+    let numTweets = 2000
+    let prettyData = true
 
-    let tweetCost = 0.3 / 1000;
-    $: totalApproximateCost = numTweets * tweetCost;
+    let tweetCost = 0.3 / 1000
+    $: totalApproximateCost = numTweets * tweetCost
 
-    let datasetLink: string | null = null;
-    let datasetSize: number | null = null;
+    let datasetLink: string | null = null
+    let datasetSize: number | null = null
     const churro =
-        "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
+        '&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled'
 
-    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ""}`;
+    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ''}`
 
-    let error: string | null = null;
+    let error: string | null = null
 
-    $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
+    $: buttonText = loading ? 'Loading tweets...' : 'Get Tweets'
 
     onMount(() => {
         if ($apifyTerms) {
-            queries = $apifyTerms;
+            queries = $apifyTerms
         }
-    });
+    })
 
     async function handleSubmit() {
-        confirmChoice = false;
-        datasetLink = "";
-        outputProgress = 0;
-        logs = "";
+        confirmChoice = false
+        datasetLink = ''
+        outputProgress = 0
+        logs = ''
 
         if (!$apifyKey) {
-            toast.error("Please set your Apify API key first.");
-            error = "Please set your Apify API key first.";
-            return;
+            toast.error('Please set your Apify API key first.')
+            error = 'Please set your Apify API key first.'
+            return
         }
 
-        const queryList = queries.split("\n").filter((q) => q.trim() !== "");
-        const nQueries = queries.split("\n").length;
-        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
+        const queryList = queries.split('\n').filter((q) => q.trim() !== '')
+        const nQueries = queries.split('\n').length
+        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries)
 
-        toast.success("Task and run created sucessfully.");
+        toast.success('Task and run created sucessfully.')
         setTimeout(() => {
-            toast.info("Fetching data. This may take a while...");
-        }, 1500);
+            toast.info('Fetching data. This may take a while...')
+        }, 1500)
 
         try {
-            loading = true;
+            loading = true
 
             runId = await setupTwitterScrapingTask(
                 queryList,
                 numTweets,
-                maxTweetsPerQuery,
-            );
-            error = null;
+                maxTweetsPerQuery
+            )
+            error = null
 
-            checkStatus();
+            checkStatus()
         } catch (err) {
             error =
-                "Error: " + (err instanceof Error ? err.message : String(err));
-            console.error(err);
+                'Error: ' + (err instanceof Error ? err.message : String(err))
+            console.error(err)
         }
     }
 
     async function checkStatus() {
-        if (!runId) return;
+        if (!runId) return
 
         try {
-            const runData = await getRunStatus(runId);
+            const runData = await getRunStatus(runId)
 
-            outputProgress = await getDatsetLength(runId);
-            springProgress.set(outputProgress);
+            outputProgress = await getDatsetLength(runId)
+            springProgress.set(outputProgress)
 
-            status = runData.data.status;
+            status = runData.data.status
 
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
-            if (status === "SUCCEEDED" || status === "ABORTED") {
-                toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await getDatasetLink(runId, "json");
+            if (status === 'SUCCEEDED' || status === 'ABORTED') {
+                toast.success('🎉 Dataset created. Ready to download!')
+                datasetLink = await getDatasetLink(runId, 'json')
 
-                const datasetInfo = await getDatsetInfo(runId);
+                const datasetInfo = await getDatsetInfo(runId)
 
-                console.log(datasetInfo.data);
+                console.log(datasetInfo.data)
 
-                datasetSize = datasetInfo.data.itemCount;
+                datasetSize = datasetInfo.data.itemCount
 
-                loading = false;
+                loading = false
 
-                return;
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                setTimeout(checkStatus, 5000); // Check again in 5 seconds
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                loading = false;
+                return
+            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
+                setTimeout(checkStatus, 5000) // Check again in 5 seconds
+            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
+                loading = false
                 throw Error(
-                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
-                );
+                    'Run failed, timed-out or aborted. Check the APIFY dashboard to know more.'
+                )
             }
         } catch (err) {
             error =
-                "Failed to check task status. " +
-                (err instanceof Error ? err.message : String(err));
-            console.error(err);
+                'Failed to check task status. ' +
+                (err instanceof Error ? err.message : String(err))
+            console.error(err)
         }
     }
 </script>
 
 <div class="flex flex-col gap-3">
-    <CleanPasteInput
-        placeholder="Enter Twitter search queries, one per line"
-        bind:value={queries}
-    />
+    <PaneGroup direction="horizontal" class="items-center gap-1">
+        <Pane defaultSize={50}>
+            <CleanPasteInput
+                placeholder="Generate twitter search terms in the input query generator"
+                bind:value={queries}
+            />
+        </Pane>
+        <PaneResizer
+            class="bg-primary text-primary-content rounded-sm py-2 h-min"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="15"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+                ><path
+                    d="M108,60A16,16,0,1,1,92,44,16,16,0,0,1,108,60Zm56,16a16,16,0,1,0-16-16A16,16,0,0,0,164,76ZM92,112a16,16,0,1,0,16,16A16,16,0,0,0,92,112Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,112ZM92,180a16,16,0,1,0,16,16A16,16,0,0,0,92,180Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,180Z"
+                ></path></svg
+            >
+        </PaneResizer>
+        <Pane defaultSize={50}>
+            <CleanPasteInput
+                placeholder="Here, the queries will be spread over time"
+                bind:value={queriesSpreadOverTime}
+            />
+        </Pane>
+    </PaneGroup>
 
     <div class="self-end w-full flex flex-col gap-3">
         <div class="flex justify-between">
@@ -234,12 +260,12 @@
         class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
     >
         <p class="mt-4">Task status: {status}</p>
-        {#if status == "RUNNING"}
+        {#if status == 'RUNNING'}
             <span>{outputProgress} tweets analyzed...</span>
             <span class="loading loading-dots loading-sm"></span>
-        {:else if status == "SUCCEEDED"}
+        {:else if status == 'SUCCEEDED'}
             <span></span>
-        {:else if status == "FAILED"}
+        {:else if status == 'FAILED'}
             <span> </span>
         {/if}
     </div>

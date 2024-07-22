@@ -2,12 +2,90 @@
     import { userQuery } from '$lib/stores/userQueryStore'
     import { onMount } from 'svelte'
     import { toast } from 'svelte-sonner'
-    import DateRange from './DateRange.svelte'
+    import type { DateRange } from 'bits-ui'
+    import DatePicker from './DatePicker.svelte'
+
+    export let queries = ''
+    export let queriesSpreadOverTime = ''
 
     let userPrompt = ''
-    export let queries = ''
     let error = ''
     let loading = false
+
+    let selectedRange: DateRange
+    let timeSteps: Date[]
+
+    type TwitterInterval = {
+        until: string
+        since: string
+    }
+
+    $: queriesSpreadOverTime = spreadQueriesOverTime(
+        queries,
+        timeSteps,
+        selectedRange
+    )
+
+    function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
+        if (!timeSteps || !selectedRange) return
+
+        let output: TwitterInterval[] = []
+
+        let i = 1
+        for (i; i < timeSteps.length; i++) {
+            const since = twitterDateFormat(timeSteps[i - 1])
+            const until = twitterDateFormat(timeSteps[i])
+
+            output.push({ since: since, until: until })
+        }
+
+        output.push({
+            since: twitterDateFormat(timeSteps[i - 1]),
+            until: twitterDateFormat(
+                new Date(
+                    selectedRange.end?.year,
+                    selectedRange.end?.month - 1,
+                    selectedRange.end?.day
+                )
+            )
+        })
+
+        return output
+    }
+
+    function spreadQueriesOverTime(
+        queries: string,
+        timeSteps: Date[],
+        selectedRange: DateRange
+    ) {
+        if (!timeSteps || !selectedRange) return queries
+
+        const queriesSplit = queries.split('\n')
+        queriesSpreadOverTime = ''
+
+        const intervalsGrouped = groupTimeRanges(timeSteps, selectedRange)
+
+        for (let q of queriesSplit) {
+            for (let i = 0; i < intervalsGrouped.length; i++) {
+                const since = intervalsGrouped[i].since
+                const until = intervalsGrouped[i].until
+                q = q.trim()
+
+                queriesSpreadOverTime += `${q} since:${since} until:${until}\n`
+            }
+            queriesSpreadOverTime += '\n'
+        }
+
+        return queriesSpreadOverTime
+    }
+
+    function twitterDateFormat(date: Date) {
+        const day = date.getDate().toString().padStart(2, '0')
+        const month = (date.getMonth() + 1).toString().padStart(2, '0') //bitch
+        const year = date.getFullYear()
+
+        return `${year}-${month}-${day}`
+    }
 
     onMount(() => {
         if ($userQuery) {
@@ -89,4 +167,4 @@
     {/if}
 </div>
 
-<DateRange />
+<DatePicker bind:selectedRange bind:timeSteps />

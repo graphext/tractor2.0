@@ -4,34 +4,47 @@
     import { fly } from 'svelte/transition'
     import { timeMinutes, timeDays, utcDay } from 'd3-time'
 
-    export let value: DateRange
+    export let selectedRange: DateRange
 
-    let timeArray: Date[]
-    $: console.log(timeArray)
+    export let timeSteps: Date[]
 
     //TODO: think about defaulting to daily queries
 
     const frequency = 1 // every day, every other day, etc...
 
-    $: if (value && value.start && value.end) {
-        console.log(value)
+    const today = new Date()
 
-        timeArray = utcDay.range(
-            new Date(value.start.year, value.start.month - 1, value.start.day),
-            new Date(value.end.year, value.end.month - 1, value.end.day),
+    $: if (selectedRange && selectedRange.start && selectedRange.end) {
+        console.log(selectedRange)
+
+        timeSteps = utcDay.range(
+            new Date(
+                selectedRange.start.year,
+                selectedRange.start.month - 1,
+                selectedRange.start.day
+            ),
+            new Date(
+                selectedRange.end.year,
+                selectedRange.end.month - 1,
+                selectedRange.end.day
+            ),
             frequency
         )
     }
 </script>
 
 <div class="mt-1">
-    <DateRangePicker.Root bind:value locale="en-UK" numberOfMonths={2}>
+    <DateRangePicker.Root
+        bind:value={selectedRange}
+        locale="en-UK"
+        numberOfMonths={2}
+    >
         <DateRangePicker.Label class="text-sm text-base-content/60"
             >Date Interval to search in</DateRangePicker.Label
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums h-input w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary bg-background pl-4 pr-2 py-1 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
+            class="flex tabular-nums h-input w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary bg-background pl-3 pr-2 py-1 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
@@ -64,6 +77,7 @@
                     {/if}
                 </div>
             {/each}
+
             <DateRangePicker.Trigger
                 class="ml-auto inline-flex hover:bg-base-content/10 size-8 items-center justify-center rounded-[5px] text-foreground/60 transition-all hover:bg-muted active:bg-dark-10"
             >
@@ -177,8 +191,3 @@
         </DateRangePicker.Content>
     </DateRangePicker.Root>
 </div>
-
-<style>
-    vr {
-    }
-</style>
