@@ -55,22 +55,21 @@
 />
 
 <div class="mb-10">
+    <div class="flex gap-3">
+        <img src="/tractor_icon.svg" width="24" alt="" />
+        <h1 class="text-3xl md:text-left transition-all tracking-tight">
+            Tractor
+        </h1>
+    </div>
+
     <div class="flex justify-between items-baseline">
-        <div class="flex gap-3 justify-between items-baseline w-full">
-            <div class="flex gap-3">
-                <img src="/tractor_icon.svg" width="24" alt="" />
-                <h1 class="text-3xl md:text-left transition-all tracking-tight">
-                    Tractor
-                </h1>
-            </div>
-            <div class="">
-                <User />
-            </div>
+        <h2 class="text-balance md:text-left">
+            Scraping made easy. Put your Apify key, and let us do the rest.
+        </h2>
+        <div class="">
+            <User />
         </div>
     </div>
-    <h2 class="w-full mx-auto text-balance md:text-left">
-        Scraping made easy. Put your Apify key, and let us do the rest.
-    </h2>
 </div>
 
 <section class="my-5 border-base-content/50 border p-3 rounded-box relative">

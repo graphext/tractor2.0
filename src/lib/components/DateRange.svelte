@@ -2,18 +2,36 @@
     import type { DateRange } from 'bits-ui'
     import { DateRangePicker } from 'bits-ui'
     import { fly } from 'svelte/transition'
+    import { timeMinutes, timeDays, utcDay } from 'd3-time'
 
     export let value: DateRange
+
+    let timeArray: Date[]
+    $: console.log(timeArray)
+
+    //TODO: think about defaulting to daily queries
+
+    const frequency = 1 // every day, every other day, etc...
+
+    $: if (value && value.start && value.end) {
+        console.log(value)
+
+        timeArray = utcDay.range(
+            new Date(value.start.year, value.start.month - 1, value.start.day),
+            new Date(value.end.year, value.end.month - 1, value.end.day),
+            frequency
+        )
+    }
 </script>
 
 <div class="mt-1">
-    <DateRangePicker.Root bind:value locale="en-UK">
+    <DateRangePicker.Root bind:value locale="en-UK" numberOfMonths={2}>
         <DateRangePicker.Label class="text-sm text-base-content/60"
             >Date Interval to search in</DateRangePicker.Label
         >
         <DateRangePicker.Input
             let:segments
-            class="flex h-input w-full max-w-[320px] px-3 rounded-btn select-none items-center rounded-input border border-secondary bg-background px-2 py-3 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
+            class="flex tabular-nums h-input w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary bg-background pl-4 pr-2 py-1 text-sm tracking-[0.01em] text-foreground focus-within:border-border-input-hover focus-within:shadow-date-field-focus hover:border-border-input-hover"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
@@ -47,7 +65,7 @@
                 </div>
             {/each}
             <DateRangePicker.Trigger
-                class="ml-auto inline-flex size-8 items-center justify-center rounded-[5px] text-foreground/60 transition-all hover:bg-muted active:bg-dark-10"
+                class="ml-auto inline-flex hover:bg-base-content/10 size-8 items-center justify-center rounded-[5px] text-foreground/60 transition-all hover:bg-muted active:bg-dark-10"
             >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +108,7 @@
                             ></path></svg
                         >
                     </DateRangePicker.PrevButton>
-                    <DateRangePicker.Heading class="text-[15px] font-medium" />
+                    <DateRangePicker.Heading class="font-bold" />
                     <DateRangePicker.NextButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all hover:bg-muted active:scale-98"
                     >
@@ -106,8 +124,9 @@
                         >
                     </DateRangePicker.NextButton>
                 </DateRangePicker.Header>
+                <div class="divider divider-secondary my-0"></div>
                 <div
-                    class="flex flex-col space-y-4 pt-4 sm:flex-row sm:space-x-4 sm:space-y-0 bg-base-100"
+                    class="flex flex-col pt-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                 >
                     {#each months as month}
                         <DateRangePicker.Grid
@@ -115,7 +134,7 @@
                         >
                             <DateRangePicker.GridHead>
                                 <DateRangePicker.GridRow
-                                    class="mb-1 flex w-full justify-between"
+                                    class="mb-1 flex w-full justify-between text-base-content/50"
                                 >
                                     {#each weekdays as day}
                                         <DateRangePicker.HeadCell
@@ -139,10 +158,10 @@
                                                 <DateRangePicker.Day
                                                     {date}
                                                     month={month.value}
-                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal text-foreground transition-all hover:border-foreground focus-visible:!ring-foreground data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:rounded-9px data-[selection-start]:rounded-9px data-[highlighted]:bg-base-content/20 data-[selected]:bg-primary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:text-muted-foreground data-[unavailable]:line-through data-[selection-start]:focus-visible:ring-2 data-[selection-start]:focus-visible:!ring-offset-2 data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:rounded-none data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:focus-visible:border-foreground data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:focus-visible:!ring-0 data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:focus-visible:!ring-offset-0"
+                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal text-foreground transition-all hover:border-foreground focus-visible:!ring-foreground data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:rounded-9px data-[selection-start]:rounded-9px data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:text-muted-foreground data-[unavailable]:line-through data-[selection-start]:focus-visible:ring-2 data-[selection-start]:focus-visible:!ring-offset-2 data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:rounded-none data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:focus-visible:border-foreground data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:focus-visible:!ring-0 data-[selected]:[&:not([data-selection-start])]:[&:not([data-selection-end])]:focus-visible:!ring-offset-0"
                                                 >
                                                     <div
-                                                        class="absolute top-[5px] hidden size-1 rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
+                                                        class="absolute top-[5px] hidden size-1 font-semibold rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
                                                     />
                                                     {date.day}
                                                 </DateRangePicker.Day>
@@ -158,3 +177,8 @@
         </DateRangePicker.Content>
     </DateRangePicker.Root>
 </div>
+
+<style>
+    vr {
+    }
+</style>
