@@ -35,6 +35,15 @@
     {placeholder}
     {value}
     bind:this={textarea}
-    class="textarea border border-primary/70 w-full font-mono h-full whitespace-nowrap overflow-x-scroll"
-    rows="5"
+    class="textarea border border-primary/70 w-full font-mono h-full overflow-x-scroll"
+    rows="10"
 ></textarea>
+
+<!-- lol, from https://bugzilla.mozilla.org/show_bug.cgi?id=1137650 -->
+<style>
+    textarea {
+        white-space: pre;
+        overflow: auto;
+        word-wrap: normal;
+    }
+</style>

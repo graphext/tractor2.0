@@ -26,6 +26,8 @@
         selectedRange
     )
 
+    $: console.log(queriesSpreadOverTime)
+
     function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
         if (!timeSteps || !selectedRange) return
 

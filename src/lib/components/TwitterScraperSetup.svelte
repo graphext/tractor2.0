@@ -43,6 +43,7 @@
 
     let datasetLink: string | null = null
     let datasetSize: number | null = null
+
     const churro =
         '&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled'
 
@@ -51,12 +52,6 @@
     let error: string | null = null
 
     $: buttonText = loading ? 'Loading tweets...' : 'Get Tweets'
-
-    onMount(() => {
-        if ($apifyTerms) {
-            queries = $apifyTerms
-        }
-    })
 
     async function handleSubmit() {
         confirmChoice = false
@@ -70,11 +65,14 @@
             return
         }
 
-        const queryList = queries.split('\n').filter((q) => q.trim() !== '')
-        const nQueries = queries.split('\n').length
+        const queryList = queriesSpreadOverTime
+            .split('\n')
+            .filter((q) => q.trim() !== '')
+        const nQueries = queriesSpreadOverTime.split('\n').length
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries)
 
         toast.success('Task and run created sucessfully.')
+
         setTimeout(() => {
             toast.info('Fetching data. This may take a while...')
         }, 1500)
