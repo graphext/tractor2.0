@@ -8,14 +8,16 @@
 
     let selectedLabel: string;
 
-    // export let options
     export let options;
 </script>
 
 <Select.Root
     selected={options.find((e) => e.value === $frequencyStore)}
     onSelectedChange={(e) => {
-        if (e) $frequencyStore = e.value;
+        if (e) {
+            $frequencyStore = e.label;
+            selectedLabel = e.label;
+        }
     }}
     items={options}
 >
@@ -41,7 +43,7 @@
             >
                 {o.label}
                 {#if selectedLabel === o.label}
-                    <Check size={20} class="fill-secondary" />
+                    <Check weight="bold" size={20} class="fill-secondary" />
                 {/if}
             </Select.Item>
         {/each}

@@ -1,34 +1,31 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte'
-    import { cleanText } from '$lib/utils'
-    import { apifyTerms } from '$lib/stores/userQueryStore'
+    import { createEventDispatcher } from "svelte";
+    import { cleanText } from "$lib/utils";
 
-    export let placeholder = 'Paste your text here'
-    export let value = ''
+    export let placeholder = "";
+    export let value = "";
 
-    $: if (value) apifyTerms.set(value)
-
-    const dispatch = createEventDispatcher()
+    const dispatch = createEventDispatcher();
 
     function handlePaste(event: ClipboardEvent) {
-        event.preventDefault()
+        event.preventDefault();
 
-        const pastedText = event.clipboardData?.getData('text') || ''
-        const cleanedText = cleanText(pastedText)
+        const pastedText = event.clipboardData?.getData("text") || "";
+        const cleanedText = cleanText(pastedText);
 
-        value = cleanedText
-        dispatch('input', cleanedText)
+        value = cleanedText;
+        dispatch("input", cleanedText);
     }
 
     function handleInput(event: Event) {
-        const input = event.target as HTMLTextAreaElement
-        value = cleanText(input.value)
-        dispatch('input', value)
+        const input = event.target as HTMLTextAreaElement;
+        value = cleanText(input.value);
+        dispatch("input", value);
     }
 
-    let textarea: HTMLTextAreaElement
+    let textarea: HTMLTextAreaElement;
 
-    $: value && textarea && (textarea.scrollTop = textarea.scrollHeight)
+    $: value && textarea && (textarea.scrollTop = textarea.scrollHeight);
 </script>
 
 <textarea

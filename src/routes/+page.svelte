@@ -93,7 +93,7 @@
     <div class="font-bold mb-3 text-secondary dark:text-secondary">
         Query Generation
     </div>
-    <ChatGPTQueries bind:queriesSpreadOverTime bind:queries />
+    <ChatGPTQueries bind:queries bind:queriesSpreadOverTime />
 
     <Indicator color="secondary/80" index={2} />
 </section>

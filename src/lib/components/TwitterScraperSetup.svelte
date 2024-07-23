@@ -1,139 +1,137 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
-    import { fly } from 'svelte/transition'
-    import CleanPasteInput from './CleanPasteInput.svelte'
-    import { toast } from 'svelte-sonner'
+    import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
+    import CleanPasteInput from "./CleanPasteInput.svelte";
+    import { toast } from "svelte-sonner";
 
-    import { PaneGroup, Pane, PaneResizer } from 'paneforge'
+    import { PaneGroup, Pane, PaneResizer } from "paneforge";
 
-    import { tweened } from 'svelte/motion'
-
-    import { apifyTerms } from '../stores/userQueryStore'
+    import { tweened } from "svelte/motion";
 
     import {
         setupTwitterScrapingTask,
         getRunStatus,
         getDatasetLink,
         getDatsetInfo,
-        getDatsetLength
-    } from '../apifyEndpoints'
+        getDatsetLength,
+    } from "../apifyEndpoints";
 
-    import { apifyKey } from '../stores/apifyStore'
-    import { backOut, cubicInOut } from 'svelte/easing'
+    import { apifyKey } from "../stores/apifyStore";
+    import { backOut, cubicInOut } from "svelte/easing";
 
-    export let queries = ''
-    export let queriesSpreadOverTime = ''
+    export let queries = "";
+    export let queriesSpreadOverTime = "";
 
-    let loading = false
-    let confirmChoice = false
+    let loading = false;
+    let confirmChoice = false;
 
-    let runId: string | null = null
-    let status: string | null = null
+    let runId: string | null = null;
+    let status: string | null = null;
 
-    let logs: string | null = null
-    const regex = /Got (\d+) results/g
-    let outputProgress: number = 0
-    const springProgress = tweened(outputProgress, { easing: cubicInOut })
+    let logs: string | null = null;
+    const regex = /Got (\d+) results/g;
+    let outputProgress: number = 0;
+    const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let numTweets = 2000
-    let prettyData = true
+    let numTweets = 2000;
+    let prettyData = true;
 
-    let tweetCost = 0.3 / 1000
-    $: totalApproximateCost = numTweets * tweetCost
+    let tweetCost = 0.3 / 1000;
+    $: totalApproximateCost = numTweets * tweetCost;
 
-    let datasetLink: string | null = null
-    let datasetSize: number | null = null
+    let datasetLink: string | null = null;
+    let datasetSize: number | null = null;
 
     const churro =
-        '&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled'
+        "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
 
-    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ''}`
+    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ""}`;
 
-    let error: string | null = null
+    let error: string | null = null;
 
-    $: buttonText = loading ? 'Loading tweets...' : 'Get Tweets'
+    $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     async function handleSubmit() {
-        confirmChoice = false
-        datasetLink = ''
-        outputProgress = 0
-        logs = ''
+        confirmChoice = false;
+        datasetLink = "";
+        outputProgress = 0;
+        logs = "";
 
         if (!$apifyKey) {
-            toast.error('Please set your Apify API key first.')
-            error = 'Please set your Apify API key first.'
-            return
+            toast.error("Please set your Apify API key first.");
+            error = "Please set your Apify API key first.";
+            return;
         }
 
         const queryList = queriesSpreadOverTime
-            .split('\n')
-            .filter((q) => q.trim() !== '')
-        const nQueries = queriesSpreadOverTime.split('\n').length
-        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries)
+            .split("\n")
+            .filter((q) => q.trim() !== "");
+        const nQueries = queriesSpreadOverTime.split("\n").length;
+        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
-        toast.success('Task and run created sucessfully.')
+        toast.success("Task and run created sucessfully.");
 
         setTimeout(() => {
-            toast.info('Fetching data. This may take a while...')
-        }, 1500)
+            toast.info("Fetching data. This may take a while...");
+        }, 1500);
 
         try {
-            loading = true
+            loading = true;
 
             runId = await setupTwitterScrapingTask(
                 queryList,
                 numTweets,
-                maxTweetsPerQuery
-            )
-            error = null
+                maxTweetsPerQuery,
+            );
+            error = null;
 
-            checkStatus()
+            checkStatus();
         } catch (err) {
             error =
-                'Error: ' + (err instanceof Error ? err.message : String(err))
-            console.error(err)
+                "Error: " + (err instanceof Error ? err.message : String(err));
+            console.error(err);
         }
     }
 
     async function checkStatus() {
-        if (!runId) return
+        if (!runId) return;
 
         try {
-            const runData = await getRunStatus(runId)
+            const runData = await getRunStatus(runId);
 
-            outputProgress = await getDatsetLength(runId)
-            springProgress.set(outputProgress)
+            outputProgress = await getDatsetLength(runId);
+            springProgress.set(outputProgress);
 
-            status = runData.data.status
+            status = runData.data.status;
 
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
-            if (status === 'SUCCEEDED' || status === 'ABORTED') {
-                toast.success('🎉 Dataset created. Ready to download!')
-                datasetLink = await getDatasetLink(runId, 'json')
+            if (status === "SUCCEEDED" || status === "ABORTED") {
+                toast.success("🎉 Dataset created. Ready to download!");
+                datasetLink = await getDatasetLink(runId, "json");
 
-                const datasetInfo = await getDatsetInfo(runId)
+                const datasetInfo = await getDatsetInfo(runId);
 
-                console.log(datasetInfo.data)
+                console.log(datasetInfo.data);
 
-                datasetSize = datasetInfo.data.itemCount
+                datasetSize = datasetInfo.data.itemCount;
 
-                loading = false
+                loading = false;
 
-                return
-            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
-                setTimeout(checkStatus, 5000) // Check again in 5 seconds
-            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
-                loading = false
+                return;
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                setTimeout(checkStatus, 5000); // Check again in 5 seconds
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                loading = false;
                 throw Error(
-                    'Run failed, timed-out or aborted. Check the APIFY dashboard to know more.'
-                )
+                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
+                );
             }
         } catch (err) {
             error =
-                'Failed to check task status. ' +
-                (err instanceof Error ? err.message : String(err))
-            console.error(err)
+                "Failed to check task status. " +
+                (err instanceof Error ? err.message : String(err));
+            console.error(err);
         }
     }
 </script>
@@ -189,7 +187,7 @@
         <label for="Numtweets" class="self-end flex flex-col text-right">
             <span>Number of tweets to retrieve</span>
             <input
-                class="input input-bordered font-mono text-right"
+                class="input input-bordered tabular-nums text-right"
                 inputmode="numeric"
                 bind:value={numTweets}
                 type="number"
@@ -258,12 +256,12 @@
         class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
     >
         <p class="mt-4">Task status: {status}</p>
-        {#if status == 'RUNNING'}
+        {#if status == "RUNNING"}
             <span>{outputProgress} tweets analyzed...</span>
             <span class="loading loading-dots loading-sm"></span>
-        {:else if status == 'SUCCEEDED'}
+        {:else if status == "SUCCEEDED"}
             <span></span>
-        {:else if status == 'FAILED'}
+        {:else if status == "FAILED"}
             <span> </span>
         {/if}
     </div>
