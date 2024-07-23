@@ -1,4 +1,6 @@
 import type { DateRange } from "bits-ui";
+import { frequencyStore } from "./stores/store";
+import { get } from "svelte/store";
 
 export function cleanText(text: string): string {
 	text = text.replace(/[^\S\r\n]+/g, " ");
@@ -32,8 +34,72 @@ type TwitterInterval = {
 	since: string;
 };
 
+type TimeUnit = "day" | "week" | "month" | "year";
+
+export function getDateRangeScope(dateRange: DateRange): TimeUnit {
+	const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+	if (!dateRange) {
+		return "day";
+	}
+
+	const endDate = new Date(dateRange.end?.toString());
+	const startDate = new Date(dateRange.start?.toString());
+
+	const diff = endDate.getTime() - startDate.getTime();
+
+	const msPerDay = 1000 * 60 * 60 * 24;
+	const msPerWeek = msPerDay * 7;
+	const avgMsPerMonth = msPerDay * 30.44; // average number of days in a month
+	const avgMsPerYear = msPerDay * 365.25; // accounting for leap years
+
+	const yearsDiff = Math.floor(diff / avgMsPerYear);
+	const monthsDiff = Math.floor(diff / avgMsPerMonth);
+	const weeksDiff = Math.floor(diff / msPerWeek);
+	const daysDiff = Math.floor(diff / msPerDay);
+
+	if (yearsDiff >= 1) {
+		return "year";
+	} else if (monthsDiff >= 1) {
+		return "month";
+	} else if (weeksDiff >= 1) {
+		return "week";
+	} else {
+		return "day";
+	}
+}
+
+export function getSelectionOptions(dateRange: DateRange) {
+	const scope = getDateRangeScope(dateRange);
+
+	let options = [
+		{ value: "Daily", label: "Daily", disabled: false },
+		{ value: "Weekly", label: "Weekly", disabled: true },
+		{ value: "Monthly", label: "Monthly", disabled: true },
+		{ value: "Anually", label: "Anually", disabled: true },
+	];
+
+	switch (scope) {
+		case "year":
+			options[3].disabled = false;
+		case "month":
+			options[2].disabled = false;
+			if (get(frequencyStore) == "Anually") frequencyStore.set("Monthly");
+		case "week":
+			options[1].disabled = false;
+			const fStore = get(frequencyStore);
+			if (fStore == "Monthly" || fStore == "Anually")
+				frequencyStore.set("Weekly");
+			break;
+	}
+
+	return options;
+}
+
 export function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
-	if (!timeSteps || !selectedRange) return;
+	if (!timeSteps || !selectedRange) {
+		return;
+	}
 
 	let output: TwitterInterval[] = [];
 

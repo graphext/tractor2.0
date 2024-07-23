@@ -1,74 +1,78 @@
 <script lang="ts">
-    import { userQuery } from '$lib/stores/userQueryStore'
-    import { onMount } from 'svelte'
-    import { toast } from 'svelte-sonner'
-    import type { DateRange } from 'bits-ui'
-    import DatePicker from './DatePicker.svelte'
-    import { spreadQueriesOverTime } from '$lib/utils'
-    import Select from './Select.svelte'
-    import type { CountableTimeInterval } from 'd3-time'
+    import { userQuery } from "$lib/stores/userQueryStore";
+    import { onMount } from "svelte";
+    import { toast } from "svelte-sonner";
+    import type { DateRange } from "bits-ui";
+    import DatePicker from "./DatePicker.svelte";
+    import { getSelectionOptions, spreadQueriesOverTime } from "$lib/utils";
+    import Select from "./Select.svelte";
 
-    export let queries = ''
-    export let queriesSpreadOverTime = ''
-    export let frequency: CountableTimeInterval
+    export let queries = "";
+    export let queriesSpreadOverTime = "";
 
-    let userPrompt = ''
-    let error = ''
-    let loading = false
+    let userPrompt = "";
+    let error = "";
+    let loading = false;
 
-    let selectedRange: DateRange
-    let timeSteps: Date[]
+    let selectedRange: DateRange;
+    let timeSteps: Date[];
 
-    $: queriesSpreadOverTime = spreadQueriesOverTime(
-        queries,
-        timeSteps,
-        selectedRange
-    )
+    $: if (selectedRange && selectedRange.end) {
+        queriesSpreadOverTime = spreadQueriesOverTime(
+            queries,
+            timeSteps,
+            selectedRange,
+        );
+    }
+
+    $: options = getSelectionOptions(selectedRange);
 
     onMount(() => {
         if ($userQuery) {
-            userPrompt = $userQuery
+            userPrompt = $userQuery;
         }
-    })
+    });
 
     async function generateResponse() {
-        $userQuery = userPrompt
-        loading = true
-        error = ''
-        queries = ''
+        $userQuery = userPrompt;
+        loading = true;
+        error = "";
+        queries = "";
 
         try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
+            const res = await fetch("/api/chat", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: userPrompt })
-            })
+                body: JSON.stringify({ prompt: userPrompt }),
+            });
 
             if (!res.ok) {
-                const errorData = await res.json()
+                const errorData = await res.json();
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`
-                )
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            const reader = res.body.getReader()
-            const decoder = new TextDecoder()
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
 
             while (true) {
-                const { done, value } = await reader.read()
-                if (done) break
-                const chunk = decoder.decode(value)
-                queries += chunk
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                queries += chunk;
             }
         } catch (err) {
-            console.error('Error:', err)
+            console.error("Error:", err);
             error =
-                err instanceof Error ? err.message : 'An unknown error occurred'
-            toast.error(error)
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
+            toast.error(error);
         } finally {
-            loading = false
+            loading = false;
         }
     }
 </script>
@@ -93,7 +97,7 @@
                     class="btn btn-secondary join-item"
                     disabled={loading}
                 >
-                    {loading ? 'Generating...' : 'Generate Search Terms'}
+                    {loading ? "Generating..." : "Generate Search Terms"}
                 </button>
             </div>
         </form>
@@ -106,7 +110,7 @@
 </div>
 
 <div class="flex items-end gap-3">
-    <DatePicker bind:frequency bind:selectedRange bind:timeSteps />
+    <DatePicker bind:selectedRange bind:timeSteps />
 
-    <Select bind:value={frequency} />
+    <Select {options} />
 </div>

@@ -1,39 +1,67 @@
 <script lang="ts">
-    import type { DateRange } from 'bits-ui'
-    import { DateRangePicker } from 'bits-ui'
-    import { fly } from 'svelte/transition'
-    import { timeMinutes, timeDays, utcDay } from 'd3-time'
+    import type { DateRange } from "bits-ui";
+    import { today, getLocalTimeZone } from "@internationalized/date";
+    import { DateRangePicker } from "bits-ui";
+    import { fly } from "svelte/transition";
+    import {
+        utcDay,
+        utcMonth,
+        utcWeek,
+        utcYear,
+        type CountableTimeInterval,
+    } from "d3-time";
+    import { frequencyStore } from "$lib/stores/store";
+    import { getDateRangeScope, getSelectionOptions } from "$lib/utils";
+    import { onMount } from "svelte";
 
-    export let selectedRange: DateRange
+    export let selectedRange: DateRange = {
+        start: today(getLocalTimeZone()).subtract({ months: 1 }),
+        end: today(getLocalTimeZone()),
+    };
 
-    export let timeSteps: Date[]
+    export let timeSteps: Date[];
 
-    //TODO: think about defaulting to daily queries
+    const functionMap: Record<string, CountableTimeInterval> = {
+        Daily: utcDay,
+        Weekly: utcWeek,
+        Monthly: utcMonth,
+        Anually: utcYear,
+    };
 
-    export let frequency // every day, every other day, etc...
+    onMount(() => {
+        if ($frequencyStore == "Anually") {
+            $frequencyStore = "Daily";
+        }
+    });
 
-    const today = new Date()
-
-    $: if (selectedRange && selectedRange.start && selectedRange.end) {
-        timeSteps = frequency.range(
+    $: if (
+        $frequencyStore &&
+        selectedRange &&
+        selectedRange.start &&
+        selectedRange.end
+    ) {
+        timeSteps = functionMap[$frequencyStore].range(
             new Date(
                 selectedRange.start.year,
                 selectedRange.start.month - 1,
-                selectedRange.start.day
+                selectedRange.start.day,
             ),
             new Date(
                 selectedRange.end.year,
                 selectedRange.end.month - 1,
-                selectedRange.end.day
+                selectedRange.end.day,
             ),
-            1
-        )
+            1,
+        );
     }
 </script>
 
 <div class="mt-1">
     <DateRangePicker.Root
         bind:value={selectedRange}
+        fixedWeeks={true}
+        weekdayFormat="short"
+        pagedNavigation={true}
         locale="en-UK"
         numberOfMonths={2}
     >
@@ -42,11 +70,11 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary pl-3 pr-1 py-1 text-sm focus-within:border-primary-content"
+            class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary pl-3 pr-1 py-1 text-sm"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
-                    {#if part === 'literal'}
+                    {#if part === "literal"}
                         <DateRangePicker.Segment
                             type="start"
                             {part}
@@ -64,7 +92,7 @@
             <div aria-hidden class="px-3">—</div>
             {#each segments.end as { part, value }}
                 <div class="inline-block select-none">
-                    {#if part === 'literal'}
+                    {#if part === "literal"}
                         <DateRangePicker.Segment type="end" {part} class="p-1">
                             {value}
                         </DateRangePicker.Segment>
@@ -99,7 +127,7 @@
             class="z-50"
         >
             <DateRangePicker.Calendar
-                class="mt-6 rounded-15px border rounded-btn shadow-md shadow-base-content/10 border-secondary bg-background-alt p-[22px] shadow-popover bg-base-100"
+                class="mt-6 tabular-nums rounded-15px border rounded-btn shadow-md shadow-base-content/10 border-secondary bg-background-alt p-[22px] shadow-popover bg-base-100"
                 let:months
                 let:weekdays
             >
@@ -150,7 +178,7 @@
                                 >
                                     {#each weekdays as day}
                                         <DateRangePicker.HeadCell
-                                            class="w-10 rounded-md text-xs !font-normal text-muted-foreground"
+                                            class="w-10 rounded-md text-xs font-thin"
                                         >
                                             <div>{day.slice(0, 2)}</div>
                                         </DateRangePicker.HeadCell>
@@ -165,7 +193,7 @@
                                         {#each weekDates as date}
                                             <DateRangePicker.Cell
                                                 {date}
-                                                class="relative m-0 size-10 overflow-visible !p-0 text-center text-sm focus-within:relative focus-within:z-20"
+                                                class="relative m-0 size-10 overflow-visible !p-0 text-center text-sm focus-within:relative focus-within:z-20 hover:bg-base-300 duration-75 transition-all"
                                             >
                                                 <DateRangePicker.Day
                                                     {date}

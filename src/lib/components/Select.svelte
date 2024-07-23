@@ -1,36 +1,30 @@
 <script lang="ts">
-    import { Select } from 'bits-ui'
-    import { fly } from 'svelte/transition'
-    import Check from 'phosphor-svelte/lib/Check'
-    import Timer from 'phosphor-svelte/lib/Timer'
+    import { Select } from "bits-ui";
+    import { fly } from "svelte/transition";
+    import Check from "phosphor-svelte/lib/Check";
+    import Timer from "phosphor-svelte/lib/Timer";
 
-    import {
-        utcDay,
-        utcWeek,
-        utcMonth,
-        utcYear,
-        type CountableTimeInterval
-    } from 'd3-time'
+    import { frequencyStore } from "$lib/stores/store";
 
-    export let value: CountableTimeInterval = utcDay
-    let selectedLabel = 'Daily'
+    let selectedLabel: string;
 
     // export let options
-    const options = [
-        { value: utcDay, label: 'Daily' },
-        { value: utcWeek, label: 'Weekly' },
-        { value: utcMonth, label: 'Monthly' },
-        { value: utcYear, label: 'Anually' }
-    ]
+    export let options;
 </script>
 
-<Select.Root items={options}>
+<Select.Root
+    selected={options.find((e) => e.value === $frequencyStore)}
+    onSelectedChange={(e) => {
+        if (e) $frequencyStore = e.value;
+    }}
+    items={options}
+>
     <Select.Trigger
         class="w-[220px] flex items-center pl-3 pr-2 py-1 h-full border-secondary border rounded-btn"
         aria-label="Frequency"
     >
         <Timer size={24} />
-        <Select.Value class="text-sm p-1.5" placeholder="Frequency" />
+        <Select.Value class="text-sm p-1.5 ml-1" placeholder="Frequency" />
     </Select.Trigger>
     <Select.Content
         class="w-full rounded-xl border border-secondary shadow-md shadow-base-content/10 bg-base-100 px-1 py-1 shadow-popover outline-none"
@@ -40,19 +34,14 @@
     >
         {#each options as o}
             <Select.Item
-                class="flex h-10 w-full select-none items-center rounded-btn px-5 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[highlighted]:font-bold"
+                class="flex justify-between h-10 w-full select-none items-center rounded-btn px-5 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
                 value={o.value}
                 label={o.label}
-                on:click={() => {
-                    value = o.value
-                    selectedLabel = o.label
-                }}
+                disabled={o.disabled}
             >
                 {o.label}
-                {#if selectedLabel == o.label}
-                    <Select.ItemIndicator class="ml-auto" asChild={false}>
-                        <Check size={20} class="fill-secondary" />
-                    </Select.ItemIndicator>
+                {#if selectedLabel === o.label}
+                    <Check size={20} class="fill-secondary" />
                 {/if}
             </Select.Item>
         {/each}

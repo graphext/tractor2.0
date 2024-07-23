@@ -38,6 +38,8 @@ export default {
                     secondary: "#00867A",
                     "secondary-content": "#D8F4ED",
                     "base-100": "#1F2024",
+                    "base-200": "#27272C",
+                    "base-300": "#303037",
                     "base-content": "#FFF",
                     warning: "#FEC601",
                     "warning-content": "#2E2400",
