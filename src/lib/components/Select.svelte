@@ -29,7 +29,7 @@
         <Select.Value class="text-sm p-1.5 ml-1" placeholder="Frequency" />
     </Select.Trigger>
     <Select.Content
-        class="w-full rounded-xl border border-secondary shadow-md shadow-base-content/10 bg-base-100 px-1 py-1 shadow-popover outline-none"
+        class="w-full backdrop-blur bg-base-100/40 rounded-xl border border-secondary shadow-md shadow-base-content/10 px-1 py-1 shadow-popover outline-none"
         transition={fly}
         transitionConfig={{ duration: 100, y: -20 }}
         sideOffset={8}

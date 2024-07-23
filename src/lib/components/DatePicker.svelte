@@ -124,15 +124,15 @@
             transition={fly}
             transitionConfig={{ y: -10, duration: 100 }}
             sideOffset={6}
-            class="z-50"
+            class="z-50 backdrop-blur bg-base-100/20"
         >
             <DateRangePicker.Calendar
-                class="mt-6 tabular-nums rounded-15px border rounded-btn shadow-md shadow-base-content/10 border-secondary bg-background-alt p-[22px] shadow-popover bg-base-100"
+                class="mt-6 tabular-nums border rounded-btn shadow-md shadow-base-content/10 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
                 let:months
                 let:weekdays
             >
                 <DateRangePicker.Header
-                    class="flex items-center justify-between bg-base-100"
+                    class="flex items-center justify-between"
                 >
                     <DateRangePicker.PrevButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all  active:scale-98"
@@ -148,7 +148,7 @@
                             ></path></svg
                         >
                     </DateRangePicker.PrevButton>
-                    <DateRangePicker.Heading class="font-bold" />
+                    <DateRangePicker.Heading class="font-bold uppercase" />
                     <DateRangePicker.NextButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all  active:scale-98"
                     >
@@ -170,7 +170,7 @@
                 >
                     {#each months as month}
                         <DateRangePicker.Grid
-                            class="w-full border-collapse select-none space-y-1 bg-base-100"
+                            class="w-full border-collapse select-none space-y-1"
                         >
                             <DateRangePicker.GridHead>
                                 <DateRangePicker.GridRow
