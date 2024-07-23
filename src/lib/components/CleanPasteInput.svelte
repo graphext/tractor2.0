@@ -24,16 +24,15 @@
     }
 
     let textarea: HTMLTextAreaElement;
-
-    $: value && textarea && (textarea.scrollTop = textarea.scrollHeight);
 </script>
 
 <textarea
     {placeholder}
-    {value}
+    bind:value
     bind:this={textarea}
     class="textarea border border-primary/70 w-full font-mono h-full overflow-x-scroll"
     rows="10"
+    {...$$restProps}
 ></textarea>
 
 <!-- lol, from https://bugzilla.mozilla.org/show_bug.cgi?id=1137650 -->

@@ -18,6 +18,7 @@
 
     import { apifyKey } from "../stores/apifyStore";
     import { backOut, cubicInOut } from "svelte/easing";
+    import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -138,7 +139,10 @@
 
 <div class="flex flex-col gap-3">
     <PaneGroup direction="horizontal" class="items-center gap-1">
-        <Pane defaultSize={50}>
+        <Pane defaultSize={30} class="p-1">
+            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+                Main content queries
+            </div>
             <CleanPasteInput
                 placeholder="Generate twitter search terms in the input query generator"
                 bind:value={queries}
@@ -147,21 +151,16 @@
         <PaneResizer
             class="bg-primary text-primary-content rounded-sm py-2 h-min"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="15"
-                height="15"
-                fill="currentColor"
-                viewBox="0 0 256 256"
-                ><path
-                    d="M108,60A16,16,0,1,1,92,44,16,16,0,0,1,108,60Zm56,16a16,16,0,1,0-16-16A16,16,0,0,0,164,76ZM92,112a16,16,0,1,0,16,16A16,16,0,0,0,92,112Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,112ZM92,180a16,16,0,1,0,16,16A16,16,0,0,0,92,180Zm72,0a16,16,0,1,0,16,16A16,16,0,0,0,164,180Z"
-                ></path></svg
-            >
+            <DotsSixVertical size={15} weight="duotone" />
         </PaneResizer>
-        <Pane defaultSize={50}>
+        <Pane defaultSize={70} class="p-1">
+            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+                What's being sent
+            </div>
             <CleanPasteInput
                 placeholder="Here, the queries will be spread over time"
                 bind:value={queriesSpreadOverTime}
+                readonly
             />
         </Pane>
     </PaneGroup>

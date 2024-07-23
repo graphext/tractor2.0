@@ -11,8 +11,9 @@
         type CountableTimeInterval,
     } from "d3-time";
     import { frequencyStore } from "$lib/stores/store";
-    import { getDateRangeScope, getSelectionOptions } from "$lib/utils";
     import { onMount } from "svelte";
+    import CaretLeft from "phosphor-svelte/lib/CaretLeft";
+    import CaretRight from "phosphor-svelte/lib/CaretRight";
 
     export let selectedRange: DateRange = {
         start: today(getLocalTimeZone()).subtract({ months: 1, days: 1 }),
@@ -137,31 +138,13 @@
                     <DateRangePicker.PrevButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all  active:scale-98"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            viewBox="0 0 256 256"
-                            ><path
-                                d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"
-                            ></path></svg
-                        >
+                        <CaretLeft size={24} />
                     </DateRangePicker.PrevButton>
                     <DateRangePicker.Heading class="font-bold uppercase" />
                     <DateRangePicker.NextButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all  active:scale-98"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            fill="currentColor"
-                            viewBox="0 0 256 256"
-                            ><path
-                                d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"
-                            ></path></svg
-                        >
+                        <CaretRight size={24} />
                     </DateRangePicker.NextButton>
                 </DateRangePicker.Header>
                 <div class="divider divider-secondary my-0"></div>

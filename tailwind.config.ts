@@ -6,7 +6,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Mona Sans"],
+                sans: ["Mona Sans", "sans-serif"],
                 mono: ["Monaspace Neon", "monospaced"],
             },
         },
