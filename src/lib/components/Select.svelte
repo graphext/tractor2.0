@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Select } from "bits-ui";
+    import { Select, Tooltip } from "bits-ui";
     import { fly } from "svelte/transition";
     import Check from "phosphor-svelte/lib/Check";
     import Timer from "phosphor-svelte/lib/Timer";
@@ -21,13 +21,33 @@
     }}
     items={options}
 >
-    <Select.Trigger
-        class="w-[220px] flex items-center pl-3 pr-2 py-1 h-full border-secondary border rounded-btn"
-        aria-label="Frequency"
-    >
-        <Timer size={24} />
-        <Select.Value class="text-sm p-1.5 ml-1" placeholder="Frequency" />
-    </Select.Trigger>
+    <div class="flex flex-col">
+        <Tooltip.Root openDelay={100}>
+            <Tooltip.Trigger class="text-left">
+                <Select.Label class="text-sm text-base-content/60"
+                    >Break the queries down</Select.Label
+                >
+            </Tooltip.Trigger>
+            <Tooltip.Content
+                transition={fly}
+                transitionConfig={{ y: 8, duration: 150 }}
+                sideOffset={8}
+                class="bg-base-100 z-10 shadow-md shadow-base-content/30 border-2 border-secondary rounded-btn"
+            >
+                <div class="p-3 text-balance w-[250px]">
+                    The more queries you send, the more results you'll get.
+                </div>
+            </Tooltip.Content>
+        </Tooltip.Root>
+
+        <Select.Trigger
+            class="w-[220px] flex items-center pl-3 pr-2 py-1 h-full border-secondary border rounded-btn"
+            aria-label="Frequency"
+        >
+            <Timer size={24} />
+            <Select.Value class="text-sm p-1.5 ml-1" placeholder="Frequency" />
+        </Select.Trigger>
+    </div>
     <Select.Content
         class="w-full backdrop-blur bg-base-100/40 rounded-xl border border-secondary shadow-md shadow-base-content/10 px-1 py-1 shadow-popover outline-none"
         transition={fly}

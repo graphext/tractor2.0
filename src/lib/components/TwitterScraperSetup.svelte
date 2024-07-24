@@ -24,6 +24,10 @@
     export let queries = "";
     export let queriesSpreadOverTime = "";
 
+    $: numQueries = queriesSpreadOverTime
+        ? queriesSpreadOverTime.trim().split("\n").length
+        : 0;
+
     let loading = false;
     let confirmChoice = false;
 
@@ -156,7 +160,8 @@
         </PaneResizer>
         <Pane defaultSize={70} class="p-1">
             <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
-                What's being sent
+                What's being sent ({numQueries}
+                {numQueries == 1 ? "query" : "queries"})
             </div>
             <CleanPasteInput
                 placeholder="Here, the queries will be spread over time"

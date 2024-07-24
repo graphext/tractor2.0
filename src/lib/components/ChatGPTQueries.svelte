@@ -6,6 +6,7 @@
     import DatePicker from "./DatePicker.svelte";
     import { getSelectionOptions, spreadQueriesOverTime } from "$lib/utils";
     import Select from "./Select.svelte";
+    import CleanPasteInput from "./CleanPasteInput.svelte";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -38,15 +39,24 @@
 
     $: options = getSelectionOptions(selectedRange);
 
+    let interval: number;
+    $: {
+        if (userPrompt == "") {
+            interval = setInterval(() => {
+                index = (index + 1) % placeholderIdeas.length;
+                placeholder = placeholderIdeas[index];
+            }, 6000);
+            console.log("empty prompt", interval);
+        } else {
+            console.log("not empty prompt", interval);
+            clearInterval(interval);
+        }
+    }
+
     onMount(() => {
         if ($userQuery) {
             userPrompt = $userQuery;
         }
-
-        let interval = setInterval(() => {
-            index = (index + 1) % placeholderIdeas.length;
-            placeholder = placeholderIdeas[index];
-        }, 6000);
     });
 
     async function generateResponse() {

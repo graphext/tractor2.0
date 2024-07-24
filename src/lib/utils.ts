@@ -98,7 +98,16 @@ export function getSelectionOptions(dateRange: DateRange) {
 
 export function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
 	if (!timeSteps || !selectedRange) {
-		return;
+		return [];
+	}
+
+	if (
+		selectedRange.start > selectedRange.end ||
+		timeSteps.length == 0 ||
+		!timeSteps
+	) {
+		console.log("putadón");
+		return [];
 	}
 
 	let output: TwitterInterval[] = [];
@@ -137,6 +146,11 @@ export function spreadQueriesOverTime(
 	let queriesSpreadOverTime = "";
 
 	const intervalsGrouped = groupTimeRanges(timeSteps, selectedRange);
+
+	console.log("intervalsGrouped", intervalsGrouped);
+	if (intervalsGrouped.length == 0 || !intervalsGrouped) {
+		return queries;
+	}
 
 	for (let q of queriesSplit) {
 		for (let i = 0; i < intervalsGrouped.length; i++) {

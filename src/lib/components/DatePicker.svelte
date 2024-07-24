@@ -1,6 +1,11 @@
 <script lang="ts">
     import type { DateRange } from "bits-ui";
-    import { today, getLocalTimeZone } from "@internationalized/date";
+    import {
+        today,
+        getLocalTimeZone,
+        CalendarDate,
+        type DateValue,
+    } from "@internationalized/date";
     import { DateRangePicker } from "bits-ui";
     import { fly } from "svelte/transition";
     import {
@@ -14,6 +19,7 @@
     import { onMount } from "svelte";
     import CaretLeft from "phosphor-svelte/lib/CaretLeft";
     import CaretRight from "phosphor-svelte/lib/CaretRight";
+    import CalendarDots from "phosphor-svelte/lib/CalendarDots";
 
     export let selectedRange: DateRange = {
         start: today(getLocalTimeZone()).subtract({ months: 1, days: 1 }),
@@ -108,7 +114,7 @@
         }
     }
 
-    const debouncedDateRange = debounce(recalculateDateRange, 1500);
+    const debouncedDateRange = debounce(recalculateDateRange, 600);
 
     $: {
         debouncedDateRange(selectedRange, $frequencyStore);
@@ -119,6 +125,8 @@
             $frequencyStore = "Daily";
         }
     });
+
+    const minValue: DateValue = new CalendarDate(2006, 3, 21);
 </script>
 
 <div class="mt-1">
@@ -128,6 +136,10 @@
         weekdayFormat="short"
         pagedNavigation={true}
         locale="en-UK"
+        {minValue}
+        isDateDisabled={(date) => {
+            return date < new CalendarDate(2006, 3, 21); //twitter foundation date
+        }}
         numberOfMonths={2}
     >
         <DateRangePicker.Label class="text-sm text-base-content/60"
@@ -172,16 +184,7 @@
             <DateRangePicker.Trigger
                 class="inline-flex hover:bg-base-content/10 p-1 ml-3 items-center justify-center rounded-[5px] text-foreground/60 transition-all active:bg-dark-10"
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    viewBox="0 0 256 256"
-                    ><path
-                        d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-68-76a12,12,0,1,1-12-12A12,12,0,0,1,140,132Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,132ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,140,172Zm44,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z"
-                    ></path></svg
-                >
+                <CalendarDots size={24} weight="duotone" />
             </DateRangePicker.Trigger>
         </DateRangePicker.Input>
 
@@ -245,7 +248,7 @@
                                                 <DateRangePicker.Day
                                                     {date}
                                                     month={month.value}
-                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal text-foreground transition-all hover:border-foreground focus-visible:!ring-foreground data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:bg-secondary/5 data-[selection-end]:border-2 data-[selection-end]:border-secondary data-[selection-end]:text-secondary data-[selection-start]:bg-secondary/5 data-[selection-start]:border-2 data-[selection-start]:border-secondary data-[selection-start]:text-secondary data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:line-through"
+                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal text-foreground transition-all hover:border-foreground focus-visible:!ring-foreground data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:bg-secondary/5 data-[selection-end]:border-2 data-[selection-end]:border-secondary data-[selection-end]:text-secondary data-[selection-start]:bg-secondary/5 data-[selection-start]:border-2 data-[selection-start]:border-secondary data-[selection-start]:text-secondary data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:line-through data-[disabled]:text-base-content/30"
                                                 >
                                                     <div
                                                         class="absolute top-[5px] hidden size-1 font-semibold rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
