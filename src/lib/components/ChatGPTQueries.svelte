@@ -10,6 +10,17 @@
     export let queries = "";
     export let queriesSpreadOverTime = "";
 
+    const placeholderIdeas = [
+        "tweets about chocolate with at least 10 likes",
+        "tweets talking about cats but not dogs, that are not replies",
+        "tweets including the term 'brand' but not the term 'design'",
+        "tweets mentioning @user_name that are not replies",
+        "mentions of 'space' and either 'big' or 'large', with images, excluding mentions of #asteroid",
+    ];
+
+    let index = 0;
+    let placeholder = placeholderIdeas[index];
+
     let userPrompt = "";
     let error = "";
     let loading = false;
@@ -31,6 +42,11 @@
         if ($userQuery) {
             userPrompt = $userQuery;
         }
+
+        let interval = setInterval(() => {
+            index = (index + 1) % placeholderIdeas.length;
+            placeholder = placeholderIdeas[index];
+        }, 6000);
     });
 
     async function generateResponse() {
@@ -91,7 +107,7 @@
                     type="text"
                     class="input transition-all input-secondary text-sm w-full join-item"
                     bind:value={userPrompt}
-                    placeholder="Enter your prompt here"
+                    {placeholder}
                 />
                 <button
                     on:click={generateResponse}

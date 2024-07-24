@@ -19,6 +19,7 @@
     import { apifyKey } from "../stores/apifyStore";
     import { backOut, cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
+    import WarningCost from "./WarningCost.svelte";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -203,7 +204,7 @@
                 value={$springProgress}
             ></progress>
         {/if}
-        {#if !confirmChoice}
+        {#if confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
                 class="btn btn-primary w-full shadow-primary/20 shadow-md"
@@ -212,19 +213,7 @@
                 {buttonText}
             </button>
         {:else}
-            <div
-                class="my-2 p-3 bg-warning
-                text-warning-content
-                 border border-warning-content/20 rounded-btn"
-                in:fly={{ y: -20, duration: 400, easing: backOut }}
-            >
-                Current actor runs at <span class="font-semibold"
-                    >$0.3/1K tweets</span
-                >. This operation will cost, at maximum,
-                <span class="font-semibold"
-                    >${totalApproximateCost.toFixed(3)}</span
-                >
-            </div>
+            <WarningCost {totalApproximateCost} />
             <button
                 on:click={handleSubmit}
                 class="btn btn-primary w-full shadow-primary/20 shadow-md"

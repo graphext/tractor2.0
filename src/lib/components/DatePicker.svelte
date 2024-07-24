@@ -29,32 +29,52 @@
         Anually: utcYear,
     };
 
+    function debounce(func: Function, delay: number) {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func(...args), delay);
+        };
+    }
+
+    function recalculateDateRange(selectedRange) {
+        if (
+            $frequencyStore &&
+            selectedRange &&
+            selectedRange.start &&
+            selectedRange.end
+        ) {
+            timeSteps = functionMap[$frequencyStore].range(
+                new Date(
+                    selectedRange.start.year,
+                    selectedRange.start.month - 1,
+                    selectedRange.start.day,
+                ),
+                new Date(
+                    selectedRange.end.year,
+                    selectedRange.end.month - 1,
+                    selectedRange.end.day,
+                ),
+                1,
+            );
+        }
+    }
+
+    const debouncedDateRange = debounce(recalculateDateRange, 2000);
+
+    $: {
+        debouncedDateRange(selectedRange);
+    }
+
     onMount(() => {
         if ($frequencyStore == "Anually") {
             $frequencyStore = "Daily";
         }
+        return () => {
+            // Clean up the debounce timeout when the component is destroyed
+            recalculateDateRange.cancel();
+        };
     });
-
-    $: if (
-        $frequencyStore &&
-        selectedRange &&
-        selectedRange.start &&
-        selectedRange.end
-    ) {
-        timeSteps = functionMap[$frequencyStore].range(
-            new Date(
-                selectedRange.start.year,
-                selectedRange.start.month - 1,
-                selectedRange.start.day,
-            ),
-            new Date(
-                selectedRange.end.year,
-                selectedRange.end.month - 1,
-                selectedRange.end.day,
-            ),
-            1,
-        );
-    }
 </script>
 
 <div class="mt-1">

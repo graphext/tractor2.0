@@ -130,6 +130,7 @@ export function spreadQueriesOverTime(
 	timeSteps: Date[],
 	selectedRange: DateRange,
 ) {
+	if (queries == "" || !queries) return "";
 	if (!timeSteps || !selectedRange) return queries;
 
 	const queriesSplit = queries.split("\n");

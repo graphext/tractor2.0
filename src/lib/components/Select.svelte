@@ -36,14 +36,18 @@
     >
         {#each options as o}
             <Select.Item
-                class="flex justify-between h-10 w-full select-none items-center rounded-btn px-5 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
+                class="flex justify-between h-10 w-full select-none items-center rounded-btn px-5 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-secondary data-[highlighted]:text-secondary-content data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
                 value={o.value}
                 label={o.label}
                 disabled={o.disabled}
             >
                 {o.label}
                 {#if selectedLabel === o.label}
-                    <Check weight="bold" size={20} class="fill-secondary" />
+                    <Check
+                        weight="bold"
+                        size={20}
+                        class="fill-secondary-content"
+                    />
                 {/if}
             </Select.Item>
         {/each}
