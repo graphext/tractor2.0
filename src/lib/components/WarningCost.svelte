@@ -15,7 +15,7 @@
     <div class="relative z-10">
         This operation will cost, at maximum,
         <span class="font-semibold">${totalApproximateCost.toFixed(3)}</span>.
-        <span class="text-sm italic text-warning-content/80">
+        <span class="text-sm font-italic text-warning-content/80">
             Actor price is <span class="font-semibold">$0.3/1K tweets</span>.
         </span>
     </div>
@@ -42,7 +42,7 @@
         -webkit-mask-image: linear-gradient(to left, black 10%, transparent);
         mask-image: linear-gradient(to left, black, transparent 50%);
     }
-    .italic {
+    .font-italic {
         font-variation-settings: "ital" 12;
     }
 </style>
