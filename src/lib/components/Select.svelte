@@ -32,7 +32,7 @@
                 transition={fly}
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-base-100 z-10 shadow-md shadow-base-content/30 border-2 border-secondary rounded-btn"
+                class="bg-base-100 z-10 shadow-md shadow-base-content/30 border border-secondary rounded-btn"
             >
                 <div class="p-3 text-balance w-[250px]">
                     The more queries you send, the more results you'll get.

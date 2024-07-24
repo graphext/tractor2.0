@@ -106,7 +106,6 @@ export function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
 		timeSteps.length == 0 ||
 		!timeSteps
 	) {
-		console.log("putadón");
 		return [];
 	}
 

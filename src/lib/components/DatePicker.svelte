@@ -11,7 +11,7 @@
     import {
         utcDay,
         utcMonth,
-        utcWeek,
+        utcMonday,
         utcYear,
         type CountableTimeInterval,
     } from "d3-time";
@@ -29,6 +29,17 @@
     export let timeSteps: Date[];
 
     const presets = [
+        {
+            label: "Yesterday",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        days: 1,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
         {
             label: "Last 3 days",
             func: () => {
@@ -76,11 +87,23 @@
                 };
             },
         },
+
+        {
+            label: "Last 3 Years",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        years: 3,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
     ];
 
     const functionMap: Record<string, CountableTimeInterval> = {
         Daily: utcDay,
-        Weekly: utcWeek,
+        Weekly: utcMonday,
         Monthly: utcMonth,
         Anually: utcYear,
     };
@@ -192,10 +215,10 @@
             transition={fly}
             transitionConfig={{ y: -10, duration: 100 }}
             sideOffset={6}
-            class="z-50 rounded-box backdrop-blur bg-base-100/20 flex flex-col md:flex-row"
+            class="z-50 rounded-box backdrop-blur-xl bg-base-200/70 shadow-md shadow-base-content/10 border border-secondary p-3 flex flex-col md:flex-row mt-2"
         >
             <DateRangePicker.Calendar
-                class="mt-6 tabular-nums border rounded-btn shadow-md shadow-base-content/10 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
+                class="tabular-nums border rounded-btn shadow-md shadow-base-content/10 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
                 let:months
                 let:weekdays
             >
@@ -265,13 +288,17 @@
                 </div>
             </DateRangePicker.Calendar>
 
-            <div id="presets" in:fly={{ x: -5 }} class="mt-10 mx-10">
+            <div id="presets" in:fly={{ x: -5 }} class="ml-3">
                 <div class="font-bold mb-4">Presets</div>
                 <ul class="flex flex-col gap-3">
-                    {#each presets as p}
+                    {#each presets as p, i}
                         <li>
                             <button
-                                class="btn btn-sm btn-outline btn-secondary"
+                                style="opacity: {0.6 +
+                                    (presets.length - i) /
+                                        presets.length /
+                                        2.5}"
+                                class="btn btn-sm btn-secondary w-full"
                                 on:click={p.func}>{p.label}</button
                             >
                         </li>

@@ -39,7 +39,7 @@
     let outputProgress: number = 0;
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let numTweets = 2000;
+    let numTweets = 5000;
     let prettyData = true;
 
     let tweetCost = 0.3 / 1000;
