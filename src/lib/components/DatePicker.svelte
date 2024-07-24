@@ -87,14 +87,12 @@
         };
     }
 
-    function recalculateDateRange(selectedRange: DateRange) {
-        if (
-            $frequencyStore &&
-            selectedRange &&
-            selectedRange.start &&
-            selectedRange.end
-        ) {
-            timeSteps = functionMap[$frequencyStore].range(
+    function recalculateDateRange(
+        selectedRange: DateRange,
+        frequencyStore: string,
+    ) {
+        if (selectedRange && selectedRange.start && selectedRange.end) {
+            timeSteps = functionMap[frequencyStore].range(
                 new Date(
                     selectedRange.start.year,
                     selectedRange.start.month - 1,
@@ -110,9 +108,11 @@
         }
     }
 
-    $: recalculateDateRange(selectedRange);
-
     const debouncedDateRange = debounce(recalculateDateRange, 1500);
+
+    $: {
+        debouncedDateRange(selectedRange, $frequencyStore);
+    }
 
     onMount(() => {
         if ($frequencyStore == "Anually") {
@@ -135,9 +135,6 @@
         >
         <DateRangePicker.Input
             let:segments
-            on:change={() => {
-                debouncedDateRange(selectedRange);
-            }}
             class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary pl-3 pr-1 py-1 text-sm"
         >
             {#each segments.start as { part, value }}
