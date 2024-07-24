@@ -22,6 +22,56 @@
 
     export let timeSteps: Date[];
 
+    const presets = [
+        {
+            label: "Last 3 days",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        days: 3,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
+
+        {
+            label: "Last Week",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        weeks: 1,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
+
+        {
+            label: "Last Month",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        months: 1,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
+
+        {
+            label: "Last Year",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        years: 1,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
+    ];
+
     const functionMap: Record<string, CountableTimeInterval> = {
         Daily: utcDay,
         Weekly: utcWeek,
@@ -145,7 +195,7 @@
             transition={fly}
             transitionConfig={{ y: -10, duration: 100 }}
             sideOffset={6}
-            class="z-50 backdrop-blur bg-base-100/20"
+            class="z-50 rounded-box backdrop-blur bg-base-100/20 flex flex-col md:flex-row"
         >
             <DateRangePicker.Calendar
                 class="mt-6 tabular-nums border rounded-btn shadow-md shadow-base-content/10 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
@@ -217,6 +267,20 @@
                     {/each}
                 </div>
             </DateRangePicker.Calendar>
+
+            <div id="presets" in:fly={{ x: -5 }} class="mt-10 mx-10">
+                <div class="font-bold mb-4">Presets</div>
+                <ul class="flex flex-col gap-3">
+                    {#each presets as p}
+                        <li>
+                            <button
+                                class="btn btn-sm btn-outline btn-secondary"
+                                on:click={p.func}>{p.label}</button
+                            >
+                        </li>
+                    {/each}
+                </ul>
+            </div>
         </DateRangePicker.Content>
     </DateRangePicker.Root>
 </div>
