@@ -87,7 +87,7 @@
         };
     }
 
-    function recalculateDateRange(selectedRange) {
+    function recalculateDateRange(selectedRange: DateRange) {
         if (
             $frequencyStore &&
             selectedRange &&
@@ -110,7 +110,7 @@
         }
     }
 
-    const debouncedDateRange = debounce(recalculateDateRange, 2000);
+    const debouncedDateRange = debounce(recalculateDateRange, 1500);
 
     $: {
         debouncedDateRange(selectedRange);

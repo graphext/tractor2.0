@@ -204,7 +204,7 @@
                 value={$springProgress}
             ></progress>
         {/if}
-        {#if confirmChoice}
+        {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
                 class="btn btn-primary w-full shadow-primary/20 shadow-md"
