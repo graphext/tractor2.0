@@ -2,11 +2,54 @@
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
+    import type { DateRange, Selected } from "bits-ui";
+    import DatePicker from "./DatePicker.svelte";
+    import {
+        addListsToQueries,
+        enrichQueries,
+        getSelectionOptions,
+        spreadQueriesOverTime,
+    } from "$lib/utils";
+    import SelectFrequency from "./SelectFrequency.svelte";
+    import CleanPasteInput from "./CleanPasteInput.svelte";
+    import SelectLists from "./SelectLists.svelte";
+
+    export let queries = "";
+    export let enrichedQueries = "";
+    let lists: Selected<string>[];
+
+    const placeholderIdeas = [
+        "tweets about chocolate with at least 10 likes",
+        "tweets talking about cats but not dogs, that are not replies",
+        "tweets including the term 'brand' but not the term 'design'",
+        "tweets mentioning @user_name that are not replies",
+        "mentions of 'space' and either 'big' or 'large', with images, excluding mentions of #asteroid",
+    ];
+
+    let index = 0;
+    let placeholder = placeholderIdeas[index];
 
     let userPrompt = "";
-    export let queries = "";
     let error = "";
     let loading = false;
+
+    let selectedRange: DateRange;
+    let timeSteps: Date[];
+
+    $: enrichedQueries = enrichQueries(
+        queries,
+        timeSteps,
+        selectedRange,
+        lists,
+    ); // final result
+
+    $: options = getSelectionOptions(selectedRange);
+
+    let interval: number;
+    interval = setInterval(() => {
+        index = (index + 1) % placeholderIdeas.length;
+        placeholder = placeholderIdeas[index];
+    }, 6000);
 
     onMount(() => {
         if ($userQuery) {
@@ -43,6 +86,7 @@
                 const { done, value } = await reader.read();
                 if (done) break;
                 const chunk = decoder.decode(value);
+                console.log(chunk);
                 queries += chunk;
             }
         } catch (err) {
@@ -71,7 +115,7 @@
                     type="text"
                     class="input transition-all input-secondary text-sm w-full join-item"
                     bind:value={userPrompt}
-                    placeholder="Enter your prompt here"
+                    {placeholder}
                 />
                 <button
                     on:click={generateResponse}
@@ -88,4 +132,11 @@
             {error}
         </div>
     {/if}
+</div>
+
+<div class="flex items-end gap-3 w-full overflow-x-clip">
+    <DatePicker bind:selectedRange bind:timeSteps />
+
+    <SelectFrequency {options} />
+    <SelectLists bind:lists />
 </div>

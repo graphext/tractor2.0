@@ -51,7 +51,9 @@ export async function createTask(
 	const endpoint = "/actor-tasks";
 	const body = JSON.stringify({
 		actId: actorId,
-		name: `TRCTR-${tokenEnd}-${Math.floor(Math.random() * 1000)}`,
+		name: `TRCTR-${tokenEnd}-${Math.floor(Math.random() * 10000)
+			.toString()
+			.padStart(5, "0")}`,
 		options: {
 			build: "latest",
 		},

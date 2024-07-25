@@ -94,7 +94,7 @@
                 type="text"
                 bind:value={key}
                 {placeholder}
-                class="input input-bordered input-disabled input-sm md:w-fit"
+                class="input input-bordered input-disabled input-sm md:w-[230px]"
                 disabled={apikeyPresent}
                 class:inputDisabled={apikeyPresent}
             />

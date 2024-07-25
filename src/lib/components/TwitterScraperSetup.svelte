@@ -4,23 +4,29 @@
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
 
-    import { tweened } from "svelte/motion";
+    import { PaneGroup, Pane, PaneResizer } from "paneforge";
 
-    import { apifyTerms } from "../stores/userQueryStore";
+    import { tweened } from "svelte/motion";
 
     import {
         setupTwitterScrapingTask,
         getRunStatus,
         getDatasetLink,
-        getLogsForRun,
         getDatsetInfo,
         getDatsetLength,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
-    import { backOut } from "svelte/easing";
+    import { backOut, cubicInOut } from "svelte/easing";
+    import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
+    import WarningCost from "./WarningCost.svelte";
 
     export let queries = "";
+    export let queriesSpreadOverTime = "";
+
+    $: numQueries = queriesSpreadOverTime
+        ? queriesSpreadOverTime.trim().split("\n").length
+        : 0;
 
     let loading = false;
     let confirmChoice = false;
@@ -31,9 +37,9 @@
     let logs: string | null = null;
     const regex = /Got (\d+) results/g;
     let outputProgress: number = 0;
-    const springProgress = tweened(outputProgress);
+    const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let numTweets = 2000;
+    let numTweets = 5000;
     let prettyData = true;
 
     let tweetCost = 0.3 / 1000;
@@ -41,6 +47,7 @@
 
     let datasetLink: string | null = null;
     let datasetSize: number | null = null;
+
     const churro =
         "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
 
@@ -49,12 +56,6 @@
     let error: string | null = null;
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
-
-    onMount(() => {
-        if ($apifyTerms) {
-            queries = $apifyTerms;
-        }
-    });
 
     async function handleSubmit() {
         confirmChoice = false;
@@ -68,11 +69,14 @@
             return;
         }
 
-        const queryList = queries.split("\n").filter((q) => q.trim() !== "");
-        const nQueries = queries.split("\n").length;
+        const queryList = queriesSpreadOverTime
+            .split("\n")
+            .filter((q) => q.trim() !== "");
+        const nQueries = queriesSpreadOverTime.split("\n").length;
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
         toast.success("Task and run created sucessfully.");
+
         setTimeout(() => {
             toast.info("Fetching data. This may take a while...");
         }, 1500);
@@ -139,10 +143,33 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    <CleanPasteInput
-        placeholder="Enter Twitter search queries, one per line"
-        bind:value={queries}
-    />
+    <PaneGroup direction="horizontal" class="items-center gap-1">
+        <Pane defaultSize={30} class="p-1">
+            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+                Main content queries
+            </div>
+            <CleanPasteInput
+                placeholder="Generate twitter search terms in the input query generator"
+                bind:value={queries}
+            />
+        </Pane>
+        <PaneResizer
+            class="bg-primary text-primary-content rounded-sm py-2 h-min"
+        >
+            <DotsSixVertical size={15} weight="duotone" />
+        </PaneResizer>
+        <Pane defaultSize={70} class="p-1">
+            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+                What's being sent ({numQueries}
+                {numQueries == 1 ? "query" : "queries"})
+            </div>
+            <CleanPasteInput
+                placeholder="Here, the queries will be spread over time"
+                bind:value={queriesSpreadOverTime}
+                readonly
+            />
+        </Pane>
+    </PaneGroup>
 
     <div class="self-end w-full flex flex-col gap-3">
         <div class="flex justify-between">
@@ -165,7 +192,7 @@
         <label for="Numtweets" class="self-end flex flex-col text-right">
             <span>Number of tweets to retrieve</span>
             <input
-                class="input input-bordered font-mono text-right"
+                class="input input-bordered tabular-nums text-right"
                 inputmode="numeric"
                 bind:value={numTweets}
                 type="number"
@@ -191,19 +218,7 @@
                 {buttonText}
             </button>
         {:else}
-            <div
-                class="my-2 p-3 bg-warning
-                text-warning-content
-                 border border-warning-content/20 rounded-btn"
-                in:fly={{ y: -20, duration: 400, easing: backOut }}
-            >
-                Current actor runs at <span class="font-semibold"
-                    >$0.3/1K tweets</span
-                >. This operation will cost approximately
-                <span class="font-semibold"
-                    >${totalApproximateCost.toFixed(3)}</span
-                >
-            </div>
+            <WarningCost {totalApproximateCost} />
             <button
                 on:click={handleSubmit}
                 class="btn btn-primary w-full shadow-primary/20 shadow-md"

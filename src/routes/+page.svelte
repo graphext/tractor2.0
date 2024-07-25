@@ -10,6 +10,7 @@
     import User from "$lib/components/User.svelte";
 
     let queries: string;
+    let enrichedQueries: string;
 </script>
 
 <MetaTags
@@ -55,22 +56,21 @@
 />
 
 <div class="mb-10">
+    <div class="flex gap-3">
+        <img src="/tractor_icon.svg" width="24" alt="" />
+        <h1 class="text-3xl md:text-left transition-all tracking-tight">
+            Tractor
+        </h1>
+    </div>
+
     <div class="flex justify-between items-baseline">
-        <div class="flex gap-3 justify-between items-baseline w-full">
-            <div class="flex gap-3">
-                <img src="/tractor_icon.svg" width="24" alt="" />
-                <h1 class="text-3xl md:text-left transition-all tracking-tight">
-                    Tractor
-                </h1>
-            </div>
-            <div class="">
-                <User />
-            </div>
+        <h2 class="text-balance md:text-left">
+            Scraping made easy. Put your Apify key, and let us do the rest.
+        </h2>
+        <div class="">
+            <User />
         </div>
     </div>
-    <h2 class="w-full mx-auto text-balance md:text-left">
-        Scraping made easy. Put your Apify key, and let us do the rest.
-    </h2>
 </div>
 
 <section class="my-5 border-base-content/50 border p-3 rounded-box relative">
@@ -93,7 +93,7 @@
     <div class="font-bold mb-3 text-secondary dark:text-secondary">
         Query Generation
     </div>
-    <ChatGPTQueries bind:queries />
+    <ChatGPTQueries bind:queries bind:enrichedQueries />
 
     <Indicator color="secondary/80" index={2} />
 </section>
@@ -104,7 +104,7 @@
 >
     <div class="font-bold mb-3 text-primary dark:text-primary">APIFY</div>
 
-    <ApifyScraper bind:queries />
+    <ApifyScraper bind:queries bind:queriesSpreadOverTime={enrichedQueries} />
 
     <Indicator color="primary/80" index={3} />
 </section>
