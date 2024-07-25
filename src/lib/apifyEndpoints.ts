@@ -129,17 +129,18 @@ export async function getPrivateUserData() {
 }
 
 const typeMap = {
-	url: "url",
+	createdAt: "date",
+	authorName: "category",
 	text: "text",
-	source: "category",
+	url: "url",
+	viewCount: "number",
 	retweetCount: "number",
 	replyCount: "number",
 	likeCount: "number",
 	quoteCount: "number",
-	viewCount: "number",
-	createdAt: "date",
 	lang: "category",
 	bookmarkCount: "number",
+	source: "category",
 	isReply: "boolean",
 	isRetweet: "boolean",
 	isQuote: "boolean",
@@ -149,14 +150,13 @@ const typeMap = {
 const authorMap = {
 	authorUserName: "category",
 	authorUrl: "url",
-	authorName: "category",
+	authorFollowers: "number",
+	authorCreatedAt: "date",
 	authorIsVerified: "boolean",
 	authorProfilePicture: "category",
 	authorCoverPicture: "category",
 	authorDescription: "text",
 	authorLocation: "category",
-	authorFollowers: "number",
-	authorCreatedAt: "date",
 };
 
 function createFunctionString() {
