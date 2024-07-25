@@ -61,7 +61,7 @@
                 transition={fly}
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-base-100 z-10 shadow-md shadow-base-content/30 border border-secondary rounded-btn"
+                class="bg-base-100 z-10 shadow-md shadow-base-300 border border-secondary rounded-btn"
             >
                 <div class="p-3 text-balance w-[350px]">
                     <p class="mb-1">
@@ -92,7 +92,7 @@
         </Select.Trigger>
     </div>
     <Select.Content
-        class="w-full backdrop-blur bg-base-100/80 rounded-xl border border-secondary shadow-md shadow-base-content/10 px-1 py-1 shadow-popover outline-none"
+        class="w-full backdrop-blur bg-base-100/80 rounded-xl border border-secondary shadow-md shadow-base-300 px-1 py-1 shadow-popover outline-none"
         transition={fly}
         transitionConfig={{ duration: 100, y: -20 }}
         sideOffset={8}

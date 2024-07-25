@@ -215,10 +215,10 @@
             transition={fly}
             transitionConfig={{ y: -10, duration: 100 }}
             sideOffset={6}
-            class="z-50 rounded-box backdrop-blur-xl bg-base-200/70 shadow-md shadow-base-content/10 border border-secondary p-3 flex flex-col md:flex-row mt-2"
+            class="z-50 rounded-box backdrop-blur-xl bg-base-200/70 shadow-md shadow-base-300 border border-secondary p-3 flex flex-col md:flex-row mt-2"
         >
             <DateRangePicker.Calendar
-                class="tabular-nums border rounded-btn shadow-md shadow-base-content/10 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
+                class="tabular-nums border rounded-btn shadow-md shadow-base-300 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
                 let:months
                 let:weekdays
             >
