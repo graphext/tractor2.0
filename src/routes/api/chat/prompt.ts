@@ -122,7 +122,7 @@ quoted_user_id:user_id	Search for all quotes of a specific user, by numeric User
 
 card_name:poll2choice_text_only card_name:poll3choice_text_only card_name:poll4choice_text_only card_name:poll2choice_image card_name:poll3choice_image card_name:poll4choice_image	Tweets containing polls. For polls containing 2, 3, 4 choices, or image Polls.	
 
-Notation Regarding Engagment
+Notation Regarding Engagement
 filter:has_engagement	Has some engagement (replies, likes, retweets). Can be negated to find tweets with no engagement. Note all of these are mutually exclusive with filter:nativeretweets or include:nativeretweets, as they apply to the retweet, not the original tweet, so they won't work as expected.	
 min_retweets:5	A minimum number of Retweets. Counts seem to be approximate for larger (1000+) values.	
 

@@ -2,14 +2,21 @@
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
-    import type { DateRange } from "bits-ui";
+    import type { DateRange, Selected } from "bits-ui";
     import DatePicker from "./DatePicker.svelte";
-    import { getSelectionOptions, spreadQueriesOverTime } from "$lib/utils";
-    import Select from "./Select.svelte";
+    import {
+        addListsToQueries,
+        enrichQueries,
+        getSelectionOptions,
+        spreadQueriesOverTime,
+    } from "$lib/utils";
+    import SelectFrequency from "./SelectFrequency.svelte";
     import CleanPasteInput from "./CleanPasteInput.svelte";
+    import SelectLists from "./SelectLists.svelte";
 
     export let queries = "";
-    export let queriesSpreadOverTime = "";
+    export let enrichedQueries = "";
+    let lists: Selected<string>[];
 
     const placeholderIdeas = [
         "tweets about chocolate with at least 10 likes",
@@ -29,29 +36,20 @@
     let selectedRange: DateRange;
     let timeSteps: Date[];
 
-    $: if (selectedRange && selectedRange.end) {
-        queriesSpreadOverTime = spreadQueriesOverTime(
-            queries,
-            timeSteps,
-            selectedRange,
-        );
-    }
+    $: enrichedQueries = enrichQueries(
+        queries,
+        timeSteps,
+        selectedRange,
+        lists,
+    ); // final result
 
     $: options = getSelectionOptions(selectedRange);
 
     let interval: number;
-    $: {
-        if (userPrompt == "") {
-            interval = setInterval(() => {
-                index = (index + 1) % placeholderIdeas.length;
-                placeholder = placeholderIdeas[index];
-            }, 6000);
-            console.log("empty prompt", interval);
-        } else {
-            console.log("not empty prompt", interval);
-            clearInterval(interval);
-        }
-    }
+    interval = setInterval(() => {
+        index = (index + 1) % placeholderIdeas.length;
+        placeholder = placeholderIdeas[index];
+    }, 6000);
 
     onMount(() => {
         if ($userQuery) {
@@ -136,8 +134,9 @@
     {/if}
 </div>
 
-<div class="flex items-end gap-3">
+<div class="flex items-end gap-3 w-full overflow-x-clip">
     <DatePicker bind:selectedRange bind:timeSteps />
 
-    <Select {options} />
+    <SelectFrequency {options} />
+    <SelectLists bind:lists />
 </div>

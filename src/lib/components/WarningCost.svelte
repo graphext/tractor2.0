@@ -14,7 +14,9 @@
     <div class="warning-stripes"></div>
     <div class="relative z-10">
         This operation will cost, at maximum,
-        <span class="font-semibold">${totalApproximateCost.toFixed(3)}</span>.
+        <span class="font-semibold tabular-nums"
+            >${totalApproximateCost.toFixed(2)}</span
+        >.
         <span class="text-sm font-italic text-warning-content/80">
             Actor price is <span class="font-semibold">$0.3/1K tweets</span>.
         </span>

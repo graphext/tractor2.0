@@ -63,11 +63,7 @@
             >
                 {o.label}
                 {#if selectedLabel === o.label}
-                    <Check
-                        weight="bold"
-                        size={20}
-                        class="fill-secondary-content"
-                    />
+                    <Check weight="bold" size={20} />
                 {/if}
             </Select.Item>
         {/each}

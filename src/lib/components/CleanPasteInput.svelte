@@ -41,5 +41,7 @@
         white-space: pre;
         overflow: auto;
         word-wrap: normal;
+
+        scrollbar-gutter: stable;
     }
 </style>

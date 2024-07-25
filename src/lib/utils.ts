@@ -1,4 +1,4 @@
-import type { DateRange } from "bits-ui";
+import type { DateRange, Selected } from "bits-ui";
 import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
@@ -133,11 +133,54 @@ export function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
 	return output;
 }
 
+export function addListsToQueries(queries: string, lists: Selected<string>[]) {
+	if (queries == "" || !queries) return "";
+	if (!lists || lists.length == 0) return queries;
+
+	const queriesSplit = queries.trim().split("\n");
+	let queriesWithLists = "";
+
+	for (let q of queriesSplit) {
+		q = q.trim();
+		for (const l of lists) {
+			const listID = l.value;
+			q += ` list:${listID}`;
+		}
+		queriesWithLists += `${q.trim()}\n`;
+	}
+
+	return queriesWithLists;
+}
+
+export function enrichQueries(
+	queries: string,
+	timeSteps: Date[],
+	selectedRange: DateRange,
+	lists: Selected<string>[],
+) {
+	if (queries == "" || !queries) return "";
+
+	let queriesOverTime = spreadQueriesOverTime(
+		queries,
+		timeSteps,
+		selectedRange,
+	);
+
+	console.log("[enrichQueries]", queriesOverTime);
+
+	let queriesWithLists = addListsToQueries(queriesOverTime, lists);
+
+	console.log("[enrichQueries]", queriesWithLists);
+
+	return queriesWithLists;
+}
+
 export function spreadQueriesOverTime(
 	queries: string,
 	timeSteps: Date[],
 	selectedRange: DateRange,
 ) {
+	console.log("[spreadQueriesOverTime]", queries, timeSteps, selectedRange);
 	if (queries == "" || !queries) return "";
 	if (!timeSteps || !selectedRange) return queries;
 
@@ -146,7 +189,6 @@ export function spreadQueriesOverTime(
 
 	const intervalsGrouped = groupTimeRanges(timeSteps, selectedRange);
 
-	console.log("intervalsGrouped", intervalsGrouped);
 	if (intervalsGrouped.length == 0 || !intervalsGrouped) {
 		return queries;
 	}

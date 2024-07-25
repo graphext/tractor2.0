@@ -247,7 +247,7 @@
                         >
                             <DateRangePicker.GridHead>
                                 <DateRangePicker.GridRow
-                                    class="mb-1 flex w-full justify-between text-base-content/50"
+                                    class="mb-1 flex w-full justify-between text-base-content/70"
                                 >
                                     {#each weekdays as day}
                                         <DateRangePicker.HeadCell
@@ -271,7 +271,7 @@
                                                 <DateRangePicker.Day
                                                     {date}
                                                     month={month.value}
-                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal text-foreground transition-all hover:border-foreground focus-visible:!ring-foreground data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:bg-secondary/5 data-[selection-end]:border-2 data-[selection-end]:border-secondary data-[selection-end]:text-secondary data-[selection-start]:bg-secondary/5 data-[selection-start]:border-2 data-[selection-start]:border-secondary data-[selection-start]:text-secondary data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:line-through data-[disabled]:text-base-content/30"
+                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:bg-secondary/5 data-[selection-end]:border-2 data-[selection-end]:border-secondary data-[selection-end]:text-secondary data-[selection-start]:bg-secondary/5 data-[selection-start]:border-2 data-[selection-start]:border-secondary data-[selection-start]:text-secondary data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:line-through data-[disabled]:text-base-content/30"
                                                 >
                                                     <div
                                                         class="absolute top-[5px] hidden size-1 font-semibold rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
@@ -297,7 +297,7 @@
                                 style="opacity: {0.6 +
                                     (presets.length - i) /
                                         presets.length /
-                                        2.5}"
+                                        2.0}"
                                 class="btn btn-sm btn-secondary w-full"
                                 on:click={p.func}>{p.label}</button
                             >
