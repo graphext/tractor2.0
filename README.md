@@ -1,6 +1,6 @@
 # Tractor 2
 
-Scrape twitter leveraging the power of Apify, but with a much simpler, opinionated set of options. Download your data conveninently in a couple of clicks, ready to be used at [graphext.com](https://graphext.com).
+Scrape twitter leveraging the power of APIFY, but with a much simpler, opinionated set of options. Download your data conveninently in a couple of clicks, ready to be used at [graphext.com](https://graphext.com).
 
 ![image](https://github.com/user-attachments/assets/741de1d4-1019-41b3-b331-effbb38918f3)
 
