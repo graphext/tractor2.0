@@ -9,44 +9,60 @@
 
     const options = [
         {
-            label: "🇪🇸 Spanish Congress",
-            value: "1685953383004262400",
+            label: "🇺🇸📰 US National News (45)",
+            value: "1332377355562717189",
         },
         {
-            label: "🇪🇸 Spanish Politics Journalists",
-            value: "1314894201180557313",
+            label: "🇬🇧📰 UK National News (26)",
+            value: "1339570489530966018",
         },
         {
-            label: "🇪🇸 Economist Influencers Spain",
-            value: "1120825973056921604",
-        },
-        {
-            label: "🇪🇸 Spanish Generalist Media",
+            label: "🇪🇸📰 Spanish National News (63)",
             value: "1291353744735600640",
         },
         {
-            label: "🇪🇸 Prensa digital Española",
+            label: "🇪🇸📰 National & Local News (667)",
             value: "1378323089533063170",
+        },
+        {
+            label: "🇺🇸 US Members of Congress (550)",
+            value: "34179516",
+        },
+        {
+            label: "🇺🇸 US Political Reporters (137)",
+            value: "234326967",
+        },
+        {
+            label: "🇬🇧 UK Members of Parliament (599)",
+            value: "1810049120318456213",
+        },
+        {
+            label: "🇬🇧 UK Political Reporters (204)",
+            value: "1303626281611919361",
+        },
+        {
+            label: "🇪🇸 Spain Members of Congress (315)",
+            value: "1685953383004262400",
+        },
+        {
+            label: "🇪🇸 Spanish Political Reporters (428)",
+            value: "1314894201180557313",
+        },
+        {
+            label: "🇺🇸 Tech News (231)",
+            value: "31748",
         },
         {
             label: "🇪🇸 Spanish Celebrities",
             value: "1317420882877448192",
         },
         {
-            label: "🇬🇧 UK Generalist Media",
-            value: "1339570489530966018",
+            label: "🇪🇸 Economist Influencers",
+            value: "1120825973056921604",
         },
-        {
-            label: "🇺🇸 US National Media",
-            value: "1332377355562717189",
-        },
-        {
-            label: "🇺🇸 US Members of Congress",
-            value: "34179516",
-        },
+
     ];
 
-    options.sort((a, b) => a.label.localeCompare(b.label));
 </script>
 
 <Select.Root bind:selected={lists} multiple={true} items={options}>
