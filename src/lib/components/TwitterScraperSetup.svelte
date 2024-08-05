@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { fly } from "svelte/transition";
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
 
@@ -17,7 +15,7 @@
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
-    import { backOut, cubicInOut } from "svelte/easing";
+    import { cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
     import WarningCost from "./WarningCost.svelte";
 
@@ -35,7 +33,6 @@
     let status: string | null = null;
 
     let logs: string | null = null;
-    const regex = /Got (\d+) results/g;
     let outputProgress: number = 0;
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
@@ -126,7 +123,7 @@
 
                 return;
             } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                setTimeout(checkStatus, 5000); // Check again in 5 seconds
+                setTimeout(checkStatus, 2000);
             } else if (status !== "FAILED" && status !== "TIMED-OUT") {
                 loading = false;
                 throw Error(
