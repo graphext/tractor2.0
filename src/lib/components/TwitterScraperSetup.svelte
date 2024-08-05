@@ -114,7 +114,7 @@
 
             if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await getDatasetLink(runId, "json");
+                datasetLink = await getDatasetLink(runId);
 
                 const datasetInfo = await getDatsetInfo(runId);
 
