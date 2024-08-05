@@ -130,7 +130,6 @@ export async function getPrivateUserData() {
 
 const typeMap = {
 	createdAt: "date",
-	authorName: "category",
 	text: "text",
 	url: "url",
 	viewCount: "number",
@@ -148,6 +147,7 @@ const typeMap = {
 };
 
 const authorMap = {
+	authorName: "category",
 	authorUserName: "category",
 	authorUrl: "url",
 	authorFollowers: "number",
