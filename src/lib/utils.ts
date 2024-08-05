@@ -152,6 +152,47 @@ export function addListsToQueries(queries: string, lists: Selected<string>[]) {
 	return queriesWithLists;
 }
 
+export async function jsonToCsv(url: string): Promise<Blob> {
+	try {
+		// Fetch JSON data from the provided URL
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		console.log(response);
+		const jsonData: any[] = await response.json();
+
+		if (!Array.isArray(jsonData) || jsonData.length === 0) {
+			throw new Error("Invalid JSON data: expected a non-empty array");
+		}
+
+		// Extract headers from the first object in the array
+		const headers = Object.keys(jsonData[0]);
+
+		// Create CSV string with headers
+		let csvString = headers.join(",") + "\n";
+
+		// Add data rows
+		jsonData.forEach((item) => {
+			const row = headers.map((header) => {
+				const value = item[header];
+				// Wrap value in quotes if it contains commas or newlines
+				return typeof value === "string" &&
+					(value.includes(",") || value.includes("\n"))
+					? `"${value.replace(/"/g, '""')}"`
+					: value;
+			});
+			csvString += row.join(",") + "\n";
+		});
+
+		return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+	} catch (error) {
+		console.error("Error converting JSON to CSV:", error);
+		throw error;
+	}
+}
+
 export function enrichQueries(
 	queries: string,
 	timeSteps: Date[],

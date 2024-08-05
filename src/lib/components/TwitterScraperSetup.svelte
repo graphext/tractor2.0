@@ -14,12 +14,14 @@
         getDatasetLink,
         getDatsetInfo,
         getDatsetLength,
+        getPrivateUserData,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
     import { backOut, cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
     import WarningCost from "./WarningCost.svelte";
+    import { jsonToCsv } from "$lib/utils";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -46,6 +48,10 @@
     $: totalApproximateCost = numTweets * tweetCost;
 
     let datasetLink: string | null = null;
+    let datasetData;
+    let csvBlob: Blob | null = null;
+
+    let filename: string | null = null;
     let datasetSize: number | null = null;
 
     const churro =
@@ -114,13 +120,15 @@
 
             if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await getDatasetLink(runId);
+                datasetLink = await getDatasetLink(runId, "json");
 
-                const datasetInfo = await getDatsetInfo(runId);
+                csvBlob = await jsonToCsv(datasetLink);
 
-                console.log(datasetInfo.data);
+                datasetData = await getDatsetInfo(runId);
 
-                datasetSize = datasetInfo.data.itemCount;
+                filename = `data_TRCTR_${$apifyKey.slice(-4)}_${datasetData.data.id}`;
+
+                datasetSize = datasetData.data.itemCount;
 
                 loading = false;
 
@@ -230,11 +238,22 @@
     </div>
 </div>
 
-{#if datasetLink}
+{#if datasetLink && !csvBlob}
     <a
         href={datasetLinkInButton}
         class="btn btn-outline btn-primary w-full my-5"
         >Download Dataset {#if datasetSize}
+            — {datasetSize} rows
+        {/if}
+    </a>
+{/if}
+
+{#if csvBlob && filename}
+    <a
+        href={URL.createObjectURL(csvBlob)}
+        download={filename}
+        class="btn btn-outline btn-primary w-full my-5"
+        >Download Dataset CSV {#if datasetSize}
             — {datasetSize} rows
         {/if}
     </a>
