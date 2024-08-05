@@ -108,7 +108,7 @@ export async function getDatsetLength(runId: string) {
 
 export async function getDatasetLink(
 	runId: string,
-	format: "csv" | "json" = "json",
+	format: "csv" | "json" = "csv",
 ) {
 	const token = get(apifyKey);
 	if (!token) {
