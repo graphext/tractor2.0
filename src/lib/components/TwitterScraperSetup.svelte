@@ -245,22 +245,16 @@
     </div>
 </div>
 
-{#if datasetLink && !csvBlob}
-    <a
-        href={datasetLinkInButton}
-        class="btn btn-outline btn-primary w-full my-5"
-        >Download Dataset {#if datasetSize}
-            — {datasetSize} rows
-        {/if}
-    </a>
-{/if}
-
 {#if csvBlob && filename}
     <a
         href={URL.createObjectURL(csvBlob)}
         download={filename}
-        class="btn btn-outline btn-primary w-full my-5"
-        >Download Dataset CSV {#if datasetSize}
+        class="btn btn-outline btn-primary w-full my-5 group"
+        >Download Dataset <span
+            class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
+            >.csv</span
+        >
+        {#if datasetSize}
             — {datasetSize} rows
         {/if}
     </a>
