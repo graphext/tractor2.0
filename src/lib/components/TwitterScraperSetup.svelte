@@ -12,12 +12,14 @@
         getDatasetLink,
         getDatsetInfo,
         getDatsetLength,
+        getPrivateUserData,
     } from "../apifyEndpoints";
 
     import { apifyKey } from "../stores/apifyStore";
     import { cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
     import WarningCost from "./WarningCost.svelte";
+    import { jsonToCsv } from "$lib/utils";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -43,6 +45,10 @@
     $: totalApproximateCost = numTweets * tweetCost;
 
     let datasetLink: string | null = null;
+    let datasetData;
+    let csvBlob: Blob | null = null;
+
+    let filename: string | null = null;
     let datasetSize: number | null = null;
 
     const churro =
@@ -111,13 +117,22 @@
 
             if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await getDatasetLink(runId);
+                datasetLink = await getDatasetLink(runId, "json");
 
-                const datasetInfo = await getDatsetInfo(runId);
+                //TODO: test functionality
+                csvBlob = await jsonToCsv(datasetLink, [
+                    "createdAt<gx:date>",
+                    "authorName<gx:category>",
+                    "text<gx:text>",
+                    "url<gx:url>",
+                    "viewCount<gx:number>",
+                ]);
 
-                console.log(datasetInfo.data);
+                datasetData = await getDatsetInfo(runId);
 
-                datasetSize = datasetInfo.data.itemCount;
+                filename = `data_TRCTR_${$apifyKey.slice(-4)}_${datasetData.data.id}`;
+
+                datasetSize = datasetData.data.itemCount;
 
                 loading = false;
 
@@ -227,11 +242,16 @@
     </div>
 </div>
 
-{#if datasetLink}
+{#if csvBlob && filename}
     <a
-        href={datasetLinkInButton}
-        class="btn btn-outline btn-primary w-full my-5"
-        >Download Dataset {#if datasetSize}
+        href={URL.createObjectURL(csvBlob)}
+        download={filename}
+        class="btn btn-outline btn-primary w-full my-5 group"
+        >Download Dataset <span
+            class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
+            >.csv</span
+        >
+        {#if datasetSize}
             — {datasetSize} rows
         {/if}
     </a>

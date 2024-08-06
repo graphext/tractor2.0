@@ -152,6 +152,74 @@ export function addListsToQueries(queries: string, lists: Selected<string>[]) {
 	return queriesWithLists;
 }
 
+export async function jsonToCsv(
+	url: string,
+	customColumnOrder?: string[],
+): Promise<Blob> {
+	try {
+		// Fetch JSON data from the provided URL
+		const response = await fetch(url);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		console.log(response);
+		const jsonData: any[] = await response.json();
+
+		if (!Array.isArray(jsonData) || jsonData.length === 0) {
+			throw new Error("Invalid JSON data: expected a non-empty array");
+		}
+
+		// Get all available headers from the first object
+		const allHeaders = Object.keys(jsonData[0]);
+
+		// Determine the final header order
+		let headers: string[];
+		if (customColumnOrder) {
+			// Use custom order, but include any missing headers at the end
+			const missingHeaders = allHeaders.filter(
+				(h) => !customColumnOrder.includes(h),
+			);
+			headers = [...customColumnOrder, ...missingHeaders];
+		} else {
+			headers = allHeaders;
+		}
+
+		let csvString = headers.join(",") + "\n";
+
+		const formatValue = (value: any): string => {
+			if (Array.isArray(value)) {
+				// Convert array to comma-separated string and wrap in quotes
+				return `"${value.toString()}"`;
+			} else if (typeof value === "string") {
+				// Wrap strings in quotes if they contain commas, newlines, or quotes
+				return value.includes(",") ||
+					value.includes("\n") ||
+					value.includes('"')
+					? `"${value.replace(/"/g, '""')}"`
+					: value;
+			} else {
+				// For other types, convert to string
+				return value.toString();
+			}
+		};
+
+		// Add data rows
+		jsonData.forEach((item) => {
+			const row = headers.map((header) => {
+				const value = item[header];
+				return value !== undefined ? formatValue(value) : "";
+			});
+			csvString += row.join(",") + "\n";
+		});
+
+		return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+	} catch (error) {
+		console.error("Error converting JSON to CSV:", error);
+		throw error;
+	}
+}
+
 export function enrichQueries(
 	queries: string,
 	timeSteps: Date[],
@@ -166,11 +234,7 @@ export function enrichQueries(
 		selectedRange,
 	);
 
-	console.log("[enrichQueries]", queriesOverTime);
-
 	let queriesWithLists = addListsToQueries(queriesOverTime, lists);
-
-	console.log("[enrichQueries]", queriesWithLists);
 
 	return queriesWithLists;
 }
