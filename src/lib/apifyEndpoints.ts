@@ -1,7 +1,7 @@
 import { get } from "svelte/store";
 import { apifyKey } from "./stores/apifyStore";
-import { cleanQueries, cleanText } from "./utils";
 
+const ACT_ID = "61RPP7dywgiy0JPD0";
 const BASE_URL = "https://api.apify.com/v2";
 
 async function apifyFetch(
@@ -63,6 +63,11 @@ export async function createTask(
 	console.log("Request Body:", body);
 
 	return apifyFetch(endpoint, { method: "POST", body });
+}
+
+export async function getRuns() {
+	const endpoint = "/actor-runs";
+	return await apifyFetch(endpoint);
 }
 
 export async function runTask(taskId: string) {
@@ -128,6 +133,26 @@ export async function getPrivateUserData() {
 	return data;
 }
 
+export async function createSchedule(name: string) {
+	const token = get(apifyKey);
+
+	const endpoint = "/schedules";
+
+	const body = JSON.stringify({
+		name: name,
+		description: "",
+		timezone: "UTC",
+		cronExpression: "@weekly",
+		actions: {
+			type: "RUN_ACTOR_TASK",
+			actorId: ACT_ID,
+		},
+	});
+
+	const data = await apifyFetch(endpoint, { method: "POST", body });
+	return data;
+}
+
 const typeMap = {
 	createdAt: "date",
 	text: "text",
@@ -174,8 +199,6 @@ export async function setupTwitterScrapingTask(
 	numTweets: number,
 	maxTweetsPerQuery: number,
 ) {
-	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
-
 	const input = {
 		customMapFunction: createFunctionString(),
 		maxItems: numTweets,
@@ -191,7 +214,7 @@ export async function setupTwitterScrapingTask(
 	};
 
 	try {
-		const task = await createTask(actorId, input);
+		const task = await createTask(ACT_ID, input);
 		const run = await runTask(task.data.id);
 		return run.data.id;
 	} catch (error) {
