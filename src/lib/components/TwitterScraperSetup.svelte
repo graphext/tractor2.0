@@ -122,7 +122,14 @@
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await getDatasetLink(runId, "json");
 
-                csvBlob = await jsonToCsv(datasetLink);
+                //TODO: test functionality
+                csvBlob = await jsonToCsv(datasetLink, [
+                    "createdAt<gx:date>",
+                    "authorName<gx:category>",
+                    "text<gx:text>",
+                    "url<gx:url>",
+                    "viewCount<gx:number>",
+                ]);
 
                 datasetData = await getDatsetInfo(runId);
 

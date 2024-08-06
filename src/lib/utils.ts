@@ -152,7 +152,10 @@ export function addListsToQueries(queries: string, lists: Selected<string>[]) {
 	return queriesWithLists;
 }
 
-export async function jsonToCsv(url: string): Promise<Blob> {
+export async function jsonToCsv(
+	url: string,
+	customColumnOrder?: string[],
+): Promise<Blob> {
 	try {
 		// Fetch JSON data from the provided URL
 		const response = await fetch(url);
@@ -167,21 +170,45 @@ export async function jsonToCsv(url: string): Promise<Blob> {
 			throw new Error("Invalid JSON data: expected a non-empty array");
 		}
 
-		// Extract headers from the first object in the array
-		const headers = Object.keys(jsonData[0]);
+		// Get all available headers from the first object
+		const allHeaders = Object.keys(jsonData[0]);
 
-		// Create CSV string with headers
+		// Determine the final header order
+		let headers: string[];
+		if (customColumnOrder) {
+			// Use custom order, but include any missing headers at the end
+			const missingHeaders = allHeaders.filter(
+				(h) => !customColumnOrder.includes(h),
+			);
+			headers = [...customColumnOrder, ...missingHeaders];
+		} else {
+			headers = allHeaders;
+		}
+
 		let csvString = headers.join(",") + "\n";
+
+		const formatValue = (value: any): string => {
+			if (Array.isArray(value)) {
+				// Convert array to comma-separated string and wrap in quotes
+				return `"${value.toString()}"`;
+			} else if (typeof value === "string") {
+				// Wrap strings in quotes if they contain commas, newlines, or quotes
+				return value.includes(",") ||
+					value.includes("\n") ||
+					value.includes('"')
+					? `"${value.replace(/"/g, '""')}"`
+					: value;
+			} else {
+				// For other types, convert to string
+				return value.toString();
+			}
+		};
 
 		// Add data rows
 		jsonData.forEach((item) => {
 			const row = headers.map((header) => {
 				const value = item[header];
-				// Wrap value in quotes if it contains commas or newlines
-				return typeof value === "string" &&
-					(value.includes(",") || value.includes("\n"))
-					? `"${value.replace(/"/g, '""')}"`
-					: value;
+				return value !== undefined ? formatValue(value) : "";
 			});
 			csvString += row.join(",") + "\n";
 		});
@@ -207,11 +234,7 @@ export function enrichQueries(
 		selectedRange,
 	);
 
-	console.log("[enrichQueries]", queriesOverTime);
-
 	let queriesWithLists = addListsToQueries(queriesOverTime, lists);
-
-	console.log("[enrichQueries]", queriesWithLists);
 
 	return queriesWithLists;
 }
