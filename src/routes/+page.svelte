@@ -1,16 +1,16 @@
 <script lang="ts">
-    import { MetaTags } from 'svelte-meta-tags'
-    import ApifyKeyInput from '$lib/components/ApifyKeyInput.svelte'
+    import { MetaTags } from "svelte-meta-tags";
+    import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
 
-    import ApifyScraper from '$lib/components/TwitterScraperSetup.svelte'
-    import ChatGPTQueries from '$lib/components/ChatGPTQueries.svelte'
+    import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
+    import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
-    import { apifyKey } from '$lib/stores/apifyStore'
-    import Indicator from '$lib/components/Indicator.svelte'
-    import User from '$lib/components/User.svelte'
+    import { apifyKey } from "$lib/stores/apifyStore";
+    import Indicator from "$lib/components/Indicator.svelte";
+    import User from "$lib/components/User.svelte";
 
-    let queries: string
-    let enrichedQueries: string
+    let queries: string;
+    let enrichedQueries: string;
 </script>
 
 <MetaTags
@@ -18,40 +18,40 @@
     description="Easiest way to Download & analyze Tweets"
     canonical="https://tractor.graphext.com"
     additionalLinkTags={[
-        { rel: 'icon', href: '/favicon-32x32.png' },
-        { rel: 'icon', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', href: 'apple-touch-icon.png' },
-        { rel: 'manifest', href: '/site.webmanifest' }
+        { rel: "icon", href: "/favicon-32x32.png" },
+        { rel: "icon", href: "/favicon-16x16.png" },
+        { rel: "apple-touch-icon", href: "apple-touch-icon.png" },
+        { rel: "manifest", href: "/site.webmanifest" },
     ]}
-    additionalMetaTags={[{ property: 'theme-color', content: '#fff' }]}
+    additionalMetaTags={[{ property: "theme-color", content: "#fff" }]}
     keywords={[
-        'tweets',
-        'analysis',
-        'scraping',
-        'apify',
-        'graphext',
-        'tractor'
+        "tweets",
+        "analysis",
+        "scraping",
+        "apify",
+        "graphext",
+        "tractor",
     ]}
     openGraph={{
-        url: 'https://tractor.graphext.com',
-        title: 'Tractor 2.0',
-        description: 'Easiest way to Download & analyze Tweets',
+        url: "https://tractor.graphext.com",
+        title: "Tractor 2.0",
+        description: "Easiest way to Download & analyze Tweets",
         images: [
             {
-                url: 'https://tractor.graphext.com/ogimage.png',
+                url: "https://tractor.graphext.com/ogimage.png",
                 width: 1200,
                 height: 600,
-                alt: 'Tractor'
-            }
-        ]
+                alt: "Tractor",
+            },
+        ],
     }}
     twitter={{
-        handle: '@graphext',
-        cardType: 'summary_large_image',
-        title: 'Tractor',
-        description: 'Easiest way to Download & analyze Tweets',
-        image: 'https://tractor.graphext.com/ogimage.png',
-        imageAlt: 'Tractor'
+        handle: "@graphext",
+        cardType: "summary_large_image",
+        title: "Tractor",
+        description: "Easiest way to Download & analyze Tweets",
+        image: "https://tractor.graphext.com/ogimage.png",
+        imageAlt: "Tractor",
     }}
 />
 
@@ -109,19 +109,17 @@
     <Indicator color="primary/80" index={3} />
 </section>
 
-<a href="/runs">Runs</a>
-
 <style>
     h1 {
         font-variation-settings:
-            'ital' 12,
-            'wdth' 125,
-            'wght' 600;
+            "ital" 12,
+            "wdth" 125,
+            "wght" 600;
     }
     h1:hover {
         font-variation-settings:
-            'ital' 0,
-            'wdth' 125,
-            'wght' 600;
+            "ital" 0,
+            "wdth" 125,
+            "wght" 600;
     }
 </style>

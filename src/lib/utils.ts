@@ -278,3 +278,55 @@ export function twitterDateFormat(date: Date) {
 
 	return `${year}-${month}-${day}`;
 }
+
+/*************/
+`
+n is the intervalNumber chosen by user
+
+minutely: */n * * * * 
+hourly: 0 */n * * *
+daily: 0 0 */n * * -> maybe substitute initial 0's for minute and hour
+weekly: 0 0 * * 1 -> maybe substitute 1 for day of week, 0's for minute and hour
+montly: 0 0 1 */1 * -> maybe substitute initial 0's for minute and hour, substitute 1 for current day of month
+yearly: 0 0 1 */n * -> maybe substitute initial 0's for minute and hour
+`;
+
+export function composeCronExpression(
+	intervalNumber: number,
+	frequency: string,
+) {
+	const today = new Date();
+	const dayOfMonth = today.getDate();
+	const dayOfWeek = today.getDay();
+
+	const minutes = today.getMinutes();
+	const hours = today.getHours();
+
+	console.log(minutes, hours, dayOfWeek);
+	let cronExpression: string = "";
+
+	switch (frequency) {
+		case "minute":
+			cronExpression = `*/${intervalNumber} * * * *`;
+			break;
+
+		case "hour":
+			cronExpression = `${minutes} */${intervalNumber} * * *`;
+			break;
+
+		case "day":
+			cronExpression = `${minutes} ${hours} */${intervalNumber} * *`;
+			break;
+
+		case "month":
+			cronExpression = `0 0 1 */${intervalNumber} *`;
+			break;
+
+		case "year":
+			cronExpression = `${minutes} ${hours} ${dayOfMonth} */${12 * intervalNumber} *`;
+			break;
+	}
+
+	console.log(cronExpression);
+	return cronExpression;
+}

@@ -20,6 +20,7 @@
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
     import WarningCost from "./WarningCost.svelte";
     import { jsonToCsv } from "$lib/utils";
+    import CronEditor from "./CronEditor.svelte";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -50,6 +51,8 @@
 
     let filename: string | null = null;
     let datasetSize: number | null = null;
+
+    let cronExpression: string;
 
     const churro =
         "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
@@ -183,34 +186,34 @@
         </Pane>
     </PaneGroup>
 
-    <div class="self-end w-full flex flex-col gap-3">
+    <div class="w-full flex flex-col gap-3">
         <div class="flex justify-between">
-            <a
-                class="text-primary hover:underline"
-                target="_blank"
-                href="https://console.apify.com/actors/runs"
-                >APIFY Runs Dashboard</a
-            >
-            <label for="prettyData" class="flex items-start self-end gap-3">
-                <span>Pretty Data</span>
+            <div class="flex flex-col gap-2">
+                <a
+                    class="text-primary underline hover:font-semibold transition-all"
+                    target="_blank"
+                    href="https://console.apify.com/actors/runs"
+                    >APIFY Runs Dashboard</a
+                >
+
+                <a
+                    href="/runs"
+                    class="text-primary underline hover:font-semibold transition-all"
+                    >Runs</a
+                >
+            </div>
+
+            <label for="Numtweets" class="self-end flex flex-col text-right">
+                <span>Number of tweets to retrieve</span>
                 <input
-                    type="checkbox"
-                    class="toggle toggle-primary"
-                    bind:checked={prettyData}
+                    class="input input-bordered tabular-nums text-right"
+                    inputmode="numeric"
+                    bind:value={numTweets}
+                    type="number"
+                    id="Numtweets"
                 />
             </label>
         </div>
-
-        <label for="Numtweets" class="self-end flex flex-col text-right">
-            <span>Number of tweets to retrieve</span>
-            <input
-                class="input input-bordered tabular-nums text-right"
-                inputmode="numeric"
-                bind:value={numTweets}
-                type="number"
-                id="Numtweets"
-            />
-        </label>
     </div>
 
     <div class="w-full relative">
@@ -240,6 +243,8 @@
             </button>
         {/if}
     </div>
+
+    <CronEditor bind:cronExpression />
 </div>
 
 {#if csvBlob && filename}

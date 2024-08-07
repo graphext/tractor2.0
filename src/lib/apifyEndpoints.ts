@@ -67,7 +67,20 @@ export async function createTask(
 
 export async function getRuns() {
 	const endpoint = "/actor-runs";
-	return await apifyFetch(endpoint);
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
+export async function getRunsForTask(taskId: string) {
+	const endpoint = `/actor-tasks/${taskId}/runs`;
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
+export async function getTasks() {
+	const endpoint = "/actor-tasks?limit=30&desc=true";
+	const data = await apifyFetch(endpoint);
+	return data;
 }
 
 export async function runTask(taskId: string) {
