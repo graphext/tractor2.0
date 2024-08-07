@@ -1,7 +1,7 @@
 import { get } from "svelte/store";
 import { apifyKey } from "./stores/apifyStore";
 
-const ACT_ID = "61RPP7dywgiy0JPD0";
+export const ACT_ID = "61RPP7dywgiy0JPD0";
 const BASE_URL = "https://api.apify.com/v2";
 
 async function apifyFetch(
@@ -146,26 +146,6 @@ export async function getPrivateUserData() {
 	return data;
 }
 
-export async function createSchedule(name: string) {
-	const token = get(apifyKey);
-
-	const endpoint = "/schedules";
-
-	const body = JSON.stringify({
-		name: name,
-		description: "",
-		timezone: "UTC",
-		cronExpression: "@weekly",
-		actions: {
-			type: "RUN_ACTOR_TASK",
-			actorId: ACT_ID,
-		},
-	});
-
-	const data = await apifyFetch(endpoint, { method: "POST", body });
-	return data;
-}
-
 const typeMap = {
 	createdAt: "date",
 	text: "text",
@@ -197,7 +177,7 @@ const authorMap = {
 	authorLocation: "category",
 };
 
-function createFunctionString() {
+export function createFunctionString() {
 	return `(object) => { const { author, ${Object.keys(typeMap).join(", ")} } = object; return { ${Object.keys(
 		typeMap,
 	)
@@ -205,6 +185,64 @@ function createFunctionString() {
 		.join(
 			", ",
 		)}, ${Object.keys(authorMap).map((e) => '"' + e + "<gx:" + authorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
+}
+
+export async function scheduleTask({
+	taskId,
+	cronExpression,
+	numTweets,
+	queries,
+	maxTweetsPerQuery,
+}: {
+	taskId: string;
+	cronExpression: string;
+	numTweets: number;
+	queries: string[];
+	maxTweetsPerQuery: number;
+}) {
+	const endpoint = "/schedules";
+	const userId = (await getPrivateUserData()).data.id;
+
+	const input = {
+		customMapFunction: createFunctionString(),
+		maxItems: numTweets,
+		maxTweetsPerQuery: maxTweetsPerQuery,
+		includeSearchTerms: false,
+		onlyImage: false,
+		onlyQuote: false,
+		onlyTwitterBlue: false,
+		onlyVerifiedUsers: false,
+		onlyVideo: false,
+		sort: "Latest",
+		searchTerms: queries,
+	};
+
+	const body = JSON.stringify({
+		name: `TRCTR-schedule-123`,
+		userId: userId,
+		isEnabled: true,
+		isExclusive: true,
+		cronExpression: cronExpression,
+		timezone: "UTC",
+		description: "testing schedules",
+		actions: [
+			{
+				type: "RUN_ACTOR_TASK",
+				actorTaskId: taskId,
+				actorId: ACT_ID,
+				runInput: input,
+			},
+		],
+	});
+
+	console.log(body);
+
+	try {
+		return await apifyFetch(endpoint, { method: "POST", body });
+	} catch (e) {
+		console.error("Couldn't setup schedule", e);
+		throw e;
+	}
 }
 
 export async function setupTwitterScrapingTask(

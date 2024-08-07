@@ -53,6 +53,7 @@
     let datasetSize: number | null = null;
 
     let cronExpression: string;
+    $: console.log(cronExpression);
 
     const churro =
         "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
@@ -122,7 +123,6 @@
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await getDatasetLink(runId, "json");
 
-                //TODO: test functionality
                 csvBlob = await jsonToCsv(datasetLink, [
                     "createdAt<gx:date>",
                     "authorName<gx:category>",
@@ -244,7 +244,7 @@
         {/if}
     </div>
 
-    <CronEditor {queries} bind:cronExpression />
+    <CronEditor {numTweets} {queriesSpreadOverTime} bind:cronExpression />
 </div>
 
 {#if csvBlob && filename}
@@ -314,5 +314,6 @@
     /* Firefox */
     input[type="number"] {
         -moz-appearance: textfield;
+        appearance: textfield;
     }
 </style>

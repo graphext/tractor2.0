@@ -2,11 +2,17 @@
     import { composeCronExpression } from "$lib/utils";
     import { Select, type Selected } from "bits-ui";
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
-    import Check from "phosphor-svelte/lib/Check";
     import { fly } from "svelte/transition";
     import { apifyKey } from "$lib/stores/apifyStore";
+    import {
+        ACT_ID,
+        createFunctionString,
+        createTask,
+        scheduleTask,
+    } from "$lib/apifyEndpoints";
 
-    export let queries;
+    export let queriesSpreadOverTime: string;
+    export let numTweets: number;
 
     let options = [
         { label: "minutes", value: "minute" },
@@ -19,10 +25,50 @@
     let selectedInterval: Selected<string> = options[2];
     let intervalNumber: number = 1;
 
-    $: cronExpression = composeCronExpression(
+    export let cronExpression: string = composeCronExpression(
         intervalNumber,
         selectedInterval.value,
     );
+
+    async function handleSchedule() {
+        console.log("scheduling task...");
+        try {
+            const queryList = queriesSpreadOverTime
+                .split("\n")
+                .filter((q) => q.trim() !== "");
+            const nQueries = queriesSpreadOverTime.split("\n").length;
+            const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
+
+            const input = {
+                customMapFunction: createFunctionString(),
+                maxItems: numTweets,
+                maxTweetsPerQuery: maxTweetsPerQuery,
+                includeSearchTerms: false,
+                onlyImage: false,
+                onlyQuote: false,
+                onlyTwitterBlue: false,
+                onlyVerifiedUsers: false,
+                onlyVideo: false,
+                sort: "Latest",
+                searchTerms: queryList,
+            };
+
+            const taskData = await createTask(ACT_ID, input);
+            const taskId = taskData.data.id;
+            console.log(taskId);
+
+            const data = scheduleTask({
+                taskId: taskId,
+                queries: queryList,
+                cronExpression: cronExpression,
+                numTweets: numTweets,
+                maxTweetsPerQuery: maxTweetsPerQuery,
+            });
+        } catch (e) {
+            console.error("Error setting up schedule", e);
+            throw e;
+        }
+    }
 </script>
 
 <div class="flex gap-3 items-center self-end">
@@ -32,10 +78,31 @@
         type="number"
         min="1"
         max="59"
+        on:change={(v) => {
+            cronExpression = composeCronExpression(
+                v.target.value,
+                selectedInterval.value,
+            );
+        }}
         bind:value={intervalNumber}
         class="input input-sm input-primary tabular-nums text-right w-[80px]"
     />
-    <Select.Root bind:selected={selectedInterval} items={options}>
+    <Select.Root
+        onOpenChange={(e) => {
+            cronExpression = composeCronExpression(
+                intervalNumber,
+                selectedInterval.value,
+            );
+        }}
+        onSelectedChange={(e) => {
+            cronExpression = composeCronExpression(
+                intervalNumber,
+                selectedInterval.value,
+            );
+        }}
+        bind:selected={selectedInterval}
+        items={options}
+    >
         <div class="flex flex-col">
             <Select.Trigger
                 aria-label="Select a theme"
@@ -65,7 +132,8 @@
     </Select.Root>
 
     <button
-        disabled={!$apifyKey || !queries}
+        disabled={!$apifyKey || !queriesSpreadOverTime}
+        on:click={handleSchedule}
         class="btn btn-primary btn-sm btn-outline">Schedule</button
     >
 </div>
