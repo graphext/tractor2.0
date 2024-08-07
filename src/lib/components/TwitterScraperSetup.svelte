@@ -204,9 +204,9 @@
             </div>
 
             <label for="Numtweets" class="self-end flex flex-col text-right">
-                <span>Number of tweets to retrieve</span>
+                <span class="text-sm">Number of tweets to retrieve</span>
                 <input
-                    class="input input-bordered tabular-nums text-right"
+                    class="input input-sm input-bordered tabular-nums text-right"
                     inputmode="numeric"
                     bind:value={numTweets}
                     type="number"
@@ -228,7 +228,7 @@
             <button
                 on:click={() => (confirmChoice = true)}
                 class="btn btn-primary w-full shadow-primary/20 shadow-md"
-                disabled={!$apifyKey || !queries.trim()}
+                disabled={!$apifyKey || !queries}
             >
                 {buttonText}
             </button>
@@ -237,14 +237,14 @@
             <button
                 on:click={handleSubmit}
                 class="btn btn-primary w-full shadow-primary/20 shadow-md"
-                disabled={!$apifyKey || !queries.trim()}
+                disabled={!$apifyKey || !queries}
             >
                 Sure. Let's go.
             </button>
         {/if}
     </div>
 
-    <CronEditor bind:cronExpression />
+    <CronEditor {queries} bind:cronExpression />
 </div>
 
 {#if csvBlob && filename}
@@ -302,5 +302,17 @@
     /* For Firefox */
     progress::-moz-progress-bar {
         background-color: white;
+    }
+
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
     }
 </style>

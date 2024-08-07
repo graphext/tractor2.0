@@ -4,6 +4,9 @@
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
     import Check from "phosphor-svelte/lib/Check";
     import { fly } from "svelte/transition";
+    import { apifyKey } from "$lib/stores/apifyStore";
+
+    export let queries;
 
     let options = [
         { label: "minutes", value: "minute" },
@@ -15,6 +18,7 @@
 
     let selectedInterval: Selected<string> = options[2];
     let intervalNumber: number = 1;
+
     $: cronExpression = composeCronExpression(
         intervalNumber,
         selectedInterval.value,
@@ -59,4 +63,24 @@
             </Select.Content>
         </div>
     </Select.Root>
+
+    <button
+        disabled={!$apifyKey || !queries}
+        class="btn btn-primary btn-sm btn-outline">Schedule</button
+    >
 </div>
+
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+</style>

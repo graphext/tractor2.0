@@ -244,7 +244,6 @@ export function spreadQueriesOverTime(
 	timeSteps: Date[],
 	selectedRange: DateRange,
 ) {
-	console.log("[spreadQueriesOverTime]", queries, timeSteps, selectedRange);
 	if (queries == "" || !queries) return "";
 	if (!timeSteps || !selectedRange) return queries;
 
@@ -327,6 +326,5 @@ export function composeCronExpression(
 			break;
 	}
 
-	console.log(cronExpression);
 	return cronExpression;
 }
