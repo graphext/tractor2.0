@@ -1,5 +1,6 @@
 import { get } from "svelte/store";
 import { apifyKey } from "./stores/apifyStore";
+import { dev } from "$app/environment";
 
 export const ACT_ID = "61RPP7dywgiy0JPD0";
 const BASE_URL = "https://api.apify.com/v2";
@@ -21,9 +22,11 @@ async function apifyFetch(
 		...options.headers,
 	};
 
-	console.log("URL:", url);
-	console.log("Headers:", headers);
-	console.log("Options:", options);
+	if (dev) {
+		console.log("URL:", url);
+		console.log("Headers:", headers);
+		console.log("Options:", options);
+	}
 
 	const response = await fetch(url, { ...options, headers });
 
@@ -60,7 +63,7 @@ export async function createTask(
 		input,
 	});
 
-	console.log("Request Body:", body);
+	if (dev) console.log("Request Body:", body);
 
 	return apifyFetch(endpoint, { method: "POST", body });
 }
@@ -190,52 +193,33 @@ export function createFunctionString() {
 export async function scheduleTask({
 	taskId,
 	cronExpression,
-	numTweets,
-	queries,
-	maxTweetsPerQuery,
+	description,
 }: {
 	taskId: string;
 	cronExpression: string;
-	numTweets: number;
-	queries: string[];
-	maxTweetsPerQuery: number;
+	description: string | undefined;
 }) {
 	const endpoint = "/schedules";
 	const userId = (await getPrivateUserData()).data.id;
 
-	const input = {
-		customMapFunction: createFunctionString(),
-		maxItems: numTweets,
-		maxTweetsPerQuery: maxTweetsPerQuery,
-		includeSearchTerms: false,
-		onlyImage: false,
-		onlyQuote: false,
-		onlyTwitterBlue: false,
-		onlyVerifiedUsers: false,
-		onlyVideo: false,
-		sort: "Latest",
-		searchTerms: queries,
-	};
-
 	const body = JSON.stringify({
-		name: `TRCTR-schedule-123`,
+		name: `TRCTR-Schedule-${Math.floor(Math.random() * 10000)
+			.toString()
+			.padStart(5, "0")}`,
 		userId: userId,
 		isEnabled: true,
 		isExclusive: true,
 		cronExpression: cronExpression,
 		timezone: "UTC",
-		description: "testing schedules",
+		description: description,
 		actions: [
 			{
 				type: "RUN_ACTOR_TASK",
 				actorTaskId: taskId,
 				actorId: ACT_ID,
-				runInput: input,
 			},
 		],
 	});
-
-	console.log(body);
 
 	try {
 		return await apifyFetch(endpoint, { method: "POST", body });

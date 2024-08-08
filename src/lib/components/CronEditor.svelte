@@ -10,8 +10,9 @@
         createTask,
         scheduleTask,
     } from "$lib/apifyEndpoints";
+    import { toast } from "svelte-sonner";
 
-    export let queriesSpreadOverTime: string;
+    export let queries: string;
     export let numTweets: number;
 
     let options = [
@@ -30,13 +31,56 @@
         selectedInterval.value,
     );
 
+    let loading, error;
+    let description: string | undefined;
+    let scheduleData;
+    async function generateDescription() {
+        loading = true;
+        error = "";
+
+        const prompt = `${queries}
+
+${cronExpression}
+`;
+
+        console.log(prompt);
+
+        try {
+            const res = await fetch("/api/descriptions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ prompt: prompt }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
+            }
+
+            return res.text();
+        } catch (err) {
+            console.error("Error:", err);
+            error =
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
+        } finally {
+            loading = false;
+        }
+    }
+
     async function handleSchedule() {
         console.log("scheduling task...");
         try {
-            const queryList = queriesSpreadOverTime
+            const queryList = queries
                 .split("\n")
-                .filter((q) => q.trim() !== "");
-            const nQueries = queriesSpreadOverTime.split("\n").length;
+                .filter((q) => q.trim() !== "")
+                .map((t) => t.trim());
+            const nQueries = queries.split("\n").length;
             const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
             const input = {
@@ -55,15 +99,23 @@
 
             const taskData = await createTask(ACT_ID, input);
             const taskId = taskData.data.id;
-            console.log(taskId);
 
-            const data = scheduleTask({
-                taskId: taskId,
-                queries: queryList,
-                cronExpression: cronExpression,
-                numTweets: numTweets,
-                maxTweetsPerQuery: maxTweetsPerQuery,
+            description = await generateDescription();
+
+            toast.promise(generateDescription(), {
+                loading: "🕑 Scheduling task...",
+                success: (data) => {
+                    return `🎉 Task scheduled: ${data}`;
+                },
+                error: "😅 Something went wrong...",
             });
+
+            scheduleData = await scheduleTask({
+                taskId: taskId,
+                cronExpression: cronExpression,
+                description: description,
+            });
+            console.log(scheduleData);
         } catch (e) {
             console.error("Error setting up schedule", e);
             throw e;
@@ -71,71 +123,83 @@
     }
 </script>
 
-<div class="flex gap-3 items-center self-end">
-    <ClockClockwise weight="duotone" size={24} />
-    Schedule task every
-    <input
-        type="number"
-        min="1"
-        max="59"
-        on:change={(v) => {
-            cronExpression = composeCronExpression(
-                v.target.value,
-                selectedInterval.value,
-            );
-        }}
-        bind:value={intervalNumber}
-        class="input input-sm input-primary tabular-nums text-right w-[80px]"
-    />
-    <Select.Root
-        onOpenChange={(e) => {
-            cronExpression = composeCronExpression(
-                intervalNumber,
-                selectedInterval.value,
-            );
-        }}
-        onSelectedChange={(e) => {
-            cronExpression = composeCronExpression(
-                intervalNumber,
-                selectedInterval.value,
-            );
-        }}
-        bind:selected={selectedInterval}
-        items={options}
-    >
-        <div class="flex flex-col">
-            <Select.Trigger
-                aria-label="Select a theme"
-                class="w-[100px] flex items-center pl-3 pr-2 py-1 h-min border-primary border rounded-btn"
+<div class="mt-5 flex justify-end">
+    {#if !scheduleData}
+        <div class="flex gap-3 items-center self-end">
+            <ClockClockwise weight="duotone" size={24} />
+            Schedule task every
+            <input
+                type="number"
+                min="1"
+                max="59"
+                on:change={(v) => {
+                    cronExpression = composeCronExpression(
+                        v.target.value,
+                        selectedInterval.value,
+                    );
+                }}
+                bind:value={intervalNumber}
+                class="input input-sm input-primary tabular-nums text-right w-[80px]"
+            />
+            <Select.Root
+                onOpenChange={(e) => {
+                    cronExpression = composeCronExpression(
+                        intervalNumber,
+                        selectedInterval.value,
+                    );
+                }}
+                onSelectedChange={(e) => {
+                    cronExpression = composeCronExpression(
+                        intervalNumber,
+                        selectedInterval.value,
+                    );
+                }}
+                bind:selected={selectedInterval}
+                items={options}
             >
-                <Select.Value placeholder="Select an interval" />
-            </Select.Trigger>
+                <div class="flex flex-col">
+                    <Select.Trigger
+                        aria-label="Select a theme"
+                        class="w-[100px] flex items-center pl-3 pr-2 py-1 h-min border-primary border rounded-btn"
+                    >
+                        <Select.Value placeholder="Select an interval" />
+                    </Select.Trigger>
 
-            <Select.Content
-                class="w-full backdrop-blur bg-base-100/80 rounded-xl border border-primary shadow-md shadow-base-300 px-1 py-1"
-                transition={fly}
-                transitionConfig={{ duration: 100, y: 20 }}
-                sameWidth
-                sideOffset={8}
+                    <Select.Content
+                        class="w-full backdrop-blur bg-base-100/80 rounded-xl border border-primary shadow-md shadow-base-300 px-1 py-1"
+                        transition={fly}
+                        transitionConfig={{ duration: 100, y: 20 }}
+                        sameWidth
+                        sideOffset={8}
+                    >
+                        {#each options as option}
+                            <Select.Item
+                                class="flex justify-between h-10 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-primary data-[highlighted]:text-secondary-content data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
+                                value={option.value}
+                                label={intervalNumber == 1
+                                    ? option.label.slice(0, -1)
+                                    : option.label}
+                            ></Select.Item>
+                        {/each}
+                    </Select.Content>
+                </div>
+            </Select.Root>
+
+            <button
+                disabled={!$apifyKey || !queries}
+                on:click={handleSchedule}
+                class="btn btn-primary btn-sm btn-outline">Schedule</button
             >
-                {#each options as option}
-                    <Select.Item
-                        class="flex justify-between h-10 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-primary data-[highlighted]:text-secondary-content data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
-                        value={option.value}
-                        label={intervalNumber == 1
-                            ? option.label.slice(0, -1)
-                            : option.label}
-                    ></Select.Item>
-                {/each}
-            </Select.Content>
         </div>
-    </Select.Root>
-
-    <button
-        disabled={!$apifyKey || !queriesSpreadOverTime}
-        on:click={handleSchedule}
-        class="btn btn-primary btn-sm btn-outline">Schedule</button
-    >
+    {:else}
+        <a
+            class="btn btn-primary btn-outline"
+            target="_blank"
+            href="https://console.apify.com/organization/{scheduleData.data
+                .userId}/schedules/{scheduleData.data.id}"
+            >{scheduleData.data.name} • {description}</a
+        >
+    {/if}
 </div>
 
 <style>

@@ -13,7 +13,7 @@
     <p>
         You'll find it at the very right, inside the "Personal API Tokens"
         section. A button labelled <span
-            class="text-blue-500 px-1 border border-blue-500 rounded-btn"
+            class="text-primary px-1 border border-primary rounded-btn"
             >+ Add token</span
         >.
     </p>

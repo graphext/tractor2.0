@@ -318,7 +318,7 @@ export function composeCronExpression(
 			break;
 
 		case "month":
-			cronExpression = `0 0 1 */${intervalNumber} *`;
+			cronExpression = `${minutes} ${hours} 1 */${intervalNumber} *`;
 			break;
 
 		case "year":

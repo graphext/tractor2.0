@@ -35,7 +35,6 @@
     let runId: string | null = null;
     let status: string | null = null;
 
-    let logs: string | null = null;
     let outputProgress: number = 0;
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
@@ -68,7 +67,6 @@
         confirmChoice = false;
         datasetLink = "";
         outputProgress = 0;
-        logs = "";
 
         if (!$apifyKey) {
             toast.error("Please set your Apify API key first.");
@@ -243,15 +241,13 @@
             </button>
         {/if}
     </div>
-
-    <CronEditor {numTweets} {queriesSpreadOverTime} bind:cronExpression />
 </div>
 
 {#if csvBlob && filename}
     <a
         href={URL.createObjectURL(csvBlob)}
         download={filename}
-        class="btn btn-outline btn-primary w-full my-5 group"
+        class="btn btn-outline btn-primary w-full mt-5 group"
         >Download Dataset <span
             class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
             >.csv</span
@@ -261,6 +257,8 @@
         {/if}
     </a>
 {/if}
+
+<CronEditor {numTweets} {queries} bind:cronExpression />
 
 {#if error}
     <p class="mt-4 text-red-500">{error}</p>
