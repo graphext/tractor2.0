@@ -301,7 +301,6 @@ export function composeCronExpression(
 	const minutes = today.getMinutes();
 	const hours = today.getHours();
 
-	console.log(minutes, hours, dayOfWeek);
 	let cronExpression: string = "";
 
 	switch (frequency) {

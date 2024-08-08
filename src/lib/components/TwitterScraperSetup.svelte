@@ -52,7 +52,6 @@
     let datasetSize: number | null = null;
 
     let cronExpression: string;
-    $: console.log(cronExpression);
 
     const churro =
         "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";

@@ -190,20 +190,28 @@ export function createFunctionString() {
 		)}, ${Object.keys(authorMap).map((e) => '"' + e + "<gx:" + authorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
 }
 
+export async function createDataset(name: string) {
+	const endpoint = `/datasets?name=${name}`;
+	return await apifyFetch(endpoint, { method: "POST" });
+}
+
 export async function scheduleTask({
 	taskId,
+	datasetId,
 	cronExpression,
 	description,
 }: {
 	taskId: string;
+	datasetId: string;
 	cronExpression: string;
 	description: string | undefined;
 }) {
 	const endpoint = "/schedules";
 	const userId = (await getPrivateUserData()).data.id;
 
+	const token = get(apifyKey);
 	const body = JSON.stringify({
-		name: `TRCTR-Schedule-${Math.floor(Math.random() * 10000)
+		name: `TRCTR-Schedule-${token.slice(-4)}-${Math.floor(Math.random() * 10000)
 			.toString()
 			.padStart(5, "0")}`,
 		userId: userId,

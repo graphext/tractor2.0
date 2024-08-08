@@ -7,7 +7,7 @@ import {
 import { json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import OpenAI from "openai";
-import { descriptionPrompt } from "./descPrompt";
+import { idPrompt } from "./idPrompt";
 
 const openai = new OpenAI({
   organization: OPENAI_ORG,
@@ -15,13 +15,14 @@ const openai = new OpenAI({
   apiKey: OPENAI_TRACTOR_KEY,
 });
 
-export const POST: RequestHandler = async ({ fetch, request }) => {
+/*DESCRIPTIIONS*/
+export const POST = async ({ fetch, request }) => {
   try {
     if (!OPENAI_API_KEY) {
       throw new Error("OPENAI_API_KEY is not set in environment variables");
     }
     const { prompt } = await request.json();
-    console.log("Received prompt:", prompt);
+    console.log("Received terms and cron:", prompt);
 
     console.log("Sending request to OpenAI API...");
 
@@ -32,7 +33,7 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
       messages: [
         {
           role: "system",
-          content: descriptionPrompt,
+          content: idPrompt,
         },
         { role: "user", content: prompt },
       ],

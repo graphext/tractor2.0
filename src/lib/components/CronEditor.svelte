@@ -6,6 +6,7 @@
     import { apifyKey } from "$lib/stores/apifyStore";
     import {
         ACT_ID,
+        createDataset,
         createFunctionString,
         createTask,
         scheduleTask,
@@ -31,19 +32,51 @@
         selectedInterval.value,
     );
 
-    let loading, error;
+    let loading: boolean = false,
+        error;
     let description: string | undefined;
-    let scheduleData;
+    let datasetName: string | undefined;
+    let scheduleData: Object | undefined;
+
+    async function generateDatasetName() {
+        const prompt = `${queries}
+
+${cronExpression}
+`;
+
+        try {
+            const res = await fetch("/api/ids", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ prompt: prompt }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
+            }
+
+            return res.text();
+        } catch (err) {
+            console.error("Error:", err);
+            error =
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
+        }
+    }
+
     async function generateDescription() {
-        loading = true;
         error = "";
 
         const prompt = `${queries}
 
 ${cronExpression}
 `;
-
-        console.log(prompt);
 
         try {
             const res = await fetch("/api/descriptions", {
@@ -68,14 +101,13 @@ ${cronExpression}
                 err instanceof Error
                     ? err.message
                     : "An unknown error occurred";
-        } finally {
-            loading = false;
         }
     }
 
     async function handleSchedule() {
         console.log("scheduling task...");
         try {
+            loading = true;
             const queryList = queries
                 .split("\n")
                 .filter((q) => q.trim() !== "")
@@ -97,25 +129,30 @@ ${cronExpression}
                 searchTerms: queryList,
             };
 
+            const datasetName = await generateDatasetName();
+            const datasetData = await createDataset(
+                datasetName ? datasetName : "dataset-test",
+            );
+
+            const datasetId = datasetData.data.id;
+
             const taskData = await createTask(ACT_ID, input);
             const taskId = taskData.data.id;
 
             description = await generateDescription();
+            console.log(description);
 
-            toast.promise(generateDescription(), {
-                loading: "🕑 Scheduling task...",
-                success: (data) => {
-                    return `🎉 Task scheduled: ${data}`;
-                },
-                error: "😅 Something went wrong...",
-            });
-
+            if (description) {
+                toast.success(description);
+            }
             scheduleData = await scheduleTask({
                 taskId: taskId,
+                datasetId: datasetId,
                 cronExpression: cronExpression,
                 description: description,
             });
-            console.log(scheduleData);
+
+            loading = false;
         } catch (e) {
             console.error("Error setting up schedule", e);
             throw e;
@@ -124,7 +161,7 @@ ${cronExpression}
 </script>
 
 <div class="mt-5 flex justify-end">
-    {#if !scheduleData}
+    {#if !scheduleData && !loading}
         <div class="flex gap-3 items-center self-end">
             <ClockClockwise weight="duotone" size={24} />
             Schedule task every
@@ -191,14 +228,20 @@ ${cronExpression}
                 class="btn btn-primary btn-sm btn-outline">Schedule</button
             >
         </div>
-    {:else}
+    {:else if scheduleData}
         <a
-            class="btn btn-primary btn-outline"
+            class="btn btn-primary btn-outline w-full"
             target="_blank"
             href="https://console.apify.com/organization/{scheduleData.data
                 .userId}/schedules/{scheduleData.data.id}"
             >{scheduleData.data.name} • {description}</a
         >
+    {:else}
+        <div
+            class="select-none btn btn-disabled btn-primary btn-outline w-full"
+        >
+            loading...
+        </div>
     {/if}
 </div>
 
