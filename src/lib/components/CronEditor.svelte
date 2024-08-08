@@ -176,7 +176,7 @@ ${cronExpression}
                     );
                 }}
                 bind:value={intervalNumber}
-                class="input input-sm input-primary tabular-nums text-right w-[80px]"
+                class="input h-[34px] input-primary tabular-nums text-right w-[80px]"
             />
             <Select.Root
                 onOpenChange={(e) => {
