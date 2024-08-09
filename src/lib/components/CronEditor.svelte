@@ -30,6 +30,8 @@
     let selectedInterval: Selected<string> = options[2]
     let intervalNumber: number = 2
 
+    $: console.log(cronExpression)
+
     $: time = { hour: hour, minute: minute }
 
     export let cronExpression: string = composeCronExpression(
@@ -196,6 +198,13 @@ ${cronExpression}
                 type="number"
                 min="1"
                 max="59"
+                on:keyup={(v) => {
+                    cronExpression = composeCronExpression(
+                        v.target.value,
+                        selectedInterval.value,
+                        time
+                    )
+                }}
                 on:change={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
@@ -254,49 +263,51 @@ ${cronExpression}
 
             at
 
-            <div class="flex gap-1 items-center">
-                <input
-                    type="number"
-                    min="0"
-                    max="24"
-                    bind:value={hour}
-                    on:keyup={() => {
-                        if (hour >= 23) {
-                            hour = 23
-                        } else if (hour <= 0) {
-                            hour = 0
-                        }
+            {#if selectedInterval.value == 'day' || selectedInterval.value == 'month' || selectedInterval.value == 'year'}
+                <div class="flex gap-1 items-center">
+                    <input
+                        type="number"
+                        min="0"
+                        max="24"
+                        bind:value={hour}
+                        on:keyup={() => {
+                            if (hour >= 23) {
+                                hour = 23
+                            } else if (hour <= 0) {
+                                hour = 0
+                            }
 
-                        cronExpression = composeCronExpression(
-                            intervalNumber,
-                            selectedInterval.value,
-                            time
-                        )
-                    }}
-                    class="input input-sm input-bordered w-[43px] text-center tabular-nums"
-                />
-                :
-                <input
-                    type="number"
-                    bind:value={minute}
-                    on:keyup={() => {
-                        if (minute >= 59) {
-                            minute = 59
-                        } else if (minute <= 0) {
-                            minute = 0
-                        }
+                            cronExpression = composeCronExpression(
+                                intervalNumber,
+                                selectedInterval.value,
+                                time
+                            )
+                        }}
+                        class="input input-sm input-bordered w-[43px] text-center tabular-nums"
+                    />
+                    :
+                    <input
+                        type="number"
+                        bind:value={minute}
+                        on:keyup={() => {
+                            if (minute >= 59) {
+                                minute = 59
+                            } else if (minute <= 0) {
+                                minute = 0
+                            }
 
-                        cronExpression = composeCronExpression(
-                            intervalNumber,
-                            selectedInterval.value,
-                            time
-                        )
-                    }}
-                    min="0"
-                    max="59"
-                    class="input input-sm input-bordered w-[43px] text-center tabular-nums"
-                />
-            </div>
+                            cronExpression = composeCronExpression(
+                                intervalNumber,
+                                selectedInterval.value,
+                                time
+                            )
+                        }}
+                        min="0"
+                        max="59"
+                        class="input input-sm input-bordered w-[43px] text-center tabular-nums"
+                    />
+                </div>
+            {/if}
 
             <button
                 disabled={!$apifyKey || !queries}

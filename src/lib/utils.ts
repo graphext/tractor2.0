@@ -309,7 +309,7 @@ export function composeCronExpression(
 			break;
 
 		case "hour":
-			cronExpression = `${min} */${intervalNumber} * * *`;
+			cronExpression = `0 */${intervalNumber} * * *`;
 			break;
 
 		case "day":
