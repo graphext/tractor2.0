@@ -171,7 +171,7 @@ ${cronExpression}
             }
             const { scheduleData, webhookData } = await scheduleTask({
                 taskId: taskId,
-                scheduleKW: keyword,
+                scheduleKW: keyword ? keyword : '',
                 datasetId: datasetId,
                 cronExpression: cronExpression,
                 description: description
