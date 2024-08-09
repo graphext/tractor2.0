@@ -238,6 +238,8 @@ export async function scheduleTask({
 		outputDatasetId: datasetId,
 		datasetIds: ["{{resource.defaultDatasetId}}"],
 		mode: "dedup-as-loading", // for low memory usage, safer
+		output: "unique-items",
+		fields: ["url<gx:url>"],
 	};
 
 	const webookConfig: Record<string, unknown> = {
