@@ -36,9 +36,10 @@
         error
     let description: string | undefined
     let datasetName: string | undefined
-    let scheduleData: Object | undefined
+    let schedule: Object | undefined
+    let datasetId: string
 
-    const prompt = `${queries}
+    $: prompt = `${queries}
 
 ${cronExpression}
 `
@@ -125,7 +126,7 @@ ${cronExpression}
                 datasetName ? datasetName : 'dataset-test'
             )
 
-            const datasetId = datasetData.data.id
+            datasetId = datasetData.data.id
             console.log(datasetName, datasetId)
 
             const taskData = await createTask(ACT_ID, input)
@@ -137,12 +138,14 @@ ${cronExpression}
             if (description) {
                 toast.success(description)
             }
-            scheduleData = await scheduleTask({
+            const { scheduleData, webhookData } = await scheduleTask({
                 taskId: taskId,
                 datasetId: datasetId,
                 cronExpression: cronExpression,
                 description: description
             })
+
+            schedule = scheduleData.data
 
             loading = false
         } catch (e) {
@@ -153,7 +156,7 @@ ${cronExpression}
 </script>
 
 <div class="mt-5 flex justify-end">
-    {#if !scheduleData && !loading}
+    {#if !schedule && !loading}
         <div class="flex gap-3 items-center self-end">
             <ClockClockwise weight="duotone" size={24} />
             Schedule task every
@@ -220,14 +223,23 @@ ${cronExpression}
                 class="btn btn-primary btn-sm btn-outline">Schedule</button
             >
         </div>
-    {:else if scheduleData}
-        <a
-            class="btn btn-primary btn-outline w-full"
-            target="_blank"
-            href="https://console.apify.com/organization/{scheduleData.data
-                .userId}/schedules/{scheduleData.data.id}"
-            >{scheduleData.data.name} • {description}</a
-        >
+    {:else if schedule}
+        <div class="flex w-full gap-3">
+            <a
+                class="btn btn-success grow text-sm"
+                target="_blank"
+                href="https://console.apify.com/organization/{schedule.userId}/storage/datasets/{datasetId}"
+                >{schedule.name} • {description}</a
+            >
+            <button
+                class="btn btn-warning grow"
+                on:click={() => {
+                    navigator.clipboard.writeText(
+                        `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`
+                    )
+                }}>Copy dataset link (to use in Graphext)</button
+            >
+        </div>
     {:else}
         <div
             class="select-none btn btn-disabled btn-primary btn-outline w-full"
