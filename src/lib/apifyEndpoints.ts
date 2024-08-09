@@ -3,13 +3,14 @@ import { apifyKey } from "./stores/apifyStore";
 import { dev } from "$app/environment";
 
 export const ACT_ID = "61RPP7dywgiy0JPD0";
+export const DEDUP_ACTOR_ID = "ou2buPCN9hYdGLVdT";
+
+const MERGE_DEDUP_URL =
+	"https://api.apify.com/v2/acts/ou2buPCN9hYdGLVdT/runs?build=latest&timeout=0&memory=8192";
+
 const BASE_URL = "https://api.apify.com/v2";
 
-async function apifyFetch(
-	endpoint: string,
-	options: RequestInit = {},
-	stream = false,
-) {
+async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 	const token = get(apifyKey);
 	if (!token) {
 		throw new Error("Apify API token is not set");
@@ -37,11 +38,7 @@ async function apifyFetch(
 		);
 	}
 
-	if (stream) {
-		return response;
-	} else {
-		return response.json();
-	}
+	return response.json();
 }
 
 export async function createTask(
@@ -195,6 +192,14 @@ export async function createDataset(name: string) {
 	return await apifyFetch(endpoint, { method: "POST" });
 }
 
+export async function createWebhook(requestBody) {
+	const endpoint = `/webhooks`;
+	return await apifyFetch(endpoint, {
+		method: "POST",
+		body: JSON.stringify(requestBody),
+	});
+}
+
 export async function scheduleTask({
 	taskId,
 	datasetId,
@@ -206,7 +211,7 @@ export async function scheduleTask({
 	cronExpression: string;
 	description: string | undefined;
 }) {
-	const endpoint = "/schedules";
+	const schedulesEndpoint = "/schedules";
 	const userId = (await getPrivateUserData()).data.id;
 
 	const token = get(apifyKey);
@@ -218,7 +223,7 @@ export async function scheduleTask({
 		isEnabled: true,
 		isExclusive: true,
 		cronExpression: cronExpression,
-		timezone: "UTC",
+		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		description: description,
 		actions: [
 			{
@@ -229,8 +234,32 @@ export async function scheduleTask({
 		],
 	});
 
+	const webhookPayload = {
+		outputDatasetId: datasetId,
+		datasetIds: ["{{resource.defaultDatasetId}}"],
+		mode: "dedup-as-loading", // for low memory usage, safer
+	};
+
+	const webookConfig: Record<string, unknown> = {
+		requestUrl: MERGE_DEDUP_URL,
+		eventTypes: ["ACTOR.RUN.SUCCEEDED"],
+		condition: {
+			actorTaskId: taskId,
+		},
+		shouldInterpolateStrings: true,
+		isApifyIntegration: true,
+		payloadTemplate: JSON.stringify(webhookPayload),
+	};
+
 	try {
-		return await apifyFetch(endpoint, { method: "POST", body });
+		const scheduleData = await apifyFetch(schedulesEndpoint, {
+			method: "POST",
+			body,
+		});
+
+		const webhookData = await createWebhook(webookConfig);
+
+		return { scheduleData: scheduleData, webhookData: webhookData };
 	} catch (e) {
 		console.error("Couldn't setup schedule", e);
 		throw e;

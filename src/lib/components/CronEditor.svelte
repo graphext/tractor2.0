@@ -1,119 +1,110 @@
 <script lang="ts">
-    import { composeCronExpression } from "$lib/utils";
-    import { Select, type Selected } from "bits-ui";
-    import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
-    import { fly } from "svelte/transition";
-    import { apifyKey } from "$lib/stores/apifyStore";
+    import { composeCronExpression } from '$lib/utils'
+    import { Select, type Selected } from 'bits-ui'
+    import ClockClockwise from 'phosphor-svelte/lib/ClockClockwise'
+    import { fly } from 'svelte/transition'
+    import { apifyKey } from '$lib/stores/apifyStore'
     import {
         ACT_ID,
         createDataset,
         createFunctionString,
         createTask,
-        scheduleTask,
-    } from "$lib/apifyEndpoints";
-    import { toast } from "svelte-sonner";
+        scheduleTask
+    } from '$lib/apifyEndpoints'
+    import { toast } from 'svelte-sonner'
 
-    export let queries: string;
-    export let numTweets: number;
+    export let queries: string
+    export let numTweets: number
 
     let options = [
-        { label: "minutes", value: "minute" },
-        { label: "hours", value: "hour" },
-        { label: "days", value: "day" },
-        { label: "months", value: "month" },
-        { label: "years", value: "year" },
-    ];
+        { label: 'minutes', value: 'minute' },
+        { label: 'hours', value: 'hour' },
+        { label: 'days', value: 'day' },
+        { label: 'months', value: 'month' },
+        { label: 'years', value: 'year' }
+    ]
 
-    let selectedInterval: Selected<string> = options[2];
-    let intervalNumber: number = 1;
+    let selectedInterval: Selected<string> = options[2]
+    let intervalNumber: number = 2
 
     export let cronExpression: string = composeCronExpression(
         intervalNumber,
-        selectedInterval.value,
-    );
+        selectedInterval.value
+    )
 
     let loading: boolean = false,
-        error;
-    let description: string | undefined;
-    let datasetName: string | undefined;
-    let scheduleData: Object | undefined;
+        error
+    let description: string | undefined
+    let datasetName: string | undefined
+    let scheduleData: Object | undefined
 
-    async function generateDatasetName() {
-        const prompt = `${queries}
+    const prompt = `${queries}
 
 ${cronExpression}
-`;
+`
 
+    async function generateDatasetName() {
         try {
-            const res = await fetch("/api/ids", {
-                method: "POST",
+            const res = await fetch('/api/ids', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ prompt: prompt }),
-            });
+                body: JSON.stringify({ prompt: prompt })
+            })
 
             if (!res.ok) {
-                const errorData = await res.json();
+                const errorData = await res.json()
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`,
-                );
+                    errorData.error || `HTTP error! status: ${res.status}`
+                )
             }
 
-            return res.text();
+            return res.text()
         } catch (err) {
-            console.error("Error:", err);
+            console.error('Error:', err)
             error =
-                err instanceof Error
-                    ? err.message
-                    : "An unknown error occurred";
+                err instanceof Error ? err.message : 'An unknown error occurred'
         }
     }
 
     async function generateDescription() {
-        error = "";
-
-        const prompt = `${queries}
-
-${cronExpression}
-`;
+        error = ''
 
         try {
-            const res = await fetch("/api/descriptions", {
-                method: "POST",
+            const res = await fetch('/api/descriptions', {
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ prompt: prompt }),
-            });
+                body: JSON.stringify({ prompt: prompt })
+            })
 
             if (!res.ok) {
-                const errorData = await res.json();
+                const errorData = await res.json()
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`,
-                );
+                    errorData.error || `HTTP error! status: ${res.status}`
+                )
             }
 
-            return res.text();
+            return res.text()
         } catch (err) {
-            console.error("Error:", err);
+            console.error('Error:', err)
             error =
-                err instanceof Error
-                    ? err.message
-                    : "An unknown error occurred";
+                err instanceof Error ? err.message : 'An unknown error occurred'
         }
     }
 
     async function handleSchedule() {
-        console.log("scheduling task...");
+        console.log('scheduling task...')
         try {
-            loading = true;
+            loading = true
             const queryList = queries
-                .split("\n")
-                .filter((q) => q.trim() !== "")
-                .map((t) => t.trim());
-            const nQueries = queries.split("\n").length;
-            const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
+                .split('\n')
+                .filter((q) => q.trim() !== '')
+                .map((t) => t.trim())
+            const nQueries = queries.split('\n').length
+            const maxTweetsPerQuery = Math.ceil(numTweets / nQueries)
 
             const input = {
                 customMapFunction: createFunctionString(),
@@ -125,37 +116,38 @@ ${cronExpression}
                 onlyTwitterBlue: false,
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
-                sort: "Latest",
-                searchTerms: queryList,
-            };
+                sort: 'Latest',
+                searchTerms: queryList
+            }
 
-            const datasetName = await generateDatasetName();
+            const datasetName = await generateDatasetName()
             const datasetData = await createDataset(
-                datasetName ? datasetName : "dataset-test",
-            );
+                datasetName ? datasetName : 'dataset-test'
+            )
 
-            const datasetId = datasetData.data.id;
+            const datasetId = datasetData.data.id
+            console.log(datasetName, datasetId)
 
-            const taskData = await createTask(ACT_ID, input);
-            const taskId = taskData.data.id;
+            const taskData = await createTask(ACT_ID, input)
+            const taskId = taskData.data.id
 
-            description = await generateDescription();
-            console.log(description);
+            description = await generateDescription()
+            console.log(description)
 
             if (description) {
-                toast.success(description);
+                toast.success(description)
             }
             scheduleData = await scheduleTask({
                 taskId: taskId,
                 datasetId: datasetId,
                 cronExpression: cronExpression,
-                description: description,
-            });
+                description: description
+            })
 
-            loading = false;
+            loading = false
         } catch (e) {
-            console.error("Error setting up schedule", e);
-            throw e;
+            console.error('Error setting up schedule', e)
+            throw e
         }
     }
 </script>
@@ -172,8 +164,8 @@ ${cronExpression}
                 on:change={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
-                        selectedInterval.value,
-                    );
+                        selectedInterval.value
+                    )
                 }}
                 bind:value={intervalNumber}
                 class="input h-[34px] input-primary tabular-nums text-right w-[80px]"
@@ -182,14 +174,14 @@ ${cronExpression}
                 onOpenChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
-                        selectedInterval.value,
-                    );
+                        selectedInterval.value
+                    )
                 }}
                 onSelectedChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
-                        selectedInterval.value,
-                    );
+                        selectedInterval.value
+                    )
                 }}
                 bind:selected={selectedInterval}
                 items={options}
@@ -254,7 +246,7 @@ ${cronExpression}
     }
 
     /* Firefox */
-    input[type="number"] {
+    input[type='number'] {
         -moz-appearance: textfield;
         appearance: textfield;
     }
