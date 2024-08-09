@@ -24,12 +24,18 @@
         { label: 'years', value: 'year' }
     ]
 
+    let hour = new Date().getHours()
+    let minute = new Date().getMinutes()
+
     let selectedInterval: Selected<string> = options[2]
     let intervalNumber: number = 2
 
+    $: time = { hour: hour, minute: minute }
+
     export let cronExpression: string = composeCronExpression(
         intervalNumber,
-        selectedInterval.value
+        selectedInterval.value,
+        time
     )
 
     let loading: boolean = false,
@@ -44,6 +50,30 @@
 ${cronExpression}
 `
 
+    async function generateScheduleKeyWord() {
+        try {
+            const res = await fetch('/api/schedulekw', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: prompt })
+            })
+
+            if (!res.ok) {
+                const errorData = await res.json()
+                throw new Error(
+                    errorData.error || `HTTP error! status: ${res.status}`
+                )
+            }
+
+            return res.text()
+        } catch (err) {
+            console.error('Error:', err)
+            error =
+                err instanceof Error ? err.message : 'An unknown error occurred'
+        }
+    }
     async function generateDatasetName() {
         try {
             const res = await fetch('/api/ids', {
@@ -125,6 +155,7 @@ ${cronExpression}
             const datasetData = await createDataset(
                 datasetName ? datasetName : 'dataset-test'
             )
+            const keyword = await generateScheduleKeyWord()
 
             datasetId = datasetData.data.id
             console.log(datasetName, datasetId)
@@ -140,6 +171,7 @@ ${cronExpression}
             }
             const { scheduleData, webhookData } = await scheduleTask({
                 taskId: taskId,
+                scheduleKW: keyword,
                 datasetId: datasetId,
                 cronExpression: cronExpression,
                 description: description
@@ -167,23 +199,26 @@ ${cronExpression}
                 on:change={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
-                        selectedInterval.value
+                        selectedInterval.value,
+                        time
                     )
                 }}
                 bind:value={intervalNumber}
-                class="input h-[34px] input-primary tabular-nums text-right w-[80px]"
+                class="input input-sm input-primary tabular-nums w-[45px] text-center"
             />
             <Select.Root
                 onOpenChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
-                        selectedInterval.value
+                        selectedInterval.value,
+                        time
                     )
                 }}
                 onSelectedChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
-                        selectedInterval.value
+                        selectedInterval.value,
+                        time
                     )
                 }}
                 bind:selected={selectedInterval}
@@ -192,7 +227,7 @@ ${cronExpression}
                 <div class="flex flex-col">
                     <Select.Trigger
                         aria-label="Select a theme"
-                        class="w-[100px] flex items-center pl-3 pr-2 py-1 h-min border-primary border rounded-btn"
+                        class="w-[100px] flex items-center pl-3 pr-2 py-[3px] border-primary border rounded-btn"
                     >
                         <Select.Value placeholder="Select an interval" />
                     </Select.Trigger>
@@ -217,6 +252,52 @@ ${cronExpression}
                 </div>
             </Select.Root>
 
+            at
+
+            <div class="flex gap-1 items-center">
+                <input
+                    type="number"
+                    min="0"
+                    max="24"
+                    bind:value={hour}
+                    on:keyup={() => {
+                        if (hour >= 23) {
+                            hour = 23
+                        } else if (hour <= 0) {
+                            hour = 0
+                        }
+
+                        cronExpression = composeCronExpression(
+                            intervalNumber,
+                            selectedInterval.value,
+                            time
+                        )
+                    }}
+                    class="input input-sm input-bordered w-[43px] text-center tabular-nums"
+                />
+                :
+                <input
+                    type="number"
+                    bind:value={minute}
+                    on:keyup={() => {
+                        if (minute >= 59) {
+                            minute = 59
+                        } else if (minute <= 0) {
+                            minute = 0
+                        }
+
+                        cronExpression = composeCronExpression(
+                            intervalNumber,
+                            selectedInterval.value,
+                            time
+                        )
+                    }}
+                    min="0"
+                    max="59"
+                    class="input input-sm input-bordered w-[43px] text-center tabular-nums"
+                />
+            </div>
+
             <button
                 disabled={!$apifyKey || !queries}
                 on:click={handleSchedule}
@@ -236,6 +317,9 @@ ${cronExpression}
                 on:click={() => {
                     navigator.clipboard.writeText(
                         `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`
+                    )
+                    toast.info(
+                        'Copied link to dataset to the clipboard. Head to Graphext and create a new project using this link as source'
                     )
                 }}>Copy dataset link (to use in Graphext)</button
             >

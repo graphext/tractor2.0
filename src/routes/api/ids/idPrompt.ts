@@ -3,7 +3,7 @@ of search terms provided to an Apify task as input and a cron expression,
 please provide an id-like name, full lowercase, separated by dashes, that 
 somewhat sums up what the data stored is going to look like.
 
-For example, given a set of search terms and a cron expressoin like:
+For example, given a set of search terms and a cron expression like:
 
 olympics
 #OlympicGames

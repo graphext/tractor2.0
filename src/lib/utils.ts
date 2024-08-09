@@ -293,13 +293,13 @@ yearly: 0 0 1 */n * -> maybe substitute initial 0's for minute and hour
 export function composeCronExpression(
 	intervalNumber: number,
 	frequency: string,
+	time?: { hour: number; minute: number },
 ) {
 	const today = new Date();
 	const dayOfMonth = today.getDate();
-	const dayOfWeek = today.getDay();
 
-	const minutes = today.getMinutes();
-	const hours = today.getHours();
+	const min = time != undefined ? time.minute : today.getMinutes();
+	const h = time != undefined ? time.hour : today.getHours();
 
 	let cronExpression: string = "";
 
@@ -309,19 +309,19 @@ export function composeCronExpression(
 			break;
 
 		case "hour":
-			cronExpression = `${minutes} */${intervalNumber} * * *`;
+			cronExpression = `${min} */${intervalNumber} * * *`;
 			break;
 
 		case "day":
-			cronExpression = `${minutes} ${hours} */${intervalNumber} * *`;
+			cronExpression = `${min} ${h} */${intervalNumber} * *`;
 			break;
 
 		case "month":
-			cronExpression = `${minutes} ${hours} 1 */${intervalNumber} *`;
+			cronExpression = `${min} ${h} 1 */${intervalNumber} *`;
 			break;
 
 		case "year":
-			cronExpression = `${minutes} ${hours} ${dayOfMonth} */${12 * intervalNumber} *`;
+			cronExpression = `${min} ${h} ${dayOfMonth} */${12 * intervalNumber} *`;
 			break;
 	}
 

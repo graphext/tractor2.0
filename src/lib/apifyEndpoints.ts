@@ -202,11 +202,13 @@ export async function createWebhook(requestBody) {
 
 export async function scheduleTask({
 	taskId,
+	scheduleKW,
 	datasetId,
 	cronExpression,
 	description,
 }: {
 	taskId: string;
+	scheduleKW: string;
 	datasetId: string;
 	cronExpression: string;
 	description: string | undefined;
@@ -216,7 +218,9 @@ export async function scheduleTask({
 
 	const token = get(apifyKey);
 	const body = JSON.stringify({
-		name: `TRCTR-Schedule-${token.slice(-4)}-${Math.floor(Math.random() * 10000)
+		name: `TRCTR-${scheduleKW}-${token.slice(-4)}-${Math.floor(
+			Math.random() * 10000,
+		)
 			.toString()
 			.padStart(5, "0")}`,
 		userId: userId,
@@ -236,7 +240,7 @@ export async function scheduleTask({
 
 	const webhookPayload = {
 		outputDatasetId: datasetId,
-		datasetIds: ["{{resource.defaultDatasetId}}"],
+		datasetIds: ["{{resource.defaultDatasetId}}", datasetId],
 		mode: "dedup-as-loading", // for low memory usage, safer
 		output: "unique-items",
 		fields: ["url<gx:url>"],
