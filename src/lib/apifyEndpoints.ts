@@ -1,14 +1,16 @@
 import { get } from "svelte/store";
 import { apifyKey } from "./stores/apifyStore";
-import { cleanQueries, cleanText } from "./utils";
+import { dev } from "$app/environment";
+
+export const ACT_ID = "61RPP7dywgiy0JPD0";
+export const DEDUP_ACTOR_ID = "ou2buPCN9hYdGLVdT";
+
+const MERGE_DEDUP_URL =
+	"https://api.apify.com/v2/acts/ou2buPCN9hYdGLVdT/runs?build=latest&timeout=0&memory=8192";
 
 const BASE_URL = "https://api.apify.com/v2";
 
-async function apifyFetch(
-	endpoint: string,
-	options: RequestInit = {},
-	stream = false,
-) {
+async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 	const token = get(apifyKey);
 	if (!token) {
 		throw new Error("Apify API token is not set");
@@ -21,9 +23,11 @@ async function apifyFetch(
 		...options.headers,
 	};
 
-	console.log("URL:", url);
-	console.log("Headers:", headers);
-	console.log("Options:", options);
+	if (dev) {
+		console.log("URL:", url);
+		console.log("Headers:", headers);
+		console.log("Options:", options);
+	}
 
 	const response = await fetch(url, { ...options, headers });
 
@@ -34,11 +38,7 @@ async function apifyFetch(
 		);
 	}
 
-	if (stream) {
-		return response;
-	} else {
-		return response.json();
-	}
+	return response.json();
 }
 
 export async function createTask(
@@ -60,9 +60,27 @@ export async function createTask(
 		input,
 	});
 
-	console.log("Request Body:", body);
+	if (dev) console.log("Request Body:", body);
 
 	return apifyFetch(endpoint, { method: "POST", body });
+}
+
+export async function getRuns() {
+	const endpoint = "/actor-runs";
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
+export async function getRunsForTask(taskId: string) {
+	const endpoint = `/actor-tasks/${taskId}/runs`;
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
+export async function getTasks() {
+	const endpoint = "/actor-tasks?limit=30&desc=true";
+	const data = await apifyFetch(endpoint);
+	return data;
 }
 
 export async function runTask(taskId: string) {
@@ -159,7 +177,7 @@ const authorMap = {
 	authorLocation: "category",
 };
 
-function createFunctionString() {
+export function createFunctionString() {
 	return `(object) => { const { author, ${Object.keys(typeMap).join(", ")} } = object; return { ${Object.keys(
 		typeMap,
 	)
@@ -169,13 +187,96 @@ function createFunctionString() {
 		)}, ${Object.keys(authorMap).map((e) => '"' + e + "<gx:" + authorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
 }
 
+export async function createDataset(name: string) {
+	const endpoint = `/datasets?name=${name}`;
+	return await apifyFetch(endpoint, { method: "POST" });
+}
+
+export async function createWebhook(requestBody) {
+	const endpoint = `/webhooks`;
+	return await apifyFetch(endpoint, {
+		method: "POST",
+		body: JSON.stringify(requestBody),
+	});
+}
+
+export async function scheduleTask({
+	taskId,
+	scheduleKW,
+	datasetId,
+	cronExpression,
+	description,
+}: {
+	taskId: string;
+	scheduleKW: string;
+	datasetId: string;
+	cronExpression: string;
+	description: string | undefined;
+}) {
+	const schedulesEndpoint = "/schedules";
+	const userId = (await getPrivateUserData()).data.id;
+
+	const token = get(apifyKey);
+	const body = JSON.stringify({
+		name: `TRCTR-${scheduleKW}-${token.slice(-4)}-${Math.floor(
+			Math.random() * 10000,
+		)
+			.toString()
+			.padStart(5, "0")}`,
+		userId: userId,
+		isEnabled: true,
+		isExclusive: true,
+		cronExpression: cronExpression,
+		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+		description: description,
+		actions: [
+			{
+				type: "RUN_ACTOR_TASK",
+				actorTaskId: taskId,
+				actorId: ACT_ID,
+			},
+		],
+	});
+
+	const webhookPayload = {
+		outputDatasetId: datasetId,
+		datasetIds: ["{{resource.defaultDatasetId}}", datasetId],
+		mode: "dedup-as-loading", // for low memory usage, safer
+		output: "unique-items",
+		fields: ["url<gx:url>"],
+	};
+
+	const webookConfig: Record<string, unknown> = {
+		requestUrl: MERGE_DEDUP_URL,
+		eventTypes: ["ACTOR.RUN.SUCCEEDED"],
+		condition: {
+			actorTaskId: taskId,
+		},
+		shouldInterpolateStrings: true,
+		isApifyIntegration: true,
+		payloadTemplate: JSON.stringify(webhookPayload),
+	};
+
+	try {
+		const scheduleData = await apifyFetch(schedulesEndpoint, {
+			method: "POST",
+			body,
+		});
+
+		const webhookData = await createWebhook(webookConfig);
+
+		return { scheduleData: scheduleData, webhookData: webhookData };
+	} catch (e) {
+		console.error("Couldn't setup schedule", e);
+		throw e;
+	}
+}
+
 export async function setupTwitterScrapingTask(
 	queries: string[],
 	numTweets: number,
 	maxTweetsPerQuery: number,
 ) {
-	const actorId = "61RPP7dywgiy0JPD0"; // Replace with the actual Apify actor ID for Twitter scraping
-
 	const input = {
 		customMapFunction: createFunctionString(),
 		maxItems: numTweets,
@@ -191,7 +292,7 @@ export async function setupTwitterScrapingTask(
 	};
 
 	try {
-		const task = await createTask(actorId, input);
+		const task = await createTask(ACT_ID, input);
 		const run = await runTask(task.data.id);
 		return run.data.id;
 	} catch (error) {

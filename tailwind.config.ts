@@ -28,6 +28,8 @@ export default {
                     warning: "#FEC601",
                     "warning-content": "#2E2400",
                     "error-content": "#FFF5F5",
+                    success: "#50E3C2",
+                    "success-content": "#1B4D42",
                 },
             },
             {
@@ -45,6 +47,8 @@ export default {
                     "warning-content": "#2E2400",
                     error: "#AC2E34",
                     "error-content": "#FFF5F5",
+                    success: "#50E3C2",
+                    "success-content": "#1B4D42",
                 },
             },
             "cupcake",
