@@ -171,8 +171,8 @@ const authorMap = {
 	authorFollowers: "number",
 	authorCreatedAt: "date",
 	authorIsVerified: "boolean",
-	authorProfilePicture: "category",
-	authorCoverPicture: "category",
+	authorProfilePicture: "url",
+	authorCoverPicture: "url",
 	authorDescription: "text",
 	authorLocation: "category",
 };
