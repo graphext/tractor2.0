@@ -1,143 +1,150 @@
 <script lang="ts">
-    import { composeCronExpression } from '$lib/utils'
-    import { Select, type Selected } from 'bits-ui'
-    import ClockClockwise from 'phosphor-svelte/lib/ClockClockwise'
-    import { fly } from 'svelte/transition'
-    import { apifyKey } from '$lib/stores/apifyStore'
+    import { composeCronExpression } from "$lib/utils";
+    import { Select, type Selected } from "bits-ui";
+    import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
+    import { fly, slide } from "svelte/transition";
+    import { apifyKey } from "$lib/stores/apifyStore";
     import {
         ACT_ID,
         createDataset,
         createFunctionString,
         createTask,
-        scheduleTask
-    } from '$lib/apifyEndpoints'
-    import { toast } from 'svelte-sonner'
+        scheduleTask,
+    } from "$lib/apifyEndpoints";
+    import { toast } from "svelte-sonner";
+    import { backInOut, backOut, cubicInOut } from "svelte/easing";
 
-    export let queries: string
-    export let numTweets: number
+    export let queries: string;
+    export let numTweets: number;
 
     let options = [
-        { label: 'minutes', value: 'minute' },
-        { label: 'hours', value: 'hour' },
-        { label: 'days', value: 'day' },
-        { label: 'months', value: 'month' },
-        { label: 'years', value: 'year' }
-    ]
+        { label: "minutes", value: "minute" },
+        { label: "hours", value: "hour" },
+        { label: "days", value: "day" },
+        { label: "months", value: "month" },
+        { label: "years", value: "year" },
+    ];
 
-    let hour = new Date().getHours()
-    let minute = new Date().getMinutes()
+    let hour = new Date().getHours();
+    let minute = new Date().getMinutes();
 
-    let selectedInterval: Selected<string> = options[2]
-    let intervalNumber: number = 2
+    let selectedInterval: Selected<string> = options[2];
+    let intervalNumber: number = 2;
 
-    $: console.log(cronExpression)
+    $: console.log(cronExpression);
 
-    $: time = { hour: hour, minute: minute }
+    $: time = { hour: hour, minute: minute };
 
     export let cronExpression: string = composeCronExpression(
         intervalNumber,
         selectedInterval.value,
-        time
-    )
+        time,
+    );
 
     let loading: boolean = false,
-        error
-    let description: string | undefined
-    let datasetName: string | undefined
-    let schedule: Object | undefined
-    let datasetId: string
+        error;
+    let description: string | undefined;
+    let datasetName: string | undefined;
+    let schedule: Object | undefined;
+    let datasetId: string;
 
     $: prompt = `${queries}
 
 ${cronExpression}
-`
+`;
 
     async function generateScheduleKeyWord() {
         try {
-            const res = await fetch('/api/schedulekw', {
-                method: 'POST',
+            const res = await fetch("/api/schedulekw", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: prompt })
-            })
+                body: JSON.stringify({ prompt: prompt }),
+            });
 
             if (!res.ok) {
-                const errorData = await res.json()
+                const errorData = await res.json();
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`
-                )
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            return res.text()
+            return res.text();
         } catch (err) {
-            console.error('Error:', err)
+            console.error("Error:", err);
             error =
-                err instanceof Error ? err.message : 'An unknown error occurred'
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
         }
     }
     async function generateDatasetName() {
         try {
-            const res = await fetch('/api/ids', {
-                method: 'POST',
+            const res = await fetch("/api/ids", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: prompt })
-            })
+                body: JSON.stringify({ prompt: prompt }),
+            });
 
             if (!res.ok) {
-                const errorData = await res.json()
+                const errorData = await res.json();
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`
-                )
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            return res.text()
+            return res.text();
         } catch (err) {
-            console.error('Error:', err)
+            console.error("Error:", err);
             error =
-                err instanceof Error ? err.message : 'An unknown error occurred'
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
         }
     }
 
     async function generateDescription() {
-        error = ''
+        error = "";
 
         try {
-            const res = await fetch('/api/descriptions', {
-                method: 'POST',
+            const res = await fetch("/api/descriptions", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: prompt })
-            })
+                body: JSON.stringify({ prompt: prompt }),
+            });
 
             if (!res.ok) {
-                const errorData = await res.json()
+                const errorData = await res.json();
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`
-                )
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            return res.text()
+            return res.text();
         } catch (err) {
-            console.error('Error:', err)
+            console.error("Error:", err);
             error =
-                err instanceof Error ? err.message : 'An unknown error occurred'
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
         }
     }
 
     async function handleSchedule() {
-        console.log('scheduling task...')
+        console.log("scheduling task...");
         try {
-            loading = true
+            loading = true;
             const queryList = queries
-                .split('\n')
-                .filter((q) => q.trim() !== '')
-                .map((t) => t.trim())
-            const nQueries = queries.split('\n').length
-            const maxTweetsPerQuery = Math.ceil(numTweets / nQueries)
+                .split("\n")
+                .filter((q) => q.trim() !== "")
+                .map((t) => t.trim());
+            const nQueries = queries.split("\n").length;
+            const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
             const input = {
                 customMapFunction: createFunctionString(),
@@ -149,42 +156,42 @@ ${cronExpression}
                 onlyTwitterBlue: false,
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
-                sort: 'Latest',
-                searchTerms: queryList
-            }
+                sort: "Latest",
+                searchTerms: queryList,
+            };
 
-            const datasetName = await generateDatasetName()
+            const datasetName = await generateDatasetName();
             const datasetData = await createDataset(
-                datasetName ? datasetName : 'dataset-test'
-            )
-            const keyword = await generateScheduleKeyWord()
+                datasetName ? datasetName : "dataset-test",
+            );
+            const keyword = await generateScheduleKeyWord();
 
-            datasetId = datasetData.data.id
-            console.log(datasetName, datasetId)
+            datasetId = datasetData.data.id;
+            console.log(datasetName, datasetId);
 
-            const taskData = await createTask(ACT_ID, input)
-            const taskId = taskData.data.id
+            const taskData = await createTask(ACT_ID, input);
+            const taskId = taskData.data.id;
 
-            description = await generateDescription()
-            console.log(description)
+            description = await generateDescription();
+            console.log(description);
 
             if (description) {
-                toast.success(description)
+                toast.success(description);
             }
             const { scheduleData, webhookData } = await scheduleTask({
                 taskId: taskId,
-                scheduleKW: keyword ? keyword : '',
+                scheduleKW: keyword ? keyword : "",
                 datasetId: datasetId,
                 cronExpression: cronExpression,
-                description: description
-            })
+                description: description,
+            });
 
-            schedule = scheduleData.data
+            schedule = scheduleData.data;
 
-            loading = false
+            loading = false;
         } catch (e) {
-            console.error('Error setting up schedule', e)
-            throw e
+            console.error("Error setting up schedule", e);
+            throw e;
         }
     }
 </script>
@@ -202,15 +209,15 @@ ${cronExpression}
                     cronExpression = composeCronExpression(
                         v.target.value,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 on:change={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 bind:value={intervalNumber}
                 class="input input-sm input-primary tabular-nums w-[45px] text-center"
@@ -220,15 +227,15 @@ ${cronExpression}
                     cronExpression = composeCronExpression(
                         intervalNumber,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 onSelectedChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 bind:selected={selectedInterval}
                 items={options}
@@ -263,8 +270,15 @@ ${cronExpression}
 
             at
 
-            {#if selectedInterval.value == 'day' || selectedInterval.value == 'month' || selectedInterval.value == 'year'}
-                <div class="flex gap-1 items-center">
+            {#if selectedInterval.value == "day" || selectedInterval.value == "month" || selectedInterval.value == "year"}
+                <div
+                    transition:slide={{
+                        axis: "x",
+                        duration: 100,
+                        easing: cubicInOut,
+                    }}
+                    class="flex gap-1 items-center"
+                >
                     <input
                         type="number"
                         min="0"
@@ -272,16 +286,16 @@ ${cronExpression}
                         bind:value={hour}
                         on:keyup={() => {
                             if (hour >= 23) {
-                                hour = 23
+                                hour = 23;
                             } else if (hour <= 0) {
-                                hour = 0
+                                hour = 0;
                             }
 
                             cronExpression = composeCronExpression(
                                 intervalNumber,
                                 selectedInterval.value,
-                                time
-                            )
+                                time,
+                            );
                         }}
                         class="input input-sm input-bordered w-[43px] text-center tabular-nums"
                     />
@@ -291,16 +305,16 @@ ${cronExpression}
                         bind:value={minute}
                         on:keyup={() => {
                             if (minute >= 59) {
-                                minute = 59
+                                minute = 59;
                             } else if (minute <= 0) {
-                                minute = 0
+                                minute = 0;
                             }
 
                             cronExpression = composeCronExpression(
                                 intervalNumber,
                                 selectedInterval.value,
-                                time
-                            )
+                                time,
+                            );
                         }}
                         min="0"
                         max="59"
@@ -327,11 +341,11 @@ ${cronExpression}
                 class="btn btn-warning grow"
                 on:click={() => {
                     navigator.clipboard.writeText(
-                        `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`
-                    )
+                        `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`,
+                    );
                     toast.info(
-                        'Copied link to dataset to the clipboard. Head to Graphext and create a new project using this link as source'
-                    )
+                        "Copied link to dataset to the clipboard. Head to Graphext and create a new project using this link as source",
+                    );
                 }}>Copy dataset link (to use in Graphext)</button
             >
         </div>
@@ -353,7 +367,7 @@ ${cronExpression}
     }
 
     /* Firefox */
-    input[type='number'] {
+    input[type="number"] {
         -moz-appearance: textfield;
         appearance: textfield;
     }

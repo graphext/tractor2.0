@@ -200,6 +200,12 @@ export async function createWebhook(requestBody) {
 	});
 }
 
+export async function invokeSchedule(scheduleId: string) {
+	const endpoint = `/schedules/${scheduleId}/invoke`;
+	console.log("invoking schedule immediately");
+	return await apifyFetch(endpoint, { method: "POST" });
+}
+
 export async function scheduleTask({
 	taskId,
 	scheduleKW,
@@ -264,6 +270,9 @@ export async function scheduleTask({
 		});
 
 		const webhookData = await createWebhook(webookConfig);
+
+		//run schedule immediately
+		invokeSchedule(scheduleData.data.id);
 
 		return { scheduleData: scheduleData, webhookData: webhookData };
 	} catch (e) {
