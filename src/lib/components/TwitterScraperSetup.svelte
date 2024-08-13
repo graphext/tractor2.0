@@ -1,10 +1,10 @@
 <script lang="ts">
-    import CleanPasteInput from './CleanPasteInput.svelte'
-    import { toast } from 'svelte-sonner'
+    import CleanPasteInput from "./CleanPasteInput.svelte";
+    import { toast } from "svelte-sonner";
 
-    import { PaneGroup, Pane, PaneResizer } from 'paneforge'
+    import { PaneGroup, Pane, PaneResizer } from "paneforge";
 
-    import { tweened } from 'svelte/motion'
+    import { tweened } from "svelte/motion";
 
     import {
         setupTwitterScrapingTask,
@@ -12,144 +12,174 @@
         getDatasetLink,
         getDatsetInfo,
         getDatsetLength,
-        getPrivateUserData
-    } from '../apifyEndpoints'
+        getPrivateUserData,
+    } from "../apifyEndpoints";
 
-    import { apifyKey } from '../stores/apifyStore'
-    import { cubicInOut } from 'svelte/easing'
-    import DotsSixVertical from 'phosphor-svelte/lib/DotsSixVertical'
-    import WarningCost from './WarningCost.svelte'
-    import { jsonToCsv } from '$lib/utils'
-    import CronEditor from './CronEditor.svelte'
+    import { apifyKey } from "../stores/apifyStore";
+    import { cubicInOut } from "svelte/easing";
+    import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
+    import WarningCost from "./WarningCost.svelte";
+    import { jsonToCsv } from "$lib/utils";
+    import CronEditor from "./CronEditor.svelte";
 
-    export let queries = ''
-    export let queriesSpreadOverTime = ''
+    export let queries = "";
+    export let queriesSpreadOverTime = "";
 
     $: numQueries = queriesSpreadOverTime
-        ? queriesSpreadOverTime.trim().split('\n').length
-        : 0
+        ? queriesSpreadOverTime.trim().split("\n").length
+        : 0;
 
-    let loading = false
-    let confirmChoice = false
+    let loading = false;
+    let confirmChoice = false;
 
-    let runId: string | null = null
-    let status: string | null = null
+    let runId: string | null = null;
+    let status: string | null = null;
 
-    let outputProgress: number = 0
-    const springProgress = tweened(outputProgress, { easing: cubicInOut })
+    let outputProgress: number = 0;
+    const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let numTweets = 5000
-    let prettyData = true
+    let numTweets = 5000;
+    let prettyData = true;
 
-    let tweetCost = 0.3 / 1000
-    $: totalApproximateCost = numTweets * tweetCost
+    let tweetCost = 0.3 / 1000;
+    $: totalApproximateCost = numTweets * tweetCost;
 
-    let datasetLink: string | null = null
-    let datasetData
-    let csvBlob: Blob | null = null
+    let datasetLink: string | null = null;
+    let datasetData;
+    let csvBlob: Blob | null = null;
 
-    let filename: string | null = null
-    let datasetSize: number | null = null
+    let filename: string | null = null;
+    let datasetSize: number | null = null;
 
-    let cronExpression: string
+    let cronExpression: string;
 
     const churro =
-        '&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled'
+        "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
 
-    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ''}`
+    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ""}`;
 
-    let error: string | null = null
+    let error: string | null = null;
 
-    $: buttonText = loading ? 'Loading tweets...' : 'Get Tweets'
+    $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     async function handleSubmit() {
-        confirmChoice = false
-        datasetLink = ''
-        outputProgress = 0
+        confirmChoice = false;
+        datasetLink = "";
+        outputProgress = 0;
 
         if (!$apifyKey) {
-            toast.error('Please set your Apify API key first.')
-            error = 'Please set your Apify API key first.'
-            return
+            toast.error("Please set your Apify API key first.");
+            error = "Please set your Apify API key first.";
+            return;
         }
 
         const queryList = queriesSpreadOverTime
-            .split('\n')
-            .filter((q) => q.trim() !== '')
-        const nQueries = queriesSpreadOverTime.split('\n').length
-        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries)
+            .split("\n")
+            .filter((q) => q.trim() !== "");
+        const nQueries = queriesSpreadOverTime.split("\n").length;
+        const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
-        toast.success('Task and run created sucessfully.')
+        toast.success("Task and run created sucessfully.");
 
         setTimeout(() => {
-            toast.info('Fetching data. This may take a while...')
-        }, 1500)
+            toast.info("Fetching data. This may take a while...");
+        }, 1500);
 
         try {
-            loading = true
+            loading = true;
 
             runId = await setupTwitterScrapingTask(
                 queryList,
                 numTweets,
-                maxTweetsPerQuery
-            )
-            error = null
+                maxTweetsPerQuery,
+            );
+            error = null;
 
-            checkStatus()
+            checkStatus();
         } catch (err) {
             error =
-                'Error: ' + (err instanceof Error ? err.message : String(err))
-            console.error(err)
+                "Error: " + (err instanceof Error ? err.message : String(err));
+            console.error(err);
+        }
+    }
+
+    async function generateDatasetName(queries: string) {
+        try {
+            const res = await fetch("/api/ids", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ prompt: queriesSpreadOverTime }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
+            }
+
+            return res.text();
+        } catch (err) {
+            console.error("Error:", err);
+            error =
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
         }
     }
 
     async function checkStatus() {
-        if (!runId) return
+        if (!runId) return;
 
         try {
-            const runData = await getRunStatus(runId)
+            const runData = await getRunStatus(runId);
 
-            outputProgress = await getDatsetLength(runId)
-            springProgress.set(outputProgress)
+            outputProgress = await getDatsetLength(runId);
+            springProgress.set(outputProgress);
 
-            status = runData.data.status
+            status = runData.data.status;
 
             // const currentPrice = runData.data.usageTotalUsd; //could be used to limit
 
-            if (status === 'SUCCEEDED' || status === 'ABORTED') {
-                toast.success('🎉 Dataset created. Ready to download!')
-                datasetLink = await getDatasetLink(runId, 'json')
+            if (status === "SUCCEEDED" || status === "ABORTED") {
+                toast.success("🎉 Dataset created. Ready to download!");
+                datasetLink = await getDatasetLink(runId, "json");
 
                 csvBlob = await jsonToCsv(datasetLink, [
-                    'createdAt<gx:date>',
-                    'authorName<gx:category>',
-                    'text<gx:text>',
-                    'url<gx:url>',
-                    'viewCount<gx:number>'
-                ])
+                    "createdAt<gx:date>",
+                    "authorName<gx:category>",
+                    "text<gx:text>",
+                    "url<gx:url>",
+                    "viewCount<gx:number>",
+                ]);
 
-                datasetData = await getDatsetInfo(runId)
+                datasetData = await getDatsetInfo(runId);
 
-                filename = `data_TRCTR_${$apifyKey.slice(-4)}_${datasetData.data.id}`
+                const fileKeyWord = await generateDatasetName(
+                    queriesSpreadOverTime,
+                );
+                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
 
-                datasetSize = datasetData.data.itemCount
+                datasetSize = datasetData.data.itemCount;
 
-                loading = false
+                loading = false;
 
-                return
-            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
-                setTimeout(checkStatus, 2000)
-            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
-                loading = false
+                return;
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                setTimeout(checkStatus, 2000);
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                loading = false;
                 throw Error(
-                    'Run failed, timed-out or aborted. Check the APIFY dashboard to know more.'
-                )
+                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
+                );
             }
         } catch (err) {
             error =
-                'Failed to check task status. ' +
-                (err instanceof Error ? err.message : String(err))
-            console.error(err)
+                "Failed to check task status. " +
+                (err instanceof Error ? err.message : String(err));
+            console.error(err);
         }
     }
 </script>
@@ -173,7 +203,7 @@
         <Pane defaultSize={70} class="p-1">
             <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
                 What's being sent ({numQueries}
-                {numQueries == 1 ? 'query' : 'queries'})
+                {numQueries == 1 ? "query" : "queries"})
             </div>
             <CleanPasteInput
                 placeholder="Here, the queries will be spread over time"
@@ -262,12 +292,12 @@
         class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
     >
         <p class="mt-4">Task status: {status}</p>
-        {#if status == 'RUNNING'}
+        {#if status == "RUNNING"}
             <span>{outputProgress} tweets analyzed...</span>
             <span class="loading loading-dots loading-sm"></span>
-        {:else if status == 'SUCCEEDED'}
+        {:else if status == "SUCCEEDED"}
             <span></span>
-        {:else if status == 'FAILED'}
+        {:else if status == "FAILED"}
             <span> </span>
         {/if}
     </div>
@@ -303,7 +333,7 @@
     }
 
     /* Firefox */
-    input[type='number'] {
+    input[type="number"] {
         -moz-appearance: textfield;
         appearance: textfield;
     }
