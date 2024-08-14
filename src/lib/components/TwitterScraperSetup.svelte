@@ -217,7 +217,7 @@
         <div class="flex justify-between">
             <div class="flex flex-col gap-2">
                 <a
-                    class="text-primary underline hover:font-semibold transition-all"
+                    class="text-primary underline transition-all"
                     target="_blank"
                     href="https://console.apify.com/actors/runs"
                     >APIFY Runs Dashboard</a
@@ -227,7 +227,7 @@
             <label for="Numtweets" class="self-end flex flex-col text-right">
                 <span class="text-sm">Number of tweets to retrieve</span>
                 <input
-                    class="input input-sm input-bordered tabular-nums text-right"
+                    class="input input-sm rounded-full tabular-nums bg-neutral text-right"
                     inputmode="numeric"
                     bind:value={numTweets}
                     type="number"
@@ -248,7 +248,7 @@
         {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
-                class="btn btn-primary w-full shadow-primary/20 shadow-md"
+                class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                 disabled={!$apifyKey || !queries}
             >
                 {buttonText}

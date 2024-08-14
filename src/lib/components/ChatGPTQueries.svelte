@@ -13,6 +13,7 @@
     import SelectFrequency from "./SelectFrequency.svelte";
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import SelectLists from "./SelectLists.svelte";
+    import { CaretRight } from "phosphor-svelte";
 
     export let queries = "";
     export let enrichedQueries = "";
@@ -113,16 +114,20 @@
             >
                 <input
                     type="text"
-                    class="input transition-all input-primary text-sm w-full join-item"
+                    class="input transition-all text-sm bg-neutral w-full join-item md:rounded-l-full"
                     bind:value={userPrompt}
                     {placeholder}
                 />
                 <button
                     on:click={generateResponse}
-                    class="btn btn-primary join-item"
+                    class="btn btn-primary font-normal join-item md:rounded-r-full"
                     disabled={loading}
                 >
-                    {loading ? "Generating..." : "Generate Search Terms"}
+                    {#if loading}
+                        <span>Thinking...</span>
+                    {:else}
+                        <CaretRight weight="bold" size={20} />
+                    {/if}
                 </button>
             </div>
         </form>

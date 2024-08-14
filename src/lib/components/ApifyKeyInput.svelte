@@ -5,6 +5,7 @@
     import { backOut, elasticOut } from "svelte/easing";
     import { getPrivateUserData } from "$lib/apifyEndpoints";
     import { onMount } from "svelte";
+    import { Info, Warning } from "phosphor-svelte";
 
     let key = "";
 
@@ -66,16 +67,16 @@
 
 <div
     class:keyEntered={apikeyPresent}
-    class="flex h-fit flex-col md:flex-row justify-between items-center w-full gap-3"
+    class="flex h-fit flex-col md:flex-row justify-between items-center w-full p-2 gap-3"
 >
     {#if !apikeyPresent}
         <form on:submit|preventDefault={handleSubmit}>
-            <div class="flex flex-col md:flex-row gap-3">
+            <div class="flex flex-col join md:flex-row rounded-full">
                 <input
                     type="password"
                     bind:value={key}
                     {placeholder}
-                    class="input input-bordered w-full md:w-fit"
+                    class="input input-bordered join-item w-full md:w-fit"
                     disabled={apikeyPresent}
                     class:inputDisabled={apikeyPresent}
                 />
@@ -83,7 +84,7 @@
                     <button
                         type="submit"
                         class:btnDisabled={apikeyPresent}
-                        class="btn btn-primary">Set Token</button
+                        class="btn btn-primary join-item">Set Token</button
                     >
                 {/if}
             </div>
@@ -150,21 +151,36 @@
 
 {#if plan === "FREE"}
     <div
-        class="mt-5 flex flex-col gap-2 shadow-error/30 shadow-sm rounded-btn p-3 border-2 border-error"
+        class="mt-5 bg-error/70 flex flex-col gap-2 shadow-sm rounded-btn py-3 px-4 border-2 border-error"
     >
-        <p class="text-error font-semibold">
-            Apify does not allow remote access for FREE accounts.
-        </p>
-        <p>Please, sign up with a paid account and try again.</p>
-        <p>
-            Ask the <a
-                class="text-primary hover:underline"
-                href="mailto:jesus@graphext.com">team</a
-            > for help if needed.
-        </p>
+        <div class="flex gap-3 items-start">
+            <Warning weight="bold" size={22} class="mt-1" />
+
+            <div class="">
+                <p class="text-base-content text-lg mb-3">
+                    Apify does not allow remote access for FREE accounts.
+                </p>
+
+                <p>Please, sign up with a paid account and try again.</p>
+                <p>
+                    Ask the <a
+                        class="text-primary hover:underline"
+                        href="mailto:jesus@graphext.com">team</a
+                    > for help if needed.
+                </p>
+            </div>
+        </div>
     </div>
 {:else}
     <span></span>
+{/if}
+
+{#if !$apifyKey}
+    <div class="mt-5 ml-3 hover:text-primary transition-colors">
+        <a href="/token-info" class="underline opacity-70"
+            >Learn more about the APIFY token</a
+        >
+    </div>
 {/if}
 
 <style>
