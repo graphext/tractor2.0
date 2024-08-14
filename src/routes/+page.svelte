@@ -55,7 +55,7 @@
     }}
 />
 
-<div class="mb-10">
+<div class="mb-6">
     <div class="flex gap-3">
         <img src="/tractor_icon.svg" width="24" alt="" />
         <h1 class="text-3xl md:text-left transition-all tracking-tight">
@@ -78,12 +78,12 @@
 </section>
 
 <section id="gpt" class="my-5 p-4 rounded-box relative bg-section outline-none">
-    <div class="text-base-content/70 mb-3">QUERY GENERATION</div>
+    <div class="text-base-content/70 mb-4">QUERY GENERATION</div>
     <ChatGPTQueries bind:queries bind:enrichedQueries />
 </section>
 
 <section id="apify" class="my-5 p-3 rounded-box relative bg-section">
-    <div class="mb-3 text-base-content/70">APIFY</div>
+    <div class="mb-4 text-base-content/70">APIFY</div>
 
     <ApifyScraper bind:queries bind:queriesSpreadOverTime={enrichedQueries} />
 </section>

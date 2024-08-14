@@ -21,7 +21,7 @@
     }}
     items={options}
 >
-    <div class="flex flex-col">
+    <div class="flex flex-col gap-1">
         <Tooltip.Root openDelay={100}>
             <Tooltip.Trigger class="text-left">
                 <Select.Label class="text-sm text-base-content/60"

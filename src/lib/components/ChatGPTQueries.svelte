@@ -103,7 +103,7 @@
     }
 </script>
 
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-3 mb-4">
     <div class="w-full flex gap-3">
         {#if loading}
             <span class="loading loading-ring loading-lg text-primary"></span>
@@ -114,13 +114,13 @@
             >
                 <input
                     type="text"
-                    class="input transition-all text-sm bg-neutral w-full join-item md:rounded-l-full"
+                    class="input transition-all input-sm text-sm bg-neutral w-full join-item md:rounded-l-full"
                     bind:value={userPrompt}
                     {placeholder}
                 />
                 <button
                     on:click={generateResponse}
-                    class="btn btn-primary font-normal join-item md:rounded-r-full"
+                    class="btn btn-primary font-normal btn-sm join-item md:rounded-r-full"
                     disabled={loading}
                 >
                     {#if loading}
@@ -139,9 +139,8 @@
     {/if}
 </div>
 
-<div class="flex items-end gap-3 w-full overflow-x-clip">
+<div class="flex items-start gap-3 w-full overflow-x-clip">
     <DatePicker bind:selectedRange bind:timeSteps />
-
     <SelectFrequency {options} />
     <SelectLists bind:lists />
 </div>

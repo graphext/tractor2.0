@@ -185,9 +185,11 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    <PaneGroup direction="horizontal" class="items-center gap-1">
+    <PaneGroup direction="horizontal" class="items-center gap-1 mb-4">
         <Pane defaultSize={30} class="p-1">
-            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+            <div
+                class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
+            >
                 Main content queries
             </div>
             <CleanPasteInput
@@ -201,7 +203,9 @@
             <DotsSixVertical size={15} weight="duotone" />
         </PaneResizer>
         <Pane defaultSize={70} class="p-1">
-            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+            <div
+                class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
+            >
                 What's being sent ({numQueries}
                 {numQueries == 1 ? "query" : "queries"})
             </div>

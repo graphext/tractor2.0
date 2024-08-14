@@ -71,12 +71,14 @@
 >
     {#if !apikeyPresent}
         <form on:submit|preventDefault={handleSubmit}>
-            <div class="flex flex-col join md:flex-row rounded-full">
+            <div
+                class="flex flex-col md:join md:flex-row md:rounded-full h-fit"
+            >
                 <input
                     type="password"
                     bind:value={key}
                     {placeholder}
-                    class="input input-bordered join-item w-full md:w-fit"
+                    class="input input-bordered input-sm join-item w-full md:w-fit"
                     disabled={apikeyPresent}
                     class:inputDisabled={apikeyPresent}
                 />
@@ -84,7 +86,8 @@
                     <button
                         type="submit"
                         class:btnDisabled={apikeyPresent}
-                        class="btn btn-primary join-item">Set Token</button
+                        class="btn btn-primary join-item btn-sm h-[10px]"
+                        >Set Token</button
                     >
                 {/if}
             </div>
@@ -176,7 +179,7 @@
 {/if}
 
 {#if !$apifyKey}
-    <div class="mt-5 ml-3 hover:text-primary transition-colors">
+    <div class="ml-3 hover:text-primary transition-colors">
         <a href="/token-info" class="underline opacity-70"
             >Learn more about the APIFY token</a
         >

@@ -152,7 +152,7 @@
     const minValue: DateValue = new CalendarDate(2006, 3, 21);
 </script>
 
-<div class="mt-1">
+<div class="flex flex-col gap-1">
     <DateRangePicker.Root
         bind:value={selectedRange}
         weekdayFormat="short"
@@ -169,7 +169,7 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums w-full max-w-[320px] rounded-full select-none items-center bg-neutral px-3 py-1 text-sm"
+            class="flex tabular-nums w-full max-w-[320px] h-[40px] rounded-full select-none items-center bg-neutral px-3 py-1 text-sm"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">

@@ -64,7 +64,7 @@
 </script>
 
 <Select.Root bind:selected={lists} multiple={true} items={options}>
-    <div class="flex flex-col">
+    <div class="flex flex-col gap-1">
         <Tooltip.Root openDelay={100}>
             <Tooltip.Trigger class="text-left">
                 <Select.Label class="text-sm text-base-content/60"
@@ -95,7 +95,7 @@
         </Tooltip.Root>
 
         <Select.Trigger
-            class="min-w-[320px] max-w-[500px] flex items-center pl-4 pr-2 py-1 h-min rounded-full bg-neutral"
+            class="min-w-[320px] max-w-[500px] flex items-center pl-4 pr-2 py-1 h-[40px]  rounded-full bg-neutral"
             aria-label="Select Lists"
         >
             <Scroll weight="duotone" size={24} class="w-[24px] shrink-0" />
