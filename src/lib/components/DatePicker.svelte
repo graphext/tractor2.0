@@ -152,10 +152,9 @@
     const minValue: DateValue = new CalendarDate(2006, 3, 21);
 </script>
 
-<div class="mt-1">
+<div class="flex flex-col gap-1">
     <DateRangePicker.Root
         bind:value={selectedRange}
-        fixedWeeks={true}
         weekdayFormat="short"
         pagedNavigation={true}
         locale="en-UK"
@@ -170,7 +169,7 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary pl-3 pr-1 py-1 text-sm"
+            class="flex tabular-nums w-full max-w-[320px] h-[40px] rounded-full select-none items-center bg-neutral px-3 py-1 text-sm"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
@@ -205,9 +204,9 @@
             {/each}
 
             <DateRangePicker.Trigger
-                class="inline-flex hover:bg-base-content/10 p-1 ml-3 items-center justify-center rounded-[5px] text-foreground/60 transition-all active:bg-dark-10"
+                class="inline-flex hover:bg-base-content/10 ml-3 items-center justify-center rounded-full p-1 transition-all active:bg-dark-10"
             >
-                <CalendarDots size={24} weight="duotone" />
+                <CalendarDots size={23} weight="duotone" />
             </DateRangePicker.Trigger>
         </DateRangePicker.Input>
 
@@ -215,10 +214,10 @@
             transition={fly}
             transitionConfig={{ y: -10, duration: 100 }}
             sideOffset={6}
-            class="z-50 rounded-box backdrop-blur-xl bg-base-200/70 shadow-md shadow-base-300 border border-secondary p-3 flex flex-col md:flex-row mt-2"
+            class="z-50 rounded-box backdrop-blur-xl bg-base-200 shadow-lg shadow-base-100 p-3 flex flex-col md:flex-row mt-2"
         >
             <DateRangePicker.Calendar
-                class="tabular-nums border rounded-btn shadow-md shadow-base-300 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
+                class="tabular-nums rounded-btn shadow-md p-3 pt-2 backdrop-blur bg-neutral"
                 let:months
                 let:weekdays
             >
@@ -228,16 +227,16 @@
                     <DateRangePicker.PrevButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all  active:scale-98"
                     >
-                        <CaretLeft size={24} />
+                        <CaretLeft size={24} class="fill-primary" />
                     </DateRangePicker.PrevButton>
                     <DateRangePicker.Heading class="font-bold uppercase" />
                     <DateRangePicker.NextButton
                         class="inline-flex size-10 items-center justify-center rounded-9px bg-background-alt transition-all  active:scale-98"
                     >
-                        <CaretRight size={24} />
+                        <CaretRight size={24} class="fill-primary" />
                     </DateRangePicker.NextButton>
                 </DateRangePicker.Header>
-                <div class="divider divider-secondary my-0"></div>
+                <div class="divider divider-base-300 my-0"></div>
                 <div
                     class="flex flex-col pt-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                 >
@@ -271,7 +270,7 @@
                                                 <DateRangePicker.Day
                                                     {date}
                                                     month={month.value}
-                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:bg-secondary/5 data-[selection-end]:border-2 data-[selection-end]:border-secondary data-[selection-end]:text-secondary data-[selection-start]:bg-secondary/5 data-[selection-start]:border-2 data-[selection-start]:border-secondary data-[selection-start]:text-secondary data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:line-through data-[disabled]:text-base-content/30"
+                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:text-base-content data-[selection-end]:bg-primary/10 data-[selection-end]:border-2 data-[selection-end]:border-primary data-[selection-start]:bg-primary/5 data-[selection-start]:border-2 data-[selection-start]:border-primary data-[highlighted]:bg-base-content/20 data-[selected]:bg-primary data-[selected]:text-primary-content  data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-start]:text-base-content data-[unavailable]:line-through data-[disabled]:text-base-content/20"
                                                 >
                                                     <div
                                                         class="absolute top-[5px] hidden size-1 font-semibold rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
@@ -289,7 +288,7 @@
             </DateRangePicker.Calendar>
 
             <div id="presets" in:fly={{ x: -5 }} class="ml-3">
-                <div class="font-bold mb-4">Presets</div>
+                <div class="mb-4">Presets</div>
                 <ul class="flex flex-col gap-3">
                     {#each presets as p, i}
                         <li>
@@ -298,7 +297,7 @@
                                     (presets.length - i) /
                                         presets.length /
                                         2.0}"
-                                class="btn btn-sm btn-secondary w-full"
+                                class="btn btn-sm btn-primary font-normal w-full"
                                 on:click={p.func}>{p.label}</button
                             >
                         </li>

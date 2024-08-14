@@ -13,6 +13,7 @@
     import SelectFrequency from "./SelectFrequency.svelte";
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import SelectLists from "./SelectLists.svelte";
+    import { CaretRight } from "phosphor-svelte";
 
     export let queries = "";
     export let enrichedQueries = "";
@@ -102,10 +103,10 @@
     }
 </script>
 
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-3 mb-4">
     <div class="w-full flex gap-3">
         {#if loading}
-            <span class="loading loading-ring loading-lg text-secondary"></span>
+            <span class="loading loading-ring loading-lg text-primary"></span>
         {/if}
         <form class="w-full">
             <div
@@ -113,16 +114,20 @@
             >
                 <input
                     type="text"
-                    class="input transition-all input-secondary text-sm w-full join-item"
+                    class="input transition-all input-sm text-sm bg-neutral w-full join-item md:rounded-l-full"
                     bind:value={userPrompt}
                     {placeholder}
                 />
                 <button
                     on:click={generateResponse}
-                    class="btn btn-secondary join-item"
+                    class="btn btn-primary font-normal btn-sm join-item md:rounded-r-full"
                     disabled={loading}
                 >
-                    {loading ? "Generating..." : "Generate Search Terms"}
+                    {#if loading}
+                        <span>Thinking...</span>
+                    {:else}
+                        <CaretRight weight="bold" size={20} />
+                    {/if}
                 </button>
             </div>
         </form>
@@ -134,9 +139,8 @@
     {/if}
 </div>
 
-<div class="flex items-end gap-3 w-full overflow-x-clip">
+<div class="flex items-start gap-3 w-full overflow-x-clip">
     <DatePicker bind:selectedRange bind:timeSteps />
-
     <SelectFrequency {options} />
     <SelectLists bind:lists />
 </div>

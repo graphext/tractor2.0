@@ -6,8 +6,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Mona Sans", "sans-serif"],
-                mono: ["Monaspace Neon", "monospaced"],
+                sans: ["Lato", "sans-serif"],
+                mono: ["monospace", "monospace", "SF-Pro", "monospaced"],
             },
         },
     },
@@ -20,13 +20,17 @@ export default {
             {
                 light: {
                     ...require("daisyui/src/theming/themes")["light"],
-                    "base-100": "#F7F7F7",
+                    "base-100": "#EDEDED",
+                    "base-200": "#F7F7F7",
+                    "base-300": "#DEDEDE",
                     secondary: "teal",
                     primary: "#2BA3E8",
+                    neutral: "#FCFCFD",
                     "primary-content": "#FAF7FF",
                     "secondary-content": "#F4FFFF",
                     warning: "#FEC601",
                     "warning-content": "#2E2400",
+                    error: "#E7444D",
                     "error-content": "#FFF5F5",
                     success: "#50E3C2",
                     "success-content": "#1B4D42",
@@ -39,9 +43,10 @@ export default {
                     "primary-content": "#FFF",
                     secondary: "#00867A",
                     "secondary-content": "#D8F4ED",
+                    neutral: "#313641",
                     "base-100": "#1F2024",
-                    "base-200": "#27272C",
-                    "base-300": "#303037",
+                    "base-200": "#2A2E38",
+                    "base-300": "#363B47",
                     "base-content": "#FFF",
                     warning: "#FEC601",
                     "warning-content": "#2E2400",

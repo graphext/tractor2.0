@@ -185,9 +185,11 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    <PaneGroup direction="horizontal" class="items-center gap-1">
+    <PaneGroup direction="horizontal" class="items-center gap-1 mb-4">
         <Pane defaultSize={30} class="p-1">
-            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+            <div
+                class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
+            >
                 Main content queries
             </div>
             <CleanPasteInput
@@ -195,13 +197,13 @@
                 bind:value={queries}
             />
         </Pane>
-        <PaneResizer
-            class="bg-primary text-primary-content rounded-sm py-2 h-min"
-        >
-            <DotsSixVertical size={15} weight="duotone" />
+        <PaneResizer class="text-base-content rounded-sm py-2 h-min">
+            <DotsSixVertical size={15} weight="bold" />
         </PaneResizer>
         <Pane defaultSize={70} class="p-1">
-            <div class="text-base-content/60 overflow-x-clip whitespace-nowrap">
+            <div
+                class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
+            >
                 What's being sent ({numQueries}
                 {numQueries == 1 ? "query" : "queries"})
             </div>
@@ -217,17 +219,20 @@
         <div class="flex justify-between">
             <div class="flex flex-col gap-2">
                 <a
-                    class="text-primary underline hover:font-semibold transition-all"
+                    class="text-primary underline transition-all"
                     target="_blank"
                     href="https://console.apify.com/actors/runs"
                     >APIFY Runs Dashboard</a
                 >
             </div>
 
-            <label for="Numtweets" class="self-end flex flex-col text-right">
+            <label
+                for="Numtweets"
+                class="self-end flex flex-col text-right gap-1"
+            >
                 <span class="text-sm">Number of tweets to retrieve</span>
                 <input
-                    class="input input-sm input-bordered tabular-nums text-right"
+                    class="input input-sm rounded-full tabular-nums bg-neutral text-right"
                     inputmode="numeric"
                     bind:value={numTweets}
                     type="number"
@@ -248,7 +253,7 @@
         {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
-                class="btn btn-primary w-full shadow-primary/20 shadow-md"
+                class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                 disabled={!$apifyKey || !queries}
             >
                 {buttonText}

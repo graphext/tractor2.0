@@ -64,7 +64,7 @@
 </script>
 
 <Select.Root bind:selected={lists} multiple={true} items={options}>
-    <div class="flex flex-col">
+    <div class="flex flex-col gap-1">
         <Tooltip.Root openDelay={100}>
             <Tooltip.Trigger class="text-left">
                 <Select.Label class="text-sm text-base-content/60"
@@ -75,9 +75,9 @@
                 transition={fly}
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-base-100 z-10 shadow-md shadow-base-300 border border-secondary rounded-btn "
+                class="bg-[#FEFEFE] dark:bg-[#161616] z-10 shadow-md shadow-base-100 rounded-xl"
             >
-                <div class="p-3 text-balance w-[350px]">
+                <div class="py-3 px-4 text-balance w-[350px]">
                     <p class="mb-1">
                         Lists curated by the team. Specially tuned to the
                         Spanish media with a balanced mix of politics, economics
@@ -87,7 +87,7 @@
                     <p class="opacity-70">
                         Learn more about <a
                             href="/lists"
-                            class="underline text-secondary">the lists</a
+                            class="underline text-primary">the lists</a
                         >.
                     </p>
                 </div>
@@ -95,7 +95,7 @@
         </Tooltip.Root>
 
         <Select.Trigger
-            class="min-w-[320px] max-w-[500px] flex items-center pl-3 pr-2 py-1 h-min border-secondary border rounded-btn"
+            class="min-w-[320px] max-w-[500px] flex items-center pl-4 pr-2 py-1 h-[40px]  rounded-full bg-neutral"
             aria-label="Select Lists"
         >
             <Scroll weight="duotone" size={24} class="w-[24px] shrink-0" />
@@ -106,14 +106,14 @@
         </Select.Trigger>
     </div>
     <Select.Content
-        class="w-full backdrop-blur bg-base-100/80 rounded-xl border border-secondary shadow-md shadow-base-300 px-1 py-1 shadow-popover outline-none overflow-y-scroll h-[400px]"
+        class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md shadow-base-100 px-1 py-1 outline-none h-fit"
         transition={fly}
         transitionConfig={{ duration: 100, y: -20 }}
         sideOffset={8}
     >
         {#each options as o}
             <Select.Item
-                class="flex justify-between h-10 w-full select-none items-center rounded-btn px-5 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-secondary data-[highlighted]:text-secondary-content data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
+                class="flex justify-between h-7 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[disabled]:text-base-content/50"
                 value={o.value}
                 label={o.label}
             >
@@ -121,9 +121,15 @@
                 {#if lists && lists
                         .map((e) => e.label)
                         .find((e) => e == o.label)}
-                    <Check weight="bold" size={20} />
+                    <Check weight="regular" class="fill-primary" size={20} />
                 {/if}
             </Select.Item>
         {/each}
     </Select.Content>
 </Select.Root>
+
+<style>
+    .list-content {
+        scrollbar-gutter: stable both-edges;
+    }
+</style>

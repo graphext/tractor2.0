@@ -30,7 +30,7 @@
     {placeholder}
     bind:value
     bind:this={textarea}
-    class="textarea border border-primary/70 w-full font-mono h-full overflow-x-scroll"
+    class="textarea bg-neutral w-full font-mono h-full overflow-x-scroll"
     rows="10"
     {...$$restProps}
 ></textarea>

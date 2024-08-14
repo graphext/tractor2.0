@@ -1,10 +1,11 @@
 <script lang="ts">
     import { apifyKey } from "$lib/stores/apifyStore";
-    import { fly } from "svelte/transition";
+    import { fly, slide } from "svelte/transition";
     import { toast } from "svelte-sonner";
-    import { backOut, elasticOut } from "svelte/easing";
+    import { backIn, backInOut, backOut, elasticOut } from "svelte/easing";
     import { getPrivateUserData } from "$lib/apifyEndpoints";
     import { onMount } from "svelte";
+    import { Info, Warning } from "phosphor-svelte";
 
     let key = "";
 
@@ -66,16 +67,18 @@
 
 <div
     class:keyEntered={apikeyPresent}
-    class="flex h-fit flex-col md:flex-row justify-between items-center w-full gap-3"
+    class="flex h-fit flex-col md:flex-row justify-between items-center w-full p-2 gap-3"
 >
     {#if !apikeyPresent}
         <form on:submit|preventDefault={handleSubmit}>
-            <div class="flex flex-col md:flex-row gap-3">
+            <div
+                class="flex flex-col md:join md:flex-row md:rounded-full h-fit"
+            >
                 <input
                     type="password"
                     bind:value={key}
                     {placeholder}
-                    class="input input-bordered w-full md:w-fit"
+                    class="input input-bordered input-sm join-item w-full md:w-fit"
                     disabled={apikeyPresent}
                     class:inputDisabled={apikeyPresent}
                 />
@@ -83,7 +86,8 @@
                     <button
                         type="submit"
                         class:btnDisabled={apikeyPresent}
-                        class="btn btn-primary">Set Token</button
+                        class="btn btn-primary join-item btn-sm h-[10px]"
+                        >Set Token</button
                     >
                 {/if}
             </div>
@@ -130,7 +134,6 @@
             </button>
         {:else}
             <button
-                in:fly={{ duration: 950, y: 10, easing: elasticOut }}
                 out:fly={{ duration: 650, y: 10, easing: backOut }}
                 class="btn no-animation hover:opacity-100 absolute right-0 w-fit md:w-fit btn-sm btn-error self-end bottom-0"
                 on:click={resetKey}
@@ -138,7 +141,6 @@
                 Are you sure?
             </button>
             <progress
-                in:fly={{ duration: 950, y: 10, easing: elasticOut }}
                 out:fly={{ duration: 650, y: 10, easing: backOut }}
                 class="w-[124px] pointer-events-none opacity-20 right-0 bottom-0 mix-blend-lighten dark:mix-blend-darken h-full absolute"
                 value={cancelConfirmationProgress}
@@ -150,21 +152,44 @@
 
 {#if plan === "FREE"}
     <div
-        class="mt-5 flex flex-col gap-2 shadow-error/30 shadow-sm rounded-btn p-3 border-2 border-error"
+        transition:slide={{ axis: "y", easing: backOut, duration: 300 }}
+        class="mt-5 bg-error dark:bg-error/70 flex flex-col gap-2 shadow-sm rounded-btn py-3 px-4 border-2 border-error"
     >
-        <p class="text-error font-semibold">
-            Apify does not allow remote access for FREE accounts.
-        </p>
-        <p>Please, sign up with a paid account and try again.</p>
-        <p>
-            Ask the <a
-                class="text-primary hover:underline"
-                href="mailto:jesus@graphext.com">team</a
-            > for help if needed.
-        </p>
+        <div class="flex gap-3 items-start">
+            <Warning weight="bold" size={22} class="mt-1 fill-error-content" />
+
+            <div class="text-error-content">
+                <p class="text-lg mb-3">
+                    Apify does not allow remote access for FREE accounts.
+                </p>
+
+                <p>Please, sign up with a paid account and try again.</p>
+                <p>
+                    <button
+                        class="underline font-bold"
+                        on:click={() => {
+                            navigator.clipboard.writeText("jesus@graphext.com");
+                            toast.success(
+                                "Copied email 'jesus@graphext.com' to clipboard. Reach out if you need any help.",
+                            );
+                        }}
+                    >
+                        Ask the team</button
+                    > for help if needed.
+                </p>
+            </div>
+        </div>
     </div>
 {:else}
     <span></span>
+{/if}
+
+{#if !$apifyKey}
+    <div class="ml-3 hover:text-primary transition-colors">
+        <a href="/token-info" class="underline opacity-70"
+            >Learn more about the APIFY token</a
+        >
+    </div>
 {/if}
 
 <style>
