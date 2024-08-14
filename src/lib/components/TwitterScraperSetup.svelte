@@ -226,7 +226,10 @@
                 >
             </div>
 
-            <label for="Numtweets" class="self-end flex flex-col text-right">
+            <label
+                for="Numtweets"
+                class="self-end flex flex-col text-right gap-1"
+            >
                 <span class="text-sm">Number of tweets to retrieve</span>
                 <input
                     class="input input-sm rounded-full tabular-nums bg-neutral text-right"
