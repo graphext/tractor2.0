@@ -7,7 +7,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ["Lato", "sans-serif"],
-                mono: ["Monaspace Neon", "monospaced"],
+                mono: ["monospace", "monospace", "SF-Pro", "monospaced"],
             },
         },
     },
@@ -30,6 +30,7 @@ export default {
                     "secondary-content": "#F4FFFF",
                     warning: "#FEC601",
                     "warning-content": "#2E2400",
+                    error: "#E7444D",
                     "error-content": "#FFF5F5",
                     success: "#50E3C2",
                     "success-content": "#1B4D42",

@@ -1,8 +1,8 @@
 <script lang="ts">
     import { apifyKey } from "$lib/stores/apifyStore";
-    import { fly } from "svelte/transition";
+    import { fly, slide } from "svelte/transition";
     import { toast } from "svelte-sonner";
-    import { backOut, elasticOut } from "svelte/easing";
+    import { backIn, backInOut, backOut, elasticOut } from "svelte/easing";
     import { getPrivateUserData } from "$lib/apifyEndpoints";
     import { onMount } from "svelte";
     import { Info, Warning } from "phosphor-svelte";
@@ -134,7 +134,6 @@
             </button>
         {:else}
             <button
-                in:fly={{ duration: 950, y: 10, easing: elasticOut }}
                 out:fly={{ duration: 650, y: 10, easing: backOut }}
                 class="btn no-animation hover:opacity-100 absolute right-0 w-fit md:w-fit btn-sm btn-error self-end bottom-0"
                 on:click={resetKey}
@@ -142,7 +141,6 @@
                 Are you sure?
             </button>
             <progress
-                in:fly={{ duration: 950, y: 10, easing: elasticOut }}
                 out:fly={{ duration: 650, y: 10, easing: backOut }}
                 class="w-[124px] pointer-events-none opacity-20 right-0 bottom-0 mix-blend-lighten dark:mix-blend-darken h-full absolute"
                 value={cancelConfirmationProgress}
@@ -154,21 +152,29 @@
 
 {#if plan === "FREE"}
     <div
-        class="mt-5 bg-error/70 flex flex-col gap-2 shadow-sm rounded-btn py-3 px-4 border-2 border-error"
+        transition:slide={{ axis: "y", easing: backOut, duration: 300 }}
+        class="mt-5 bg-error dark:bg-error/70 flex flex-col gap-2 shadow-sm rounded-btn py-3 px-4 border-2 border-error"
     >
         <div class="flex gap-3 items-start">
-            <Warning weight="bold" size={22} class="mt-1" />
+            <Warning weight="bold" size={22} class="mt-1 fill-error-content" />
 
-            <div class="">
-                <p class="text-base-content text-lg mb-3">
+            <div class="text-error-content">
+                <p class="text-lg mb-3">
                     Apify does not allow remote access for FREE accounts.
                 </p>
 
                 <p>Please, sign up with a paid account and try again.</p>
                 <p>
-                    Ask the <a
-                        class="text-primary hover:underline"
-                        href="mailto:jesus@graphext.com">team</a
+                    <button
+                        class="underline font-bold"
+                        on:click={() => {
+                            navigator.clipboard.writeText("jesus@graphext.com");
+                            toast.success(
+                                "Copied email 'jesus@graphext.com' to clipboard. Reach out if you need any help.",
+                            );
+                        }}
+                    >
+                        Ask the team</button
                     > for help if needed.
                 </p>
             </div>

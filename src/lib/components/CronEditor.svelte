@@ -249,7 +249,7 @@ ${cronExpression}
                     </Select.Trigger>
 
                     <Select.Content
-                        class="w-full backdrop-blur bg-base-100/80 rounded-xl border border-primary shadow-md shadow-base-300 px-1 py-1"
+                        class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md shadow-base-100 px-1 py-1"
                         transition={fly}
                         transitionConfig={{ duration: 100, y: 20 }}
                         sameWidth
@@ -257,7 +257,7 @@ ${cronExpression}
                     >
                         {#each options as option}
                             <Select.Item
-                                class="flex justify-between h-10 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-primary data-[highlighted]:text-secondary-content data-[highlighted]:font-bold data-[disabled]:text-base-content/50"
+                                class="flex justify-between h-7 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[disabled]:text-base-content/50"
                                 value={option.value}
                                 label={intervalNumber == 1
                                     ? option.label.slice(0, -1)

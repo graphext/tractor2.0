@@ -6,7 +6,7 @@
     <p>
         In order to use this service, please head to <a
             href="https://console.apify.com/settings/integrations"
-            >the APIFY Integrations</a
+            target="_blank">the APIFY Integrations</a
         >
         section and generate a personal API token.
     </p>
