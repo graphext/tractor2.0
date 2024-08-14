@@ -1,15 +1,15 @@
 @font-face {
   font-family: 'Lato';
-  src: local('Lato'), url('/fonts/Lato-Regular.ttf');
-  weight: 400;
+  src: local("Lato"), url('/fonts/Lato-Bold.ttf');
+  weight: 700;
 }
 
 @font-face {
   font-family: 'Lato';
-  src: local('Lato'), url('/fonts/Lato-Italic.ttf');
+  src: local("Lato"), url('/fonts/Lato-Regular.ttf');
   weight: 400;
-  font-style: italic;
 }
+
 
 @font-face {
   font-family: 'Monaspace Neon';
@@ -19,7 +19,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* * { */
-/*   font-feature-settings: "salt" on; */
-/* } */
