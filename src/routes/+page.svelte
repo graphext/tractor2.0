@@ -88,11 +88,9 @@
 
 <section
     id="gpt"
-    class="my-5 border-secondary/80 border p-3 rounded-box relative"
+    class="my-5 border-primary/80 border p-3 rounded-box relative"
 >
-    <div class="font-bold mb-3 text-secondary dark:text-secondary">
-        Query Generation
-    </div>
+    <div class="font-bold mb-3 text-primary">QUERY GENERATION</div>
     <ChatGPTQueries bind:queries bind:enrichedQueries />
 
     <Indicator color="secondary/80" index={2} />

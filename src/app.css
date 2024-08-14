@@ -1,7 +1,14 @@
 @font-face {
-  font-family: 'Mona Sans';
-  src: local('Mona Sans'), url('/fonts/Mona-Sans-Variable.ttf');
-  weight: 200 900;
+  font-family: 'Lato';
+  src: local('Lato'), url('/fonts/Lato-Regular.ttf');
+  weight: 400;
+}
+
+@font-face {
+  font-family: 'Lato';
+  src: local('Lato'), url('/fonts/Lato-Italic.ttf');
+  weight: 400;
+  font-style: italic;
 }
 
 @font-face {
@@ -13,6 +20,6 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  font-feature-settings: "salt" on;
-}
+/* * { */
+/*   font-feature-settings: "salt" on; */
+/* } */

@@ -6,7 +6,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Mona Sans", "sans-serif"],
+                sans: ["Lato", "sans-serif"],
                 mono: ["Monaspace Neon", "monospaced"],
             },
         },
@@ -39,9 +39,10 @@ export default {
                     "primary-content": "#FFF",
                     secondary: "#00867A",
                     "secondary-content": "#D8F4ED",
+                    neutral: "#313641",
                     "base-100": "#1F2024",
-                    "base-200": "#27272C",
-                    "base-300": "#303037",
+                    "base-200": "#2A2E38",
+                    "base-300": "#363B47",
                     "base-content": "#FFF",
                     warning: "#FEC601",
                     "warning-content": "#2E2400",

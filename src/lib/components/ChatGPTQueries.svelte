@@ -105,7 +105,7 @@
 <div class="flex flex-col gap-3">
     <div class="w-full flex gap-3">
         {#if loading}
-            <span class="loading loading-ring loading-lg text-secondary"></span>
+            <span class="loading loading-ring loading-lg text-primary"></span>
         {/if}
         <form class="w-full">
             <div
@@ -113,13 +113,13 @@
             >
                 <input
                     type="text"
-                    class="input transition-all input-secondary text-sm w-full join-item"
+                    class="input transition-all input-primary text-sm w-full join-item"
                     bind:value={userPrompt}
                     {placeholder}
                 />
                 <button
                     on:click={generateResponse}
-                    class="btn btn-secondary join-item"
+                    class="btn btn-primary join-item"
                     disabled={loading}
                 >
                     {loading ? "Generating..." : "Generate Search Terms"}

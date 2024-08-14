@@ -170,7 +170,7 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-secondary pl-3 pr-1 py-1 text-sm"
+            class="flex tabular-nums w-full max-w-[320px] rounded-btn select-none items-center rounded-input border border-primary pl-3 pr-1 py-1 text-sm"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
@@ -215,10 +215,10 @@
             transition={fly}
             transitionConfig={{ y: -10, duration: 100 }}
             sideOffset={6}
-            class="z-50 rounded-box backdrop-blur-xl bg-base-200/70 shadow-md shadow-base-300 border border-secondary p-3 flex flex-col md:flex-row mt-2"
+            class="z-50 rounded-box backdrop-blur-xl bg-base-200/70 shadow-md shadow-base-300 border border-primary p-3 flex flex-col md:flex-row mt-2"
         >
             <DateRangePicker.Calendar
-                class="tabular-nums border rounded-btn shadow-md shadow-base-300 border-secondary p-3 pt-2 backdrop-blur bg-base-100/40"
+                class="tabular-nums border rounded-btn shadow-md shadow-base-300 border-primary p-3 pt-2 backdrop-blur bg-base-100/40"
                 let:months
                 let:weekdays
             >
@@ -237,7 +237,7 @@
                         <CaretRight size={24} />
                     </DateRangePicker.NextButton>
                 </DateRangePicker.Header>
-                <div class="divider divider-secondary my-0"></div>
+                <div class="divider divider-primary my-0"></div>
                 <div
                     class="flex flex-col pt-4 sm:flex-row sm:space-x-4 sm:space-y-0"
                 >
@@ -271,7 +271,7 @@
                                                 <DateRangePicker.Day
                                                     {date}
                                                     month={month.value}
-                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:bg-secondary/5 data-[selection-end]:border-2 data-[selection-end]:border-secondary data-[selection-end]:text-secondary data-[selection-start]:bg-secondary/5 data-[selection-start]:border-2 data-[selection-start]:border-secondary data-[selection-start]:text-secondary data-[highlighted]:bg-base-content/20 data-[selected]:bg-secondary data-[selected]:text-primary-content data-[selection-end]:bg-foreground data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-end]:text-background data-[selection-start]:text-background data-[unavailable]:line-through data-[disabled]:text-base-content/30"
+                                                    class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:text-base-content data-[selection-end]:bg-primary/10 data-[selection-end]:border-2 data-[selection-end]:border-primary data-[selection-start]:bg-primary/5 data-[selection-start]:border-2 data-[selection-start]:border-primary data-[highlighted]:bg-base-content/20 data-[selected]:bg-primary data-[selected]:text-primary-content  data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-start]:text-base-content data-[unavailable]:line-through data-[disabled]:text-base-content/30"
                                                 >
                                                     <div
                                                         class="absolute top-[5px] hidden size-1 font-semibold rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
@@ -298,7 +298,7 @@
                                     (presets.length - i) /
                                         presets.length /
                                         2.0}"
-                                class="btn btn-sm btn-secondary w-full"
+                                class="btn btn-sm btn-primary w-full"
                                 on:click={p.func}>{p.label}</button
                             >
                         </li>
