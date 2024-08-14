@@ -197,10 +197,8 @@
                 bind:value={queries}
             />
         </Pane>
-        <PaneResizer
-            class="bg-primary text-primary-content rounded-sm py-2 h-min"
-        >
-            <DotsSixVertical size={15} weight="duotone" />
+        <PaneResizer class="text-base-content rounded-sm py-2 h-min">
+            <DotsSixVertical size={15} weight="bold" />
         </PaneResizer>
         <Pane defaultSize={70} class="p-1">
             <div
