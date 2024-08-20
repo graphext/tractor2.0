@@ -1,4 +1,5 @@
-<main class="prose">
+<a href="/" class="btn btn-primary">Back Home</a>
+<main class="prose mt-10">
     <h1>Documentation</h1>
 
     <p>Here you'll find documentation on how to use Tractor.</p>
