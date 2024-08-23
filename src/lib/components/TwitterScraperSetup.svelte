@@ -245,7 +245,7 @@
     <div class="w-full relative">
         {#if loading}
             <progress
-                class="progress-overlay mix-blend-overlay absolute h-full rounded-none w-full opacity-40"
+                class="progress-overlay mix-blend-overlay absolute h-full rounded-full w-full opacity-40"
                 max={numTweets}
                 value={$springProgress}
             ></progress>
