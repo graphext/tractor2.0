@@ -28,9 +28,7 @@
     }
 </script>
 
-<a href="/" class="underline hover:text-primary transition-all font-semibold">
-    {`←`} Back Home</a
->
+<a href="/" class="btn btn-primary">Back Home</a>
 
 <h1 class="mt-10 text-3xl font-bold mb-3">Tasks</h1>
 

@@ -21,6 +21,8 @@
     import WarningCost from "./WarningCost.svelte";
     import { jsonToCsv } from "$lib/utils";
     import CronEditor from "./CronEditor.svelte";
+    import Gauge from "phosphor-svelte/lib/Gauge";
+    import Book from "phosphor-svelte/lib/Book";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -219,11 +221,19 @@
         <div class="flex justify-between">
             <div class="flex flex-col gap-2">
                 <a
-                    class="text-primary underline transition-all"
+                    class="hover:text-primary text-neutral-400 hover:underline transition-all flex gap-1 items-end"
                     target="_blank"
                     href="https://console.apify.com/actors/runs"
-                    >APIFY Runs Dashboard</a
                 >
+                    <Gauge size={20} /> APIFY Runs Dashboard</a
+                >
+
+                <a
+                    href="/docs"
+                    class="hover:text-primary hover:underline text-neutral-400 transition-all flex gap-1 items-center"
+                >
+                    <Book size={20} /> Tractor Docs
+                </a>
             </div>
 
             <label
