@@ -171,7 +171,7 @@ export async function jsonToCsv(
     // Get all available headers from the first object
     // sometimes, Apify will return a {noResults: true} object
     // which will mess up with the csv creation
-    let firstValidObjectIndex = 0
+    let firstValidObjectIndex = 0;
     while (Object.keys(jsonData[firstValidObjectIndex]).length <= 1) {
       firstValidObjectIndex++;
     }
@@ -210,13 +210,17 @@ export async function jsonToCsv(
 
     // Add data rows
     jsonData.forEach((item) => {
-      const row = headers.map((header) => {
+      const row: string[] = headers.map((header) => {
         const value = item[header];
         return value !== undefined && value !== "noResults"
           ? formatValue(value)
           : "";
       });
-      csvString += row.join(",") + "\n";
+      if (row.every((v) => v === "")) {
+        csvString += "";
+      } else {
+        csvString += row.join(",") + "\n";
+      }
     });
 
     return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
