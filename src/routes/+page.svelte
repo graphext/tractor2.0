@@ -5,8 +5,6 @@
     import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
     import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
-    import { apifyKey } from "$lib/stores/apifyStore";
-    import Indicator from "$lib/components/Indicator.svelte";
     import User from "$lib/components/User.svelte";
 
     let queries: string;

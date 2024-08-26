@@ -1,5 +1,7 @@
 <a href="/" class="btn btn-primary">Back Home</a>
-<main class="prose mt-10">
+<main
+    class="prose mt-10 max-w-2xl hover:prose-a:text-primary prose-a:font-bold prose-a:transition-colors"
+>
     <h1>Documentation</h1>
 
     <p>Here you'll find documentation on how to use Tractor.</p>
@@ -99,9 +101,9 @@
     </p>
 
     <p>
-        If everything looks good, you can just click the massive "Get tweets"
-        button and lots of gears will start spinning to fetch your data. Once
-        it's finished, a new button will pop up, downloading your data in a
+        If everything looks good, you can just click the "Get tweets" button and
+        lots of gears will start spinning to fetch your data. Once it's
+        finished, a new button will pop up, downloading your data in a
         Graphext-friendly format.
     </p>
 
