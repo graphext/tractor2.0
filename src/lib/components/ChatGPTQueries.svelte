@@ -7,7 +7,7 @@
     import { enrichQueries, getSelectionOptions } from "$lib/utils";
     import SelectFrequency from "./SelectFrequency.svelte";
     import SelectLists from "./SelectLists.svelte";
-    import { CaretRight } from "phosphor-svelte";
+    import CaretRight from "phosphor-svelte/lib/CaretRight";
 
     export let queries = "";
     export let enrichedQueries = "";
