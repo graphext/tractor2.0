@@ -13,7 +13,7 @@
     import SelectFrequency from "./SelectFrequency.svelte";
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import SelectLists from "./SelectLists.svelte";
-    import { CaretRight } from "phosphor-svelte";
+    import CaretRight from "phosphor-svelte/lib/CaretRight";
 
     export let queries = "";
     export let enrichedQueries = "";

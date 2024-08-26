@@ -5,7 +5,8 @@
     import { backIn, backInOut, backOut, elasticOut } from "svelte/easing";
     import { getPrivateUserData } from "$lib/apifyEndpoints";
     import { onMount } from "svelte";
-    import { Info, Warning } from "phosphor-svelte";
+    import Warning from "phosphor-svelte/lib/Warning";
+    import Info from "phosphor-svelte/lib/Info";
 
     let key = "";
 
