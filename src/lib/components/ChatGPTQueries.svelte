@@ -4,14 +4,8 @@
     import { toast } from "svelte-sonner";
     import type { DateRange, Selected } from "bits-ui";
     import DatePicker from "./DatePicker.svelte";
-    import {
-        addListsToQueries,
-        enrichQueries,
-        getSelectionOptions,
-        spreadQueriesOverTime,
-    } from "$lib/utils";
+    import { enrichQueries, getSelectionOptions } from "$lib/utils";
     import SelectFrequency from "./SelectFrequency.svelte";
-    import CleanPasteInput from "./CleanPasteInput.svelte";
     import SelectLists from "./SelectLists.svelte";
     import { CaretRight } from "phosphor-svelte";
 
@@ -46,7 +40,7 @@
 
     $: options = getSelectionOptions(selectedRange);
 
-    let interval: number;
+    let interval: Timeout;
     interval = setInterval(() => {
         index = (index + 1) % placeholderIdeas.length;
         placeholder = placeholderIdeas[index];

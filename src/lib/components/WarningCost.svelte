@@ -6,9 +6,7 @@
 </script>
 
 <div
-    class="my-2 p-3 bg-warning
-    text-warning-content
-    border border-warning-content/20 rounded-btn warning-container"
+    class="my-2 p-3 px-5 bg-warning text-warning-content border border-warning-content/20 warning-container rounded-full"
     in:fly={{ y: -20, duration: 400, easing: backOut }}
 >
     <div class="warning-stripes"></div>
