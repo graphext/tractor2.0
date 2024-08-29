@@ -164,10 +164,18 @@ export async function jsonToCsv(
     }
     const jsonData: any[] = await response.json();
 
-    if (!Array.isArray(jsonData) || jsonData.length === 0) {
+    console.log(jsonData);
+    if (
+      !Array.isArray(jsonData) ||
+      jsonData.length === 0 ||
+      jsonData === undefined
+    ) {
       throw new Error("Invalid JSON data: expected a non-empty array");
     }
 
+    if (jsonData.every((o) => o.hasOwnProperty("noResults"))) {
+      throw new Error("Apify returned an empty dataset.");
+    }
     // Get all available headers from the first object
     // sometimes, Apify will return a {noResults: true} object
     // which will mess up with the csv creation
