@@ -207,12 +207,14 @@ export async function invokeSchedule(scheduleId: string) {
 }
 
 export async function scheduleTask({
+	historicTaskId,
 	taskId,
 	scheduleKW,
 	datasetId,
 	cronExpression,
 	description,
 }: {
+	historicTaskId: string;
 	taskId: string;
 	scheduleKW: string;
 	datasetId: string;
@@ -243,6 +245,9 @@ export async function scheduleTask({
 			},
 		],
 	});
+
+	//TODO: use data from historicTaskId to run that task, get that data
+	// and merge it into the original dataset
 
 	const webhookPayload = {
 		outputDatasetId: datasetId,

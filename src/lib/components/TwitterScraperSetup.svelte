@@ -54,8 +54,6 @@
     let filename: string | null = null;
     let datasetSize: number | null = null;
 
-    let cronExpression: string;
-
     const churro =
         "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
 
@@ -302,7 +300,7 @@
     </a>
 {/if}
 
-<CronEditor {numTweets} {queries} bind:cronExpression />
+<CronEditor {numTweets} {queries} {queriesSpreadOverTime} />
 
 {#if error || status}
     <div>

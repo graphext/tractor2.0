@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { composeCronExpression } from "$lib/utils";
+    import { composeCronExpression, identifyCronExpression } from "$lib/utils";
     import { Select, type Selected } from "bits-ui";
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
     import { fly, slide } from "svelte/transition";
@@ -12,9 +12,10 @@
         scheduleTask,
     } from "$lib/apifyEndpoints";
     import { toast } from "svelte-sonner";
-    import { backInOut, backOut, cubicInOut } from "svelte/easing";
+    import { cubicInOut } from "svelte/easing";
 
     export let queries: string;
+    export let queriesSpreadOverTime: string;
     export let numTweets: number;
 
     let options = [
@@ -25,26 +26,54 @@
         { label: "years", value: "year" },
     ];
 
-    let hour = new Date().getHours();
-    let minute = new Date().getMinutes();
-
     let selectedInterval: Selected<string> = options[2];
     let intervalNumber: number = 2;
 
-    $: console.log(cronExpression);
+    let withinTimeParameter: string = `within_time:${intervalNumber}d`;
+    $: switch (selectedInterval.value) {
+        case "minute":
+            withinTimeParameter = `within_time:${intervalNumber}m`;
+            break;
+
+        case "hour":
+            withinTimeParameter = `within_time:${intervalNumber}h`;
+            break;
+
+        case "days":
+            withinTimeParameter = `within_time:${intervalNumber}d`;
+            break;
+
+        case "month":
+            withinTimeParameter = `within_time:${intervalNumber * 30}d`;
+            break;
+
+        case "year":
+            withinTimeParameter = `within_time:${intervalNumber * 365}d`;
+            break;
+    }
+
+    let hour = new Date().getHours();
+    let minute = new Date().getMinutes();
 
     $: time = { hour: hour, minute: minute };
 
-    export let cronExpression: string = composeCronExpression(
+    let cronExpression: string = composeCronExpression(
         intervalNumber,
         selectedInterval.value,
         time,
     );
 
+    $: cronExpressionScope = identifyCronExpression(
+        cronExpression,
+        intervalNumber,
+    );
+    $: console.log(cronExpressionScope);
+
+    $: console.log(cronExpression);
+
     let loading: boolean = false,
         error;
     let description: string | undefined;
-    let datasetName: string | undefined;
     let schedule: Object | undefined;
     let datasetId: string;
 
@@ -139,14 +168,22 @@ ${cronExpression}
         console.log("scheduling task...");
         try {
             loading = true;
-            const queryList = queries
+
+            const queryListWithinTime = queries
                 .split("\n")
                 .filter((q) => q.trim() !== "")
-                .map((t) => t.trim());
+                .map((t) => {
+                    t.trim();
+                    t += ` ${withinTimeParameter}`;
+                    return t;
+                });
+
+            console.log(queryListWithinTime);
+
             const nQueries = queries.split("\n").length;
             const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
-            const input = {
+            const scheduledTaskInput = {
                 customMapFunction: createFunctionString(),
                 maxItems: numTweets,
                 maxTweetsPerQuery: maxTweetsPerQuery,
@@ -157,7 +194,21 @@ ${cronExpression}
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
                 sort: "Latest",
-                searchTerms: queryList,
+                searchTerms: queryListWithinTime,
+            };
+
+            const historicDataInput = {
+                customMapFunction: createFunctionString(),
+                maxItems: numTweets,
+                maxTweetsPerQuery: maxTweetsPerQuery,
+                includeSearchTerms: false,
+                onlyImage: false,
+                onlyQuote: false,
+                onlyTwitterBlue: false,
+                onlyVerifiedUsers: false,
+                onlyVideo: false,
+                sort: "Latest",
+                searchTerms: queriesSpreadOverTime,
             };
 
             const datasetName = await generateDatasetName();
@@ -169,8 +220,17 @@ ${cronExpression}
             datasetId = datasetData.data.id;
             console.log(datasetName, datasetId);
 
-            const taskData = await createTask(ACT_ID, input);
-            const taskId = taskData.data.id;
+            const scheduleableTaskData = await createTask(
+                ACT_ID,
+                scheduledTaskInput,
+            );
+            const scheduleableTaskId = scheduleableTaskData.data.id;
+
+            const historicTaskData = await createTask(
+                ACT_ID,
+                historicDataInput,
+            );
+            const historicTaskId = historicTaskData.data.id;
 
             description = await generateDescription();
             console.log(description);
@@ -179,7 +239,8 @@ ${cronExpression}
                 toast.success(description);
             }
             const { scheduleData, webhookData } = await scheduleTask({
-                taskId: taskId,
+                historicTaskId: historicTaskId,
+                taskId: scheduleableTaskId,
                 scheduleKW: keyword ? keyword : "",
                 datasetId: datasetId,
                 cronExpression: cronExpression,
@@ -242,7 +303,7 @@ ${cronExpression}
             >
                 <div class="flex flex-col">
                     <Select.Trigger
-                        aria-label="Select a theme"
+                        aria-label="Select an interval"
                         class="w-[100px] flex items-center pl-3 pr-2 py-[3px] rounded-full bg-neutral"
                     >
                         <Select.Value placeholder="Select an interval" />
@@ -297,7 +358,7 @@ ${cronExpression}
                                 time,
                             );
                         }}
-                        class="input input-sm rounded-full w-[43px] text-center bg-neutral"
+                        class="input input-sm rounded-full w-[50px] text-center bg-neutral"
                     />
                     :
                     <input
@@ -318,7 +379,7 @@ ${cronExpression}
                         }}
                         min="0"
                         max="59"
-                        class="input input-sm rounded-full w-[43px] text-center bg-neutral"
+                        class="input input-sm rounded-full w-[50px] text-center bg-neutral"
                     />
                 </div>
             {/if}

@@ -1,6 +1,7 @@
 import type { DateRange, Selected } from "bits-ui";
 import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
+import { InternalServerError } from "openai";
 
 export function cleanText(text: string): string {
   text = text.replace(/[^\S\r\n]+/g, " ");
@@ -313,6 +314,9 @@ export function composeCronExpression(
   frequency: string,
   time?: { hour: number; minute: number },
 ) {
+  if (intervalNumber === null || intervalNumber === undefined) {
+    intervalNumber = 1;
+  }
   const today = new Date();
   const dayOfMonth = today.getDate();
 
@@ -344,4 +348,38 @@ export function composeCronExpression(
   }
 
   return cronExpression;
+}
+
+export function identifyCronExpression(
+  cronExpression: string,
+  intervalNumber: number,
+) {
+  if (intervalNumber === null || intervalNumber === undefined) {
+    intervalNumber = 1;
+  }
+  const mRegex = /\*\/\d \* \* \* \*/; //minutes
+  const hRegex = /0 \*\/\d \* \* \*/;
+  const dRegex = /\d \d \*\/\d \* \*/;
+
+  const MRegex = new RegExp(
+    String.raw`\d \d \d */${intervalNumber.toString()} *`,
+  );
+  const yRegex = /\d \d \d \*\/\d \*/;
+
+  switch (true) {
+    case mRegex.test(cronExpression):
+      return "minutes";
+
+    case dRegex.test(cronExpression):
+      return "days";
+
+    case hRegex.test(cronExpression):
+      return "hours";
+
+    case MRegex.test(cronExpression):
+      return "months";
+
+    case yRegex.test(cronExpression):
+      return "years";
+  }
 }
