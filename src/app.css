@@ -1,14 +1,15 @@
-
 @font-face {
-  font-family: 'Lato';
-  src: local("Lato"), url('/fonts/Lato-Regular.ttf'), url('/fonts/Lato-Bold.ttf');
-  weight: 400, 700;
+  font-family: "Lato";
+  src: local("Lato-Regular"), url("/fonts/Lato-Regular.woff2");
+  font-weight: 400;
+  font-style: normal;
 }
 
-
 @font-face {
-  font-family: 'Monaspace Neon';
-  src: local('Monaspace Neon'), url('/fonts/MonaspaceNeon-Regular.woff');
+  font-family: "Lato";
+  src: local("Lato-Bold"), url("/fonts/Lato-Bold.woff2");
+  font-weight: 700;
+  font-style: normal;
 }
 
 @tailwind base;

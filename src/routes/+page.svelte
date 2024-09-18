@@ -56,9 +56,7 @@
 <div class="mb-6">
     <div class="flex gap-3">
         <img src="/tractor_icon.svg" width="24" alt="" />
-        <h1 class="text-3xl md:text-left transition-all tracking-tight">
-            Tractor
-        </h1>
+        <h1 class="text-3xl md:text-left tracking-tight font-bold">Tractor</h1>
     </div>
 
     <div class="flex justify-between items-baseline">
