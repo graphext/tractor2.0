@@ -4,19 +4,14 @@
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
     import { fly, slide } from "svelte/transition";
     import { apifyKey } from "$lib/stores/apifyStore";
-    import {
-        ACT_ID,
-        createDataset,
-        createFunctionString,
-        createTask,
-        scheduleTask,
-    } from "$lib/apifyEndpoints";
+    import { createFunctionString, scheduleTask } from "$lib/apifyEndpoints";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
 
     export let queries: string;
     export let queriesSpreadOverTime: string;
     export let numTweets: number;
+    export let scheduleNumTweets: number = 100;
 
     let options = [
         { label: "minutes", value: "minute" },
@@ -82,59 +77,6 @@
 ${cronExpression}
 `;
 
-    async function generateScheduleKeyWord() {
-        try {
-            const res = await fetch("/api/schedulekw", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ prompt: prompt }),
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`,
-                );
-            }
-
-            return res.text();
-        } catch (err) {
-            console.error("Error:", err);
-            error =
-                err instanceof Error
-                    ? err.message
-                    : "An unknown error occurred";
-        }
-    }
-    async function generateDatasetName() {
-        try {
-            const res = await fetch("/api/ids", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ prompt: prompt }),
-            });
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`,
-                );
-            }
-
-            return res.text();
-        } catch (err) {
-            console.error("Error:", err);
-            error =
-                err instanceof Error
-                    ? err.message
-                    : "An unknown error occurred";
-        }
-    }
-
     async function generateDescription() {
         error = "";
 
@@ -178,14 +120,17 @@ ${cronExpression}
                     return t;
                 });
 
-            console.log(queryListWithinTime);
+            const queriesSpreadOverTimeArray = queriesSpreadOverTime
+                .split("\n")
+                .filter((q) => q.trim() !== "")
+                .map((t) => t.trim());
 
             const nQueries = queries.split("\n").length;
-            const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
+            const maxTweetsPerQuery = Math.ceil(scheduleNumTweets / nQueries);
 
             const scheduledTaskInput = {
                 customMapFunction: createFunctionString(),
-                maxItems: numTweets,
+                maxItems: scheduleNumTweets,
                 maxTweetsPerQuery: maxTweetsPerQuery,
                 includeSearchTerms: false,
                 onlyImage: false,
@@ -208,46 +153,25 @@ ${cronExpression}
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
                 sort: "Latest",
-                searchTerms: queriesSpreadOverTime,
+                searchTerms: queriesSpreadOverTimeArray,
             };
 
-            const datasetName = await generateDatasetName();
-            const datasetData = await createDataset(
-                datasetName ? datasetName : "dataset-test",
-            );
-            const keyword = await generateScheduleKeyWord();
-
-            datasetId = datasetData.data.id;
-            console.log(datasetName, datasetId);
-
-            const scheduleableTaskData = await createTask(
-                ACT_ID,
-                scheduledTaskInput,
-            );
-            const scheduleableTaskId = scheduleableTaskData.data.id;
-
-            const historicTaskData = await createTask(
-                ACT_ID,
-                historicDataInput,
-            );
-            const historicTaskId = historicTaskData.data.id;
-
             description = await generateDescription();
-            console.log(description);
 
             if (description) {
                 toast.success(description);
             }
-            const { scheduleData, webhookData } = await scheduleTask({
-                historicTaskId: historicTaskId,
-                taskId: scheduleableTaskId,
-                scheduleKW: keyword ? keyword : "",
-                datasetId: datasetId,
-                cronExpression: cronExpression,
-                description: description,
-            });
+            const { scheduleData, datasetId: newDatasetId } =
+                await scheduleTask({
+                    scheduledTaskInput: scheduledTaskInput,
+                    historicDataInput: historicDataInput,
+                    cronExpression: cronExpression,
+                    description: description,
+                });
 
             schedule = scheduleData.data;
+
+            datasetId = newDatasetId;
 
             loading = false;
         } catch (e) {
@@ -261,7 +185,7 @@ ${cronExpression}
     {#if !schedule && !loading}
         <div class="flex gap-3 items-center self-end">
             <ClockClockwise weight="duotone" size={24} />
-            Schedule task every
+            <p class="text-base-content/60">Schedule task every</p>
             <input
                 type="number"
                 min="1"
@@ -329,7 +253,7 @@ ${cronExpression}
                 </div>
             </Select.Root>
 
-            at
+            <p class="text-base-content/60">at</p>
 
             {#if selectedInterval.value == "day" || selectedInterval.value == "month" || selectedInterval.value == "year"}
                 <div
@@ -383,6 +307,19 @@ ${cronExpression}
                     />
                 </div>
             {/if}
+
+            <p class="text-base-content/60">and bring</p>
+
+            <input
+                type="number"
+                bind:value={scheduleNumTweets}
+                min="1"
+                max="10000"
+                class="input input-sm rounded-full w-[90px] text-center bg-neutral"
+                placeholder="# tweets"
+            />
+
+            <p class="text-base-content/60">tweets per schedule</p>
 
             <button
                 disabled={!$apifyKey || !queries}

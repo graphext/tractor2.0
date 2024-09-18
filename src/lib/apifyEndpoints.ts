@@ -206,27 +206,98 @@ export async function invokeSchedule(scheduleId: string) {
 	return await apifyFetch(endpoint, { method: "POST" });
 }
 
+
+async function generateDatasetName(prompt: string) {
+	try {
+		const res = await fetch("/api/ids", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ prompt: prompt }),
+		});
+
+		if (!res.ok) {
+			const errorData = await res.json();
+			throw new Error(
+				errorData.error || `HTTP error! status: ${res.status}`,
+			);
+		}
+
+		return res.text();
+	} catch (err) {
+		console.error("Error:", err);
+		error =
+			err instanceof Error
+				? err.message
+				: "An unknown error occurred";
+	}
+}
+
+async function generateScheduleKeyWord(prompt: string) {
+	try {
+		const res = await fetch("/api/schedulekw", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ prompt: prompt }),
+		});
+
+		if (!res.ok) {
+			const errorData = await res.json();
+			throw new Error(
+				errorData.error || `HTTP error! status: ${res.status}`,
+			);
+		}
+
+		return res.text();
+	} catch (err) {
+		console.error("Error:", err);
+		error =
+			err instanceof Error
+				? err.message
+				: "An unknown error occurred";
+	}
+}
+
 export async function scheduleTask({
-	historicTaskId,
-	taskId,
-	scheduleKW,
-	datasetId,
+	scheduledTaskInput,
+	historicDataInput,
 	cronExpression,
 	description,
 }: {
-	historicTaskId: string;
-	taskId: string;
-	scheduleKW: string;
-	datasetId: string;
+	scheduledTaskInput: Record<string, unknown>;
+	historicDataInput: Record<string, unknown>;
 	cronExpression: string;
 	description: string | undefined;
 }) {
+
+	const keyword = await generateScheduleKeyWord(`${scheduledTaskInput.searchTerms}
+
+${cronExpression}`);
+
+
+	const scheduleableTaskData = await createTask(
+		ACT_ID,
+		scheduledTaskInput,
+	);
+	const scheduleableTaskId = scheduleableTaskData.data.id;
+
+	const historicTaskData = await createTask(
+		ACT_ID,
+		historicDataInput,
+	);
+	const historicTaskId = historicTaskData.data.id;
+	const historicDataRun = await runTask(historicTaskId);
+	const datasetId = historicDataRun.data.defaultDatasetId;
+
 	const schedulesEndpoint = "/schedules";
 	const userId = (await getPrivateUserData()).data.id;
 
 	const token = get(apifyKey);
 	const body = JSON.stringify({
-		name: `TRCTR-${scheduleKW}-${token.slice(-4)}-${Math.floor(
+		name: `TRCTR-${keyword}-${token.slice(-4)}-${Math.floor(
 			Math.random() * 10000,
 		)
 			.toString()
@@ -240,19 +311,26 @@ export async function scheduleTask({
 		actions: [
 			{
 				type: "RUN_ACTOR_TASK",
-				actorTaskId: taskId,
+				actorTaskId: scheduleableTaskId,
 				actorId: ACT_ID,
 			},
 		],
 	});
 
-	//TODO: use data from historicTaskId to run that task, get that data
-	// and merge it into the original dataset
+	const datasetName = await generateDatasetName(`${scheduledTaskInput.searchTerms}
 
+${cronExpression}`);
+
+	await apifyFetch(`/datasets/${datasetId}`, {
+		method: "PUT",
+		body: JSON.stringify({ name: datasetName }),
+	});
+
+	// Update webhook payload
 	const webhookPayload = {
 		outputDatasetId: datasetId,
 		datasetIds: ["{{resource.defaultDatasetId}}", datasetId],
-		mode: "dedup-as-loading", // for low memory usage, safer
+		mode: "dedup-as-loading",
 		output: "unique-items",
 		fields: ["url<gx:url>"],
 	};
@@ -261,7 +339,7 @@ export async function scheduleTask({
 		requestUrl: MERGE_DEDUP_URL,
 		eventTypes: ["ACTOR.RUN.SUCCEEDED"],
 		condition: {
-			actorTaskId: taskId,
+			actorTaskId: scheduleableTaskId,
 		},
 		shouldInterpolateStrings: true,
 		isApifyIntegration: true,
@@ -276,10 +354,7 @@ export async function scheduleTask({
 
 		const webhookData = await createWebhook(webookConfig);
 
-		//run schedule immediately
-		invokeSchedule(scheduleData.data.id);
-
-		return { scheduleData: scheduleData, webhookData: webhookData };
+		return { scheduleData: scheduleData, webhookData: webhookData, datasetId: datasetId };
 	} catch (e) {
 		console.error("Couldn't setup schedule", e);
 		throw e;
