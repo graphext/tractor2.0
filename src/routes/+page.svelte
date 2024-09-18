@@ -36,7 +36,7 @@
         description: "Easiest way to Download & analyze Tweets",
         images: [
             {
-                url: "https://tractor.graphext.com/ogimage.png",
+                url: "https://tractor.graphext.com/ogimage.webp",
                 width: 1200,
                 height: 600,
                 alt: "Tractor",
@@ -48,7 +48,7 @@
         cardType: "summary_large_image",
         title: "Tractor",
         description: "Easiest way to Download & analyze Tweets",
-        image: "https://tractor.graphext.com/ogimage.png",
+        image: "https://tractor.graphext.com/ogimage.webp",
         imageAlt: "Tractor",
     }}
 />
