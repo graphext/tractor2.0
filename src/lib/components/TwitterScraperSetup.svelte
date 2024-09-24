@@ -1,20 +1,8 @@
 <script lang="ts">
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
-
     import { PaneGroup, Pane, PaneResizer } from "paneforge";
-
     import { tweened } from "svelte/motion";
-
-    import {
-        setupTwitterScrapingTask,
-        getRunStatus,
-        getDatasetLink,
-        getDatsetInfo,
-        getDatsetLength,
-        getPrivateUserData,
-    } from "../apifyEndpoints";
-
     import { apifyKey } from "../stores/apifyStore";
     import { cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
@@ -23,6 +11,10 @@
     import CronEditor from "./CronEditor.svelte";
     import Gauge from "phosphor-svelte/lib/Gauge";
     import Book from "phosphor-svelte/lib/Book";
+    import { ApifyClient, ApifyScheduler } from "../apifyEndpoints";
+
+    import { TWITTER_ACT_ID } from "$lib/actors";
+    import { createFunctionString } from "$lib/postprocess";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -63,6 +55,8 @@
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
+    const apifyClient = new ApifyClient(TWITTER_ACT_ID); // Twitter Actor ID
+
     async function handleSubmit() {
         confirmChoice = false;
         datasetLink = "";
@@ -80,7 +74,7 @@
         const nQueries = queriesSpreadOverTime.split("\n").length;
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
-        toast.success("Task and run created sucessfully.");
+        toast.success("Task and run created successfully.");
 
         setTimeout(() => {
             toast.info("Fetching data. This may take a while...");
@@ -89,11 +83,20 @@
         try {
             loading = true;
 
-            runId = await setupTwitterScrapingTask(
-                queryList,
-                numTweets,
-                maxTweetsPerQuery,
-            );
+            const task = await apifyClient.createTask({
+                searchTerms: queryList,
+                maxItems: numTweets,
+                maxTweetsPerQuery: maxTweetsPerQuery,
+                onlyImage: false,
+                onlyQuote: false,
+                onlyTwitterBlue: false,
+                onlyVerifiedUsers: false,
+                onlyVideo: false,
+                customMapFunction: createFunctionString(),
+            });
+
+            runId = await apifyClient.runTask(task.data.id).then(run => run.data.id);
+
             error = null;
 
             checkStatus();
@@ -135,9 +138,9 @@
         if (!runId) return;
 
         try {
-            const runData = await getRunStatus(runId);
+            const runData = await apifyClient.getRunStatus(runId);
 
-            outputProgress = await getDatsetLength(runId);
+            outputProgress = await apifyClient.getDatasetLength(runId);
             springProgress.set(outputProgress);
 
             status = runData.data.status;
@@ -147,7 +150,7 @@
             }
             if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await getDatasetLink(runId, "json");
+                datasetLink = await apifyClient.getDatasetLink(runId, "json");
 
                 csvBlob = await jsonToCsv(datasetLink, [
                     "createdAt<gx:date>",
@@ -157,7 +160,8 @@
                     "viewCount<gx:number>",
                 ]);
 
-                datasetData = await getDatsetInfo(runId);
+                datasetData = await apifyClient.getDatasetInfo(runId);
+                console.log(datasetData);
 
                 const fileKeyWord = await generateDatasetName(
                     queriesSpreadOverTime,
@@ -181,7 +185,7 @@
             error = err instanceof Error ? err.message : String(err);
             loading = false;
             status = "FAILED";
-            userId = (await getPrivateUserData()).data.id;
+            userId = (await apifyClient.getPrivateUserData()).data.id;
             if (error == "Apify returned an empty dataset.") {
                 toast.error(error);
             }

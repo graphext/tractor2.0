@@ -3,23 +3,25 @@
     import { fly, slide } from "svelte/transition";
     import { toast } from "svelte-sonner";
     import { backIn, backInOut, backOut, elasticOut } from "svelte/easing";
-    import { getPrivateUserData } from "$lib/apifyEndpoints";
+    import { ApifyClient } from "$lib/apifyEndpoints";
     import { onMount } from "svelte";
     import Warning from "phosphor-svelte/lib/Warning";
     import Info from "phosphor-svelte/lib/Info";
 
     let key = "";
-
     let confirmDelete = false;
-
     let plan: string | null = null;
+    let apifyClient: ApifyClient | null = null;
 
     async function getPlanId() {
-        let data = await getPrivateUserData();
-        plan = data.data.plan.id;
+        if (apifyClient) {
+            let data = await apifyClient.getPrivateUserData();
+            plan = data.data.plan.id;
+        }
     }
 
     $: if ($apifyKey) {
+        apifyClient = new ApifyClient("61RPP7dywgiy0JPD0"); // Twitter Actor ID
         getPlanId();
     } else {
         plan = null;
@@ -36,6 +38,7 @@
             toast.success("Key set successfully.", { duration: 1300 });
         }
     }
+
     function resetKey(event: Event) {
         event.preventDefault();
         clearTimeout(timeout);
@@ -48,7 +51,6 @@
     let timeout: number;
     let interval: number;
     let cancelConfirmationProgress: number = 0;
-
     let apikeyPresent: boolean;
     let placeholder: string;
 
@@ -60,7 +62,6 @@
     });
 
     $: apikeyPresent = $apifyKey != "";
-
     $: placeholder = apikeyPresent
         ? "Key already set. Good to go!"
         : "Enter your Apify API key";

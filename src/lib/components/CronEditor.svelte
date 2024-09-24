@@ -4,9 +4,9 @@
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
     import { fly, slide } from "svelte/transition";
     import { apifyKey } from "$lib/stores/apifyStore";
-    import { createFunctionString, scheduleTask } from "$lib/apifyEndpoints";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
+    import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
 
     export let queries: string;
     export let queriesSpreadOverTime: string;
@@ -72,10 +72,11 @@
     let schedule: Object | undefined;
     let datasetId: string;
 
-    $: prompt = `${queries}
+    const apifyClient = new ApifyClient("61RPP7dywgiy0JPD0"); // Twitter Actor ID
+    const apifyScheduler = new ApifyScheduler(apifyClient);
 
-${cronExpression}
-`;
+    $: prompt = `${queries}
+${cronExpression}`;
 
     async function generateDescription() {
         error = "";
@@ -88,7 +89,6 @@ ${cronExpression}
                 },
                 body: JSON.stringify({ prompt: prompt }),
             });
-
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(
@@ -107,7 +107,7 @@ ${cronExpression}
     }
 
     async function handleSchedule() {
-        console.log("scheduling task...");
+        console.log("scheduling task");
         try {
             loading = true;
 
@@ -129,7 +129,7 @@ ${cronExpression}
             const maxTweetsPerQuery = Math.ceil(scheduleNumTweets / nQueries);
 
             const scheduledTaskInput = {
-                customMapFunction: createFunctionString(),
+                customMapFunction: apifyClient.createFunctionString(),
                 maxItems: scheduleNumTweets,
                 maxTweetsPerQuery: maxTweetsPerQuery,
                 includeSearchTerms: false,
@@ -138,12 +138,11 @@ ${cronExpression}
                 onlyTwitterBlue: false,
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
-                sort: "Latest",
                 searchTerms: queryListWithinTime,
             };
 
             const historicDataInput = {
-                customMapFunction: createFunctionString(),
+                customMapFunction: apifyClient.createFunctionString(),
                 maxItems: numTweets,
                 maxTweetsPerQuery: maxTweetsPerQuery,
                 includeSearchTerms: false,
@@ -162,21 +161,22 @@ ${cronExpression}
                 toast.success(description);
             }
             const { scheduleData, datasetId: newDatasetId } =
-                await scheduleTask({
+                await apifyScheduler.scheduleTask({
                     scheduledTaskInput: scheduledTaskInput,
                     historicDataInput: historicDataInput,
                     cronExpression: cronExpression,
                     description: description,
+                    fields: ["url<gx:url>"],
                 });
 
             schedule = scheduleData.data;
 
             datasetId = newDatasetId;
-
+        } catch (err) {
+            error = err instanceof Error ? err.message : String(err);
+            console.error(err);
+        } finally {
             loading = false;
-        } catch (e) {
-            console.error("Error setting up schedule", e);
-            throw e;
         }
     }
 </script>
@@ -232,84 +232,9 @@ ${cronExpression}
                     >
                         <Select.Value placeholder="Select an interval" />
                     </Select.Trigger>
-
-                    <Select.Content
-                        class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md shadow-base-100 px-1 py-1"
-                        transition={fly}
-                        transitionConfig={{ duration: 100, y: 20 }}
-                        sameWidth
-                        sideOffset={8}
-                    >
-                        {#each options as option}
-                            <Select.Item
-                                class="flex justify-between h-7 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[disabled]:text-base-content/50"
-                                value={option.value}
-                                label={intervalNumber == 1
-                                    ? option.label.slice(0, -1)
-                                    : option.label}
-                            ></Select.Item>
-                        {/each}
-                    </Select.Content>
                 </div>
             </Select.Root>
-
-            <p class="text-base-content/60">at</p>
-
-            {#if selectedInterval.value == "day" || selectedInterval.value == "month" || selectedInterval.value == "year"}
-                <div
-                    transition:slide={{
-                        axis: "x",
-                        duration: 100,
-                        easing: cubicInOut,
-                    }}
-                    class="flex gap-1 items-center"
-                >
-                    <input
-                        type="number"
-                        min="0"
-                        max="24"
-                        bind:value={hour}
-                        on:keyup={() => {
-                            if (hour >= 23) {
-                                hour = 23;
-                            } else if (hour <= 0) {
-                                hour = 0;
-                            }
-
-                            cronExpression = composeCronExpression(
-                                intervalNumber,
-                                selectedInterval.value,
-                                time,
-                            );
-                        }}
-                        class="input input-sm rounded-full w-[50px] text-center bg-neutral"
-                    />
-                    :
-                    <input
-                        type="number"
-                        bind:value={minute}
-                        on:keyup={() => {
-                            if (minute >= 59) {
-                                minute = 59;
-                            } else if (minute <= 0) {
-                                minute = 0;
-                            }
-
-                            cronExpression = composeCronExpression(
-                                intervalNumber,
-                                selectedInterval.value,
-                                time,
-                            );
-                        }}
-                        min="0"
-                        max="59"
-                        class="input input-sm rounded-full w-[50px] text-center bg-neutral"
-                    />
-                </div>
-            {/if}
-
             <p class="text-base-content/60">and bring</p>
-
             <input
                 type="number"
                 bind:value={scheduleNumTweets}
@@ -318,9 +243,7 @@ ${cronExpression}
                 class="input input-sm rounded-full w-[90px] text-center bg-neutral"
                 placeholder="# tweets"
             />
-
             <p class="text-base-content/60">tweets per schedule</p>
-
             <button
                 disabled={!$apifyKey || !queries}
                 on:click={handleSchedule}
