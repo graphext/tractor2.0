@@ -11,6 +11,7 @@
     import { tweened } from 'svelte/motion'
     import { cubicInOut } from 'svelte/easing'
     import CronEditor from './CronEditor.svelte'
+    import NewspaperClipping from 'phosphor-svelte/lib/NewspaperClipping'
 
     let keywords: string
     let language = 'US:en'
@@ -128,7 +129,10 @@
 </script>
 
 <div class="">
-    <h2 class="text-2xl font-bold mb-5">Google News</h2>
+    <div class="flex gap-3 items-center mb-5">
+        <NewspaperClipping class="fill-primary" weight="duotone" size={25} />
+        <h2 class="text-2xl font-bold">Google News</h2>
+    </div>
     <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
         <div>
             <label for="keywords" class="text-sm text-base-content/60"
