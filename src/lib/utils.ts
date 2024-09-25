@@ -89,7 +89,6 @@ export const languages: { value: string; label: string }[] = [
   { value: 'KR:ko', label: 'Korean' }
 ]
 
-
 export function cleanText(text: string): string {
   text = text.replace(/[^\S\r\n]+/g, " ");
 

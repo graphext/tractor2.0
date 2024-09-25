@@ -10,10 +10,11 @@
     import { toast } from 'svelte-sonner'
     import { tweened } from 'svelte/motion'
     import { cubicInOut } from 'svelte/easing'
+    import CronEditor from './CronEditor.svelte'
 
     let keywords: string
     let language = 'US:en'
-    let maxItems: number | null = 500
+    let maxItems: number = 500
     let selected = languages[0]
 
     let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID)
@@ -38,7 +39,6 @@
     async function checkStatus() {
         if (!runId) return
         loading = true
-        console.log('Checking status...')
 
         try {
             const runData = await apifyClient.getRunStatus(runId)
@@ -101,7 +101,7 @@
             language,
             dateFrom: selectedRange.start?.toString(),
             dateTo: selectedRange.end?.toString(),
-            maxItems: maxItems ? parseInt(maxItems) : undefined
+            maxItems: maxItems
         }
 
         if (!$apifyKey) {
@@ -171,21 +171,21 @@
             </div>
         </div>
 
-        <button class="btn btn-primary rounded-full" type="submit"
-            >Get News</button
-        >
+        <div class="w-full relative">
+            {#if loading}
+                <progress
+                    class="progress-overlay mix-blend-overlay absolute h-full rounded-full w-full opacity-40"
+                    max={maxItems}
+                    value={$springProgress}
+                ></progress>
+            {/if}
+            <button
+                class="btn btn-primary w-full shadow-primary/20 shadow-md rounded-full"
+                type="submit">Get News</button
+            >
+        </div>
     </form>
 </div>
-
-{#if loading}
-    <div class="w-full relative">
-        <progress
-            class="progress-overlay mix-blend-overlay absolute h-full rounded-full w-full opacity-40"
-            max={maxItems}
-            value={$springProgress}
-        ></progress>
-    </div>
-{/if}
 
 {#if csvBlob && filename}
     <a
@@ -202,6 +202,40 @@
     </a>
 {/if}
 
-<style>
-    /* Add your styles here */
-</style>
+{#if error || status}
+    <div>
+        <div class="divider mt-3 mb-0" />
+        <div class="flex justify-between items-baseline">
+            {#if error}
+                <div class="flex items-center gap-3">
+                    <p>{error}</p>
+                    <a
+                        href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
+                        target="_blank"
+                        class:disabled={userId == undefined ||
+                            runId == undefined}
+                        class="btn btn-xs btn-error">Go to run</a
+                    >
+                </div>
+            {:else}
+                <p class="opacity-0">error</p>
+            {/if}
+
+            {#if status}
+                <div
+                    class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
+                >
+                    <p class="mt-4">Task status: {status}</p>
+                    {#if status == 'RUNNING'}
+                        <span>{outputProgress} news downloaded...</span>
+                        <span class="loading loading-dots loading-sm"></span>
+                    {:else if status == 'SUCCEEDED'}
+                        <span></span>
+                    {:else if status == 'FAILED'}
+                        <span> </span>
+                    {/if}
+                </div>
+            {/if}
+        </div>
+    </div>
+{/if}

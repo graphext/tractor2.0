@@ -1,6 +1,7 @@
 import { get } from "svelte/store";
 import { apifyKey } from "./stores/apifyStore";
 import { dev } from "$app/environment";
+import { MERGE_DEDUP_URL } from "./actors";
 
 const BASE_URL = "https://api.apify.com/v2";
 
@@ -9,6 +10,7 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 	if (!token) {
 		throw new Error("Apify API token is not set");
 	}
+
 
 	const url = `${BASE_URL}${endpoint}`;
 	const headers = {
@@ -111,8 +113,17 @@ export class ApifyClient {
 
 
 }
+
 export class ApifyScheduler {
 	constructor(private apifyClient: ApifyClient) { }
+
+	async createWebhook(requestBody: Record<string, unknown>) {
+		const endpoint = `/webhooks`;
+		return await apifyFetch(endpoint, {
+			method: "POST",
+			body: JSON.stringify(requestBody),
+		});
+	}
 
 	async scheduleTask({
 		scheduledTaskInput,
@@ -120,20 +131,33 @@ export class ApifyScheduler {
 		cronExpression,
 		description,
 		fields,
+	}: {
+		scheduledTaskInput: Record<string, unknown>;
+		historicDataInput: Record<string, unknown>;
+		cronExpression: string;
+		description: string;
+		fields: string[];
 	}) {
 		const keyword = await generateScheduleKeyWord(`${scheduledTaskInput.searchTerms}
-
 ${cronExpression}`);
 
 		const scheduleableTaskData = await this.apifyClient.createTask(scheduledTaskInput);
 		const scheduleableTaskId = scheduleableTaskData.data.id;
 
+		if (!scheduleableTaskId) {
+			throw new Error("Failed to create scheduleable task: Task ID is undefined");
+		}
+
 		const historicTaskData = await this.apifyClient.createTask(historicDataInput);
 		const historicTaskId = historicTaskData.data.id;
+
+		if (!historicTaskId) {
+			throw new Error("Failed to create historic task: Task ID is undefined");
+		}
+
 		const historicDataRun = await this.apifyClient.runTask(historicTaskId);
 		const datasetId = historicDataRun.data.defaultDatasetId;
 
-		const schedulesEndpoint = "/schedules";
 		const userId = (await this.apifyClient.getPrivateUserData()).data.id;
 
 		const token = get(apifyKey);
@@ -144,28 +168,63 @@ ${cronExpression}`);
 				.toString()
 				.padStart(5, "0")}`,
 			userId: userId,
-			cronExpression: cronExpression,
 			isEnabled: true,
+			isExclusive: true,
+			cronExpression: cronExpression,
+			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+			description: description,
 			actions: [
 				{
 					type: "RUN_ACTOR_TASK",
-					taskId: scheduleableTaskId,
-					input: {
-						...scheduledTaskInput,
-						fields: fields,
-					},
+					actorTaskId: scheduleableTaskId,
+					actorId: this.apifyClient.actorId,
 				},
 			],
 		});
 
-		if (dev) console.log("Schedule Request Body:", body);
+		const datasetName = await generateDatasetName(`${scheduledTaskInput.searchTerms}
+	
+	${cronExpression}`);
 
-		const scheduleData = await apifyFetch(schedulesEndpoint, {
-			method: "POST",
-			body,
+		await apifyFetch(`/datasets/${datasetId}`, {
+			method: "PUT",
+			body: JSON.stringify({ name: datasetName }),
 		});
 
-		return { scheduleData, datasetId };
+		// Update webhook payload
+		const webhookPayload = {
+			outputDatasetId: datasetId,
+			datasetIds: ["{{resource.defaultDatasetId}}", datasetId],
+			mode: "dedup-as-loading",
+			output: "unique-items",
+			fields: fields
+		};
+
+		const webookConfig: Record<string, unknown> = {
+			requestUrl: MERGE_DEDUP_URL,
+			eventTypes: ["ACTOR.RUN.SUCCEEDED"],
+			condition: {
+				actorTaskId: scheduleableTaskId,
+			},
+			shouldInterpolateStrings: true,
+			isApifyIntegration: true,
+			payloadTemplate: JSON.stringify(webhookPayload),
+		};
+
+		try {
+			const scheduleData = await apifyFetch("/schedules", {
+				method: "POST",
+				body,
+			});
+
+			const webhookData = await this.createWebhook(webookConfig);
+
+			return { scheduleData: scheduleData, webhookData: webhookData, datasetId: datasetId };
+		} catch (e) {
+			console.error("Couldn't setup schedule", e);
+			throw e;
+		}
+
 	}
 }
 
@@ -189,10 +248,8 @@ async function generateDatasetName(prompt: string) {
 		return res.text();
 	} catch (err) {
 		console.error("Error:", err);
-		error =
-			err instanceof Error
-				? err.message
-				: "An unknown error occurred";
+		const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+		throw new Error(errorMessage);
 	}
 }
 
@@ -216,9 +273,7 @@ async function generateScheduleKeyWord(prompt: string) {
 		return res.text();
 	} catch (err) {
 		console.error("Error:", err);
-		error =
-			err instanceof Error
-				? err.message
-				: "An unknown error occurred";
+		const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+		throw new Error(errorMessage);
 	}
 }

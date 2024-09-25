@@ -304,7 +304,12 @@
     </a>
 {/if}
 
-<CronEditor {numTweets} {queries} {queriesSpreadOverTime} />
+<CronEditor
+    {numTweets}
+    {queries}
+    {queriesSpreadOverTime}
+    actorId={TWITTER_ACT_ID}
+/>
 
 {#if error || status}
     <div>

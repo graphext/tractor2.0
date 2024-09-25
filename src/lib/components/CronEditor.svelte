@@ -2,16 +2,17 @@
     import { composeCronExpression, identifyCronExpression } from '$lib/utils'
     import { Select, type Selected } from 'bits-ui'
     import ClockClockwise from 'phosphor-svelte/lib/ClockClockwise'
-    import { fly, slide } from 'svelte/transition'
     import { apifyKey } from '$lib/stores/apifyStore'
     import { toast } from 'svelte-sonner'
-    import { cubicInOut } from 'svelte/easing'
     import { ApifyClient, ApifyScheduler } from '$lib/apifyEndpoints'
+    import { createFunctionString } from '$lib/postprocess'
 
     export let queries: string
     export let queriesSpreadOverTime: string
     export let numTweets: number
     export let scheduleNumTweets: number = 100
+
+    export let actorId: string
 
     let options = [
         { label: 'minutes', value: 'minute' },
@@ -72,7 +73,7 @@
     let schedule: Object | undefined
     let datasetId: string
 
-    const apifyClient = new ApifyClient('61RPP7dywgiy0JPD0') // Twitter Actor ID
+    const apifyClient = new ApifyClient(actorId) // Twitter Actor ID
     const apifyScheduler = new ApifyScheduler(apifyClient)
 
     $: prompt = `${queries}
@@ -127,7 +128,7 @@ ${cronExpression}`
             const maxTweetsPerQuery = Math.ceil(scheduleNumTweets / nQueries)
 
             const scheduledTaskInput = {
-                customMapFunction: apifyClient.createFunctionString(),
+                customMapFunction: createFunctionString(),
                 maxItems: scheduleNumTweets,
                 maxTweetsPerQuery: maxTweetsPerQuery,
                 includeSearchTerms: false,
@@ -140,7 +141,7 @@ ${cronExpression}`
             }
 
             const historicDataInput = {
-                customMapFunction: apifyClient.createFunctionString(),
+                customMapFunction: createFunctionString(),
                 maxItems: numTweets,
                 maxTweetsPerQuery: maxTweetsPerQuery,
                 includeSearchTerms: false,
@@ -256,7 +257,7 @@ ${cronExpression}`
                 class="input input-sm rounded-full w-[90px] text-center bg-neutral"
                 placeholder="# tweets"
             />
-            <p class="text-base-content/60">tweets per schedule</p>
+            <p class="text-base-content/60">items per schedule</p>
             <button
                 disabled={!$apifyKey || !queries}
                 on:click={handleSchedule}
@@ -267,13 +268,13 @@ ${cronExpression}`
     {:else if schedule}
         <div class="flex w-full gap-3">
             <a
-                class="btn btn-success grow text-sm"
+                class="btn btn-success grow text-sm rounded-full"
                 target="_blank"
                 href="https://console.apify.com/organization/{schedule.userId}/storage/datasets/{datasetId}"
                 >{schedule.name} • {description}</a
             >
             <button
-                class="btn btn-warning grow"
+                class="btn btn-warning grow rounded-full"
                 on:click={() => {
                     navigator.clipboard.writeText(
                         `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`

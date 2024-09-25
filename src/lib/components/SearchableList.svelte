@@ -2,10 +2,7 @@
     import { Combobox } from 'bits-ui'
 
     export let options: { value: string; label: string }[] = []
-    export let selected: { value: string; label: string } = {
-        value: 'US:en',
-        label: 'English (US)'
-    }
+    export let selected: { value: string; label: string }
     export let placeholder: string = 'Search...'
 
     let searchQuery = ''
