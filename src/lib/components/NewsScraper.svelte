@@ -14,7 +14,6 @@
     import NewspaperClipping from 'phosphor-svelte/lib/NewspaperClipping'
 
     let keywords: string
-    let language = 'US:en'
     let maxItems: number = 500
     let selected = languages[0]
 
@@ -99,7 +98,7 @@
                 .split(',')
                 .map((kw) => kw.trim())
                 .join(' OR '),
-            language,
+            language: selected.value,
             dateFrom: selectedRange.start?.toString(),
             dateTo: selectedRange.end?.toString(),
             maxItems: maxItems
