@@ -36,7 +36,7 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 }
 
 export class ApifyClient {
-	constructor(public actorId: string) {}
+	constructor(public actorId: string) { }
 
 	async createTask(input: Record<string, unknown>) {
 		const token = get(apifyKey);
@@ -74,10 +74,10 @@ export class ApifyClient {
 
 	async getDatasetInfo(runId: string) {
 		const runStatus = await this.getRunStatus(runId);
-	
+
 		const datasetId = runStatus.data.defaultDatasetId;
-	
-	
+
+
 		let endpoint = `/datasets/${datasetId}`;
 		const data = await apifyFetch(endpoint);
 		return data;
@@ -97,7 +97,7 @@ export class ApifyClient {
 		if (!token) {
 			throw new Error("Apify API token is not set");
 		}
-	
+
 		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true`;
 
 		return `${BASE_URL}${endpoint}`;
@@ -108,10 +108,11 @@ export class ApifyClient {
 		const data = await apifyFetch(endpoint);
 		return data;
 	}
-}
 
+
+}
 export class ApifyScheduler {
-	constructor(private apifyClient: ApifyClient) {}
+	constructor(private apifyClient: ApifyClient) { }
 
 	async scheduleTask({
 		scheduledTaskInput,

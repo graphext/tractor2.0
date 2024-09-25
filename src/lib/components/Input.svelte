@@ -1,21 +1,21 @@
 <script lang="ts">
-    export let value: string = "";
-    export let enter: string | undefined = undefined;
-    export let placeholder = "";
+    export let value: string = ''
+    export let enter: string | undefined = undefined
+    export let placeholder = ''
 
-    let element: HTMLInputElement;
+    let element: HTMLInputElement
 
     function onEnter(e: KeyboardEvent) {
-        if (e.key === "Enter") {
-            enter = value;
-            value = "";
+        if (e.key === 'Enter') {
+            enter = value
+            value = ''
         }
     }
 </script>
 
 <input
     type="text"
-    class="input input-md input-bordered w-full"
+    class="input transition-all input-sm text-sm bg-neutral w-full rounded-full"
     bind:value
     bind:this={element}
     {placeholder}
