@@ -19,7 +19,7 @@
 >
     <Header />
 
-    <section class="my-5 p-3 rounded-box relative bg-section">
+    <section class="my-5 p-3 rounded-box relative bg-base-200">
         <ApifyKeyInput />
     </section>
     <slot />
