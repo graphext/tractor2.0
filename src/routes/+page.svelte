@@ -54,11 +54,6 @@
     }}
 />
 
-<div class="flex gap-3 items-center mb-5">
-    <TwitterLogo class="fill-primary" weight="duotone" size={25} />
-    <h2 class="text-2xl font-bold">Twitter</h2>
-</div>
-
 <section id="gpt" class="my-5 p-4 rounded-box relative bg-section outline-none">
     <div class="text-base-content/70 mb-4">QUERY GENERATION</div>
     <ChatGPTQueries bind:queries bind:enrichedQueries />

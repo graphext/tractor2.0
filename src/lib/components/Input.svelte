@@ -20,4 +20,5 @@
     bind:this={element}
     {placeholder}
     on:keydown={onEnter}
+    {...$$props}
 />

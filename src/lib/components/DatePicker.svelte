@@ -152,8 +152,9 @@
     const minValue: DateValue = new CalendarDate(2006, 3, 21)
 </script>
 
-<div class="flex flex-col gap-1">
+<div class="flex flex-col gap-1" class:disabled={$$props['disabled']}>
     <DateRangePicker.Root
+        {...$$props}
         bind:value={selectedRange}
         weekdayFormat="short"
         pagedNavigation={true}
@@ -307,3 +308,10 @@
         </DateRangePicker.Content>
     </DateRangePicker.Root>
 </div>
+
+<style>
+    .disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>

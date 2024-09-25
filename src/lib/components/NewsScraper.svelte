@@ -10,7 +10,6 @@
     import { toast } from 'svelte-sonner'
     import { tweened } from 'svelte/motion'
     import { cubicInOut } from 'svelte/easing'
-    import CronEditor from './CronEditor.svelte'
     import NewspaperClipping from 'phosphor-svelte/lib/NewspaperClipping'
 
     let keywords: string
@@ -24,17 +23,24 @@
 
     let error: string
     let status: string
-    let outputProgress: number = 0
+
     let datasetLink: string
     let datasetData: any
     let filename: string
     let datasetSize: number
+
     let loading: boolean = false
+
+    let outputProgress: number = 0
     const springProgress = tweened(outputProgress, { easing: cubicInOut })
+
     let runId: string
     let userId: string
 
     let csvBlob: Blob
+
+    let confirmChoice = false
+    $: buttonText = loading ? 'Loading tweets...' : 'Get Tweets'
 
     async function checkStatus() {
         if (!runId) return
@@ -90,6 +96,7 @@
         }
     }
     async function handleSubmit() {
+        loading = true
         datasetLink = ''
         outputProgress = 0
 
@@ -128,10 +135,6 @@
 </script>
 
 <div class="">
-    <div class="flex gap-3 items-center mb-5">
-        <NewspaperClipping class="fill-primary" weight="duotone" size={25} />
-        <h2 class="text-2xl font-bold">Google News</h2>
-    </div>
     <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
         <div>
             <label for="keywords" class="text-sm text-base-content/60"
@@ -140,12 +143,17 @@
             <Input
                 bind:value={keywords}
                 placeholder="Enter keywords separated by commas"
+                disabled={loading}
             />
         </div>
 
         <div class="flex gap-3 justify-between">
             <div>
-                <DatePicker bind:selectedRange bind:timeSteps />
+                <DatePicker
+                    disabled={loading}
+                    bind:selectedRange
+                    bind:timeSteps
+                />
             </div>
 
             <div class="w-1/3">
@@ -155,6 +163,7 @@
                 <SearchableList
                     options={languages}
                     bind:selected
+                    disabled={loading}
                     placeholder="Select language and region"
                 />
             </div>
@@ -168,6 +177,7 @@
                     inputmode="numeric"
                     type="number"
                     id="maxItems"
+                    disabled={loading}
                     bind:value={maxItems}
                     placeholder="Enter maximum number of items"
                 />
@@ -183,9 +193,12 @@
                 ></progress>
             {/if}
             <button
-                class="btn btn-primary w-full shadow-primary/20 shadow-md rounded-full"
-                type="submit">Get News</button
+                on:click={() => (confirmChoice = true)}
+                class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
+                disabled={!$apifyKey || !keywords}
             >
+                {buttonText}
+            </button>
         </div>
     </form>
 </div>
