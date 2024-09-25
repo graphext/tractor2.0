@@ -19,9 +19,15 @@
 >
     <Header />
 
-    <section class="my-5 p-3 rounded-box relative bg-base-200">
+    <section class="my-5 p-3 rounded-box relative bg-section">
         <ApifyKeyInput />
     </section>
     <slot />
     <Footer />
 </main>
+
+<style>
+    .bg-section {
+        @apply bg-[#f4f4f4] dark:bg-[#25272E];
+    }
+</style>
