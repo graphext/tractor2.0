@@ -11,7 +11,6 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 		throw new Error("Apify API token is not set");
 	}
 
-
 	const url = `${BASE_URL}${endpoint}`;
 	const headers = {
 		Authorization: `Bearer ${token}`,
@@ -35,6 +34,17 @@ async function apifyFetch(endpoint: string, options: RequestInit = {}) {
 	}
 
 	return response.json();
+}
+
+export async function getRunsForTask(taskId: string) {
+	const endpoint = `/actor-tasks/${taskId}/runs`;
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+export async function getTasks() {
+	const endpoint = "/actor-tasks?limit=30&desc=true";
+	const data = await apifyFetch(endpoint);
+	return data;
 }
 
 export class ApifyClient {
@@ -79,7 +89,6 @@ export class ApifyClient {
 
 		const datasetId = runStatus.data.defaultDatasetId;
 
-
 		let endpoint = `/datasets/${datasetId}`;
 		const data = await apifyFetch(endpoint);
 		return data;
@@ -91,10 +100,7 @@ export class ApifyClient {
 		return data.length;
 	}
 
-	async getDatasetLink(
-		runId: string,
-		format: "csv" | "json" = "csv",
-	) {
+	async getDatasetLink(runId: string, format: "csv" | "json" = "csv") {
 		const token = get(apifyKey);
 		if (!token) {
 			throw new Error("Apify API token is not set");
@@ -110,8 +116,6 @@ export class ApifyClient {
 		const data = await apifyFetch(endpoint);
 		return data;
 	}
-
-
 }
 
 export class ApifyScheduler {
@@ -138,17 +142,22 @@ export class ApifyScheduler {
 		description: string;
 		fields: string[];
 	}) {
-		const keyword = await generateScheduleKeyWord(`${scheduledTaskInput.searchTerms}
+		const keyword =
+			await generateScheduleKeyWord(`${scheduledTaskInput.searchTerms}
 ${cronExpression}`);
 
-		const scheduleableTaskData = await this.apifyClient.createTask(scheduledTaskInput);
+		const scheduleableTaskData =
+			await this.apifyClient.createTask(scheduledTaskInput);
 		const scheduleableTaskId = scheduleableTaskData.data.id;
 
 		if (!scheduleableTaskId) {
-			throw new Error("Failed to create scheduleable task: Task ID is undefined");
+			throw new Error(
+				"Failed to create scheduleable task: Task ID is undefined",
+			);
 		}
 
-		const historicTaskData = await this.apifyClient.createTask(historicDataInput);
+		const historicTaskData =
+			await this.apifyClient.createTask(historicDataInput);
 		const historicTaskId = historicTaskData.data.id;
 
 		if (!historicTaskId) {
@@ -182,7 +191,8 @@ ${cronExpression}`);
 			],
 		});
 
-		const datasetName = await generateDatasetName(`${scheduledTaskInput.searchTerms}
+		const datasetName =
+			await generateDatasetName(`${scheduledTaskInput.searchTerms}
 	
 	${cronExpression}`);
 
@@ -197,7 +207,7 @@ ${cronExpression}`);
 			datasetIds: ["{{resource.defaultDatasetId}}", datasetId],
 			mode: "dedup-as-loading",
 			output: "unique-items",
-			fields: fields
+			fields: fields,
 		};
 
 		const webookConfig: Record<string, unknown> = {
@@ -219,12 +229,15 @@ ${cronExpression}`);
 
 			const webhookData = await this.createWebhook(webookConfig);
 
-			return { scheduleData: scheduleData, webhookData: webhookData, datasetId: datasetId };
+			return {
+				scheduleData: scheduleData,
+				webhookData: webhookData,
+				datasetId: datasetId,
+			};
 		} catch (e) {
 			console.error("Couldn't setup schedule", e);
 			throw e;
 		}
-
 	}
 }
 
@@ -240,15 +253,14 @@ async function generateDatasetName(prompt: string) {
 
 		if (!res.ok) {
 			const errorData = await res.json();
-			throw new Error(
-				errorData.error || `HTTP error! status: ${res.status}`,
-			);
+			throw new Error(errorData.error || `HTTP error! status: ${res.status}`);
 		}
 
 		return res.text();
 	} catch (err) {
 		console.error("Error:", err);
-		const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+		const errorMessage =
+			err instanceof Error ? err.message : "An unknown error occurred";
 		throw new Error(errorMessage);
 	}
 }
@@ -265,15 +277,14 @@ async function generateScheduleKeyWord(prompt: string) {
 
 		if (!res.ok) {
 			const errorData = await res.json();
-			throw new Error(
-				errorData.error || `HTTP error! status: ${res.status}`,
-			);
+			throw new Error(errorData.error || `HTTP error! status: ${res.status}`);
 		}
 
 		return res.text();
 	} catch (err) {
 		console.error("Error:", err);
-		const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+		const errorMessage =
+			err instanceof Error ? err.message : "An unknown error occurred";
 		throw new Error(errorMessage);
 	}
 }
