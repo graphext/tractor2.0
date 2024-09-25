@@ -36,16 +36,16 @@
 
     <div class="flex gap-5 items-center">
         {#each actors as actor}
-            <a href={actor.id}>
+            <a href={actor.id} class="group">
                 <div class="flex gap-2 items-center mb-5">
                     <svelte:component
                         this={actor.icon}
                         size={28}
                         weight={pageUrl == actor.id ? 'fill' : 'regular'}
-                        class="fill-primary"
+                        class="fill-primary group-hover:-rotate-12 transition-all"
                     />
                     <h2
-                        class={`text-2xl transition-opacity ${pageUrl == actor.id ? 'font-bold opacity-100' : 'font-normal opacity-50 hover:opacity-80'}`}
+                        class={`text-xl transition-opacity ${pageUrl == actor.id ? 'font-bold opacity-100' : 'font-normal opacity-50 hover:opacity-80'}`}
                     >
                         {actor.title}
                     </h2>

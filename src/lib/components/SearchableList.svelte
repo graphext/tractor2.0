@@ -29,16 +29,14 @@
         bind:inputValue={searchQuery}
         onOutsideClick={onBlur}
     >
-        <div>
-            <Combobox.Input
-                class="inline-flex h-10 truncate rounded-full bg-neutral px-3 text-sm transition-colors placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
-                {placeholder}
-                on:click={() => (searchQuery = '')}
-                aria-label={placeholder}
-            />
-        </div>
+        <Combobox.Input
+            class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm transition-colors placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
+            {placeholder}
+            on:click={() => (searchQuery = '')}
+            aria-label={placeholder}
+        />
         <Combobox.Content
-            class="w-full bg-base-100 p-1 shadow-lg border border-base-content/5 shadow-base-content/10 overflow-y-scroll max-h-[250px] rounded-xl"
+            class="w-full bg-base-200 p-1 shadow-md shadow-base-100 border border-base-content/5 overflow-y-scroll max-h-[250px] rounded-xl"
         >
             {#each filteredOptions as option (option.value)}
                 <Combobox.Item
