@@ -1,6 +1,8 @@
 <script>
-    import NewsScraper from "$lib/components/NewsScraper.svelte"
+    import NewsScraper from "$lib/components/NewsScraper.svelte";
+    import Section from "$lib/components/Section.svelte";
 </script>
 
-
-<NewsScraper />
+<Section>
+    <NewsScraper />
+</Section>

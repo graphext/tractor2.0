@@ -1,15 +1,16 @@
 <script lang="ts">
-    import { MetaTags } from 'svelte-meta-tags'
-    import ApifyKeyInput from '$lib/components/ApifyKeyInput.svelte'
+    import { MetaTags } from "svelte-meta-tags";
+    import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
 
-    import ApifyScraper from '$lib/components/TwitterScraperSetup.svelte'
-    import ChatGPTQueries from '$lib/components/ChatGPTQueries.svelte'
+    import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
+    import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
-    import User from '$lib/components/User.svelte'
-    import TwitterLogo from 'phosphor-svelte/lib/TwitterLogo'
+    import User from "$lib/components/User.svelte";
+    import TwitterLogo from "phosphor-svelte/lib/TwitterLogo";
+    import Section from "$lib/components/Section.svelte";
 
-    let queries: string
-    let enrichedQueries: string
+    let queries: string;
+    let enrichedQueries: string;
 </script>
 
 <MetaTags
@@ -17,56 +18,50 @@
     description="Easiest way to Download & analyze Tweets"
     canonical="https://tractor.graphext.com"
     additionalLinkTags={[
-        { rel: 'icon', href: '/favicon-32x32.png' },
-        { rel: 'icon', href: '/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', href: 'apple-touch-icon.png' },
-        { rel: 'manifest', href: '/site.webmanifest' }
+        { rel: "icon", href: "/favicon-32x32.png" },
+        { rel: "icon", href: "/favicon-16x16.png" },
+        { rel: "apple-touch-icon", href: "apple-touch-icon.png" },
+        { rel: "manifest", href: "/site.webmanifest" },
     ]}
-    additionalMetaTags={[{ property: 'theme-color', content: '#fff' }]}
+    additionalMetaTags={[{ property: "theme-color", content: "#fff" }]}
     keywords={[
-        'tweets',
-        'analysis',
-        'scraping',
-        'apify',
-        'graphext',
-        'tractor'
+        "tweets",
+        "analysis",
+        "scraping",
+        "apify",
+        "graphext",
+        "tractor",
     ]}
     openGraph={{
-        url: 'https://tractor.graphext.com',
-        title: 'Tractor 2.0',
-        description: 'Easiest way to Download & analyze Tweets',
+        url: "https://tractor.graphext.com",
+        title: "Tractor 2.0",
+        description: "Easiest way to Download & analyze Tweets",
         images: [
             {
-                url: 'https://tractor.graphext.com/ogimage.webp',
+                url: "https://tractor.graphext.com/ogimage.webp",
                 width: 1200,
                 height: 600,
-                alt: 'Tractor'
-            }
-        ]
+                alt: "Tractor",
+            },
+        ],
     }}
     twitter={{
-        handle: '@graphext',
-        cardType: 'summary_large_image',
-        title: 'Tractor',
-        description: 'Easiest way to Download & analyze Tweets',
-        image: 'https://tractor.graphext.com/ogimage.webp',
-        imageAlt: 'Tractor'
+        handle: "@graphext",
+        cardType: "summary_large_image",
+        title: "Tractor",
+        description: "Easiest way to Download & analyze Tweets",
+        image: "https://tractor.graphext.com/ogimage.webp",
+        imageAlt: "Tractor",
     }}
 />
 
-<section id="gpt" class="my-5 p-4 rounded-box relative bg-section outline-none">
+<Section>
     <div class="text-base-content/70 mb-4">QUERY GENERATION</div>
     <ChatGPTQueries bind:queries bind:enrichedQueries />
-</section>
+</Section>
 
-<section id="apify" class="my-5 p-3 rounded-box relative bg-section">
+<Section>
     <div class="mb-4 text-base-content/70">APIFY</div>
 
     <ApifyScraper bind:queries bind:queriesSpreadOverTime={enrichedQueries} />
-</section>
-
-<style>
-    .bg-section {
-        @apply bg-[#f4f4f4] dark:bg-[#25272E];
-    }
-</style>
+</Section>

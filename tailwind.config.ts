@@ -7,7 +7,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ["Lato", "sans-serif"],
-                mono: ["monospace", "monospace", "SF-Pro", "monospaced"],
+                mono: ["SF Mono", "Consolas", "monospace"],
             },
         },
     },
