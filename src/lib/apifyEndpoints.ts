@@ -100,13 +100,23 @@ export class ApifyClient {
 		return data.length;
 	}
 
-	async getDatasetLink(runId: string, format: "csv" | "json" = "csv") {
+	async getDatasetLink(
+		runId: string,
+		format: "csv" | "json" = "csv",
+		omitColumns: string[],
+	) {
 		const token = get(apifyKey);
 		if (!token) {
 			throw new Error("Apify API token is not set");
 		}
 
-		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true`;
+		let omitColumnsParams = "";
+		if (omitColumns != undefined)
+			omitColumnsParams = "&omit=" + omitColumns.join(",");
+
+		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true${omitColumnsParams}`;
+
+		console.log(`${BASE_URL}${endpoint}`);
 
 		return `${BASE_URL}${endpoint}`;
 	}

@@ -59,7 +59,9 @@
             }
             if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await apifyClient.getDatasetLink(runId, "json");
+                datasetLink = await apifyClient.getDatasetLink(runId, "json", [
+                    "guid",
+                ]);
 
                 csvBlob = await jsonToCsv(datasetLink);
 

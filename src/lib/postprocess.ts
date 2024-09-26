@@ -1,5 +1,4 @@
-
-const typeMap = {
+const tweetTypeMap = {
 	createdAt: "date",
 	text: "text",
 	url: "url",
@@ -17,7 +16,7 @@ const typeMap = {
 	media: "list[url]",
 };
 
-const authorMap = {
+const tweetAuthorMap = {
 	authorName: "category",
 	authorUserName: "category",
 	authorUrl: "url",
@@ -30,13 +29,27 @@ const authorMap = {
 	authorLocation: "category",
 };
 
-
 export function createFunctionString() {
-    return `(object) => { const { author, ${Object.keys(typeMap).join(", ")} } = object; return { ${Object.keys(
-        typeMap,
-    )
-        .map((e) => '"' + e + "<gx:" + typeMap[e] + ">" + '": ' + e)
-        .join(
-            ", ",
-        )}, ${Object.keys(authorMap).map((e) => '"' + e + "<gx:" + authorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
+	return `(object) => { const { author, ${Object.keys(tweetTypeMap).join(", ")} } = object; return { ${Object.keys(
+		tweetTypeMap,
+	)
+		.map((e) => '"' + e + "<gx:" + tweetTypeMap[e] + ">" + '": ' + e)
+		.join(
+			", ",
+		)}, ${Object.keys(tweetAuthorMap).map((e) => '"' + e + "<gx:" + tweetAuthorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
+}
+
+const gNewsTypeMap = {
+	title: "category",
+	link: "url",
+	source: "category",
+	sourceUrl: "url",
+	publishedAt: "date",
+	loadedUrl: "url",
+	rssLink: "url",
+	image: "url",
+};
+
+export function gNewsMapFunction() {
+	return `(object) => return { ${Object.keys(gNewsTypeMap).map((e) => '"' + e + "<gx:" + gNewsTypeMap[e] + ">" + '": ' + e)} }`;
 }
