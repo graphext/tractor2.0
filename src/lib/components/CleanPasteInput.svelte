@@ -31,7 +31,7 @@
     bind:value
     bind:this={textarea}
     class="textarea bg-neutral w-full font-mono h-full overflow-x-scroll"
-    rows="10"
+    rows="6"
     {...$$restProps}
 ></textarea>
 

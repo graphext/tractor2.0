@@ -1,5 +1,5 @@
 <script lang="ts">
-    import User from '$lib/components/User.svelte'
+    import User from "$lib/components/User.svelte";
 </script>
 
 <div class="flex justify-between items-center">

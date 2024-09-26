@@ -12,6 +12,7 @@
 </script>
 
 <Select.Root
+    preventScroll={false}
     selected={options.find((e) => e.value === $frequencyStore)}
     onSelectedChange={(e) => {
         if (e) {

@@ -1,28 +1,29 @@
 <script lang="ts">
-    import { Combobox } from 'bits-ui'
+    import { Combobox } from "bits-ui";
 
-    export let options: { value: string; label: string }[] = []
-    export let selected: { value: string; label: string }
-    export let placeholder: string = 'Search...'
+    export let options: { value: string; label: string }[] = [];
+    export let selected: { value: string; label: string };
+    export let placeholder: string = "Search...";
 
-    let searchQuery = ''
+    let searchQuery = "";
 
     function handleSelect(option: { value: string; label: string }) {
-        selected = option
-        searchQuery = option.label
+        selected = option;
+        searchQuery = option.label;
     }
 
     function onBlur() {
-        searchQuery = selected.label
+        searchQuery = selected.label;
     }
 
     $: filteredOptions = options.filter((option) =>
-        option.label.toLowerCase().includes(searchQuery.toLowerCase())
-    )
+        option.label.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
 </script>
 
-<div class:disabled={$$props['disabled']}>
+<div class:disabled={$$props["disabled"]}>
     <Combobox.Root
+        preventScroll={false}
         {...$$props}
         {selected}
         items={filteredOptions}
@@ -32,11 +33,11 @@
         <Combobox.Input
             class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm transition-colors placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
             {placeholder}
-            on:click={() => (searchQuery = '')}
+            on:click={() => (searchQuery = "")}
             aria-label={placeholder}
         />
         <Combobox.Content
-            class="w-full bg-base-200 p-1 shadow-md shadow-base-100 border border-base-content/5 overflow-y-scroll max-h-[250px] rounded-xl"
+            class="w-full combo-content bg-base-200 p-1 shadow-md shadow-base-100 border border-base-content/5 overflow-y-scroll max-h-[250px] rounded-xl"
         >
             {#each filteredOptions as option (option.value)}
                 <Combobox.Item
@@ -62,5 +63,12 @@
     .disabled {
         opacity: 0.5;
         cursor: not-allowed;
+    }
+    .combo-content::-webkit-scrollbar {
+        display: none;
+    }
+    .combo-content {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
     }
 </style>

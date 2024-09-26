@@ -1,131 +1,133 @@
 <script lang="ts">
-    import { composeCronExpression, identifyCronExpression } from '$lib/utils'
-    import { Select, type Selected } from 'bits-ui'
-    import ClockClockwise from 'phosphor-svelte/lib/ClockClockwise'
-    import { apifyKey } from '$lib/stores/apifyStore'
-    import { toast } from 'svelte-sonner'
-    import { ApifyClient, ApifyScheduler } from '$lib/apifyEndpoints'
-    import { createFunctionString } from '$lib/postprocess'
+    import { composeCronExpression, identifyCronExpression } from "$lib/utils";
+    import { Select, type Selected } from "bits-ui";
+    import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
+    import { apifyKey } from "$lib/stores/apifyStore";
+    import { toast } from "svelte-sonner";
+    import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
+    import { createFunctionString } from "$lib/postprocess";
 
-    export let queries: string
-    export let queriesSpreadOverTime: string
-    export let numTweets: number
-    export let scheduleNumTweets: number = 100
+    export let queries: string;
+    export let queriesSpreadOverTime: string;
+    export let numTweets: number;
+    export let scheduleNumTweets: number = 100;
 
-    export let actorId: string
+    export let actorId: string;
 
     let options = [
-        { label: 'minutes', value: 'minute' },
-        { label: 'hours', value: 'hour' },
-        { label: 'days', value: 'day' },
-        { label: 'months', value: 'month' },
-        { label: 'years', value: 'year' }
-    ]
+        { label: "minutes", value: "minute" },
+        { label: "hours", value: "hour" },
+        { label: "days", value: "day" },
+        { label: "months", value: "month" },
+        { label: "years", value: "year" },
+    ];
 
-    let selectedInterval: Selected<string> = options[2]
-    let intervalNumber: number = 2
+    let selectedInterval: Selected<string> = options[2];
+    let intervalNumber: number = 2;
 
-    let withinTimeParameter: string = `within_time:${intervalNumber}d`
+    let withinTimeParameter: string = `within_time:${intervalNumber}d`;
     $: switch (selectedInterval.value) {
-        case 'minute':
-            withinTimeParameter = `within_time:${intervalNumber}m`
-            break
+        case "minute":
+            withinTimeParameter = `within_time:${intervalNumber}m`;
+            break;
 
-        case 'hour':
-            withinTimeParameter = `within_time:${intervalNumber}h`
-            break
+        case "hour":
+            withinTimeParameter = `within_time:${intervalNumber}h`;
+            break;
 
-        case 'days':
-            withinTimeParameter = `within_time:${intervalNumber}d`
-            break
+        case "days":
+            withinTimeParameter = `within_time:${intervalNumber}d`;
+            break;
 
-        case 'month':
-            withinTimeParameter = `within_time:${intervalNumber * 30}d`
-            break
+        case "month":
+            withinTimeParameter = `within_time:${intervalNumber * 30}d`;
+            break;
 
-        case 'year':
-            withinTimeParameter = `within_time:${intervalNumber * 365}d`
-            break
+        case "year":
+            withinTimeParameter = `within_time:${intervalNumber * 365}d`;
+            break;
     }
 
-    let hour = new Date().getHours()
-    let minute = new Date().getMinutes()
+    let hour = new Date().getHours();
+    let minute = new Date().getMinutes();
 
-    $: time = { hour: hour, minute: minute }
+    $: time = { hour: hour, minute: minute };
 
     let cronExpression: string = composeCronExpression(
         intervalNumber,
         selectedInterval.value,
-        time
-    )
+        time,
+    );
 
     $: cronExpressionScope = identifyCronExpression(
         cronExpression,
-        intervalNumber
-    )
-    $: console.log(cronExpressionScope)
+        intervalNumber,
+    );
+    $: console.log(cronExpressionScope);
 
-    $: console.log(cronExpression)
+    $: console.log(cronExpression);
 
     let loading: boolean = false,
-        error
-    let description: string | undefined
-    let schedule: Object | undefined
-    let datasetId: string
+        error;
+    let description: string | undefined;
+    let schedule: Object | undefined;
+    let datasetId: string;
 
-    const apifyClient = new ApifyClient(actorId) // Twitter Actor ID
-    const apifyScheduler = new ApifyScheduler(apifyClient)
+    const apifyClient = new ApifyClient(actorId); // Twitter Actor ID
+    const apifyScheduler = new ApifyScheduler(apifyClient);
 
     $: prompt = `${queries}
-${cronExpression}`
+${cronExpression}`;
 
     async function generateDescription() {
-        error = ''
+        error = "";
 
         try {
-            const res = await fetch('/api/descriptions', {
-                method: 'POST',
+            const res = await fetch("/api/descriptions", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: prompt })
-            })
+                body: JSON.stringify({ prompt: prompt }),
+            });
             if (!res.ok) {
-                const errorData = await res.json()
+                const errorData = await res.json();
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`
-                )
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            return res.text()
+            return res.text();
         } catch (err) {
-            console.error('Error:', err)
+            console.error("Error:", err);
             error =
-                err instanceof Error ? err.message : 'An unknown error occurred'
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
         }
     }
 
     async function handleSchedule() {
-        console.log('scheduling task')
+        console.log("scheduling task");
         try {
-            loading = true
+            loading = true;
 
             const queryListWithinTime = queries
-                .split('\n')
-                .filter((q) => q.trim() !== '')
+                .split("\n")
+                .filter((q) => q.trim() !== "")
                 .map((t) => {
-                    t.trim()
-                    t += ` ${withinTimeParameter}`
-                    return t
-                })
+                    t.trim();
+                    t += ` ${withinTimeParameter}`;
+                    return t;
+                });
 
             const queriesSpreadOverTimeArray = queriesSpreadOverTime
-                .split('\n')
-                .filter((q) => q.trim() !== '')
-                .map((t) => t.trim())
+                .split("\n")
+                .filter((q) => q.trim() !== "")
+                .map((t) => t.trim());
 
-            const nQueries = queries.split('\n').length
-            const maxTweetsPerQuery = Math.ceil(scheduleNumTweets / nQueries)
+            const nQueries = queries.split("\n").length;
+            const maxTweetsPerQuery = Math.ceil(scheduleNumTweets / nQueries);
 
             const scheduledTaskInput = {
                 customMapFunction: createFunctionString(),
@@ -137,8 +139,8 @@ ${cronExpression}`
                 onlyTwitterBlue: false,
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
-                searchTerms: queryListWithinTime
-            }
+                searchTerms: queryListWithinTime,
+            };
 
             const historicDataInput = {
                 customMapFunction: createFunctionString(),
@@ -150,14 +152,14 @@ ${cronExpression}`
                 onlyTwitterBlue: false,
                 onlyVerifiedUsers: false,
                 onlyVideo: false,
-                sort: 'Latest',
-                searchTerms: queriesSpreadOverTimeArray
-            }
+                sort: "Latest",
+                searchTerms: queriesSpreadOverTimeArray,
+            };
 
-            description = await generateDescription()
+            description = await generateDescription();
 
             if (description) {
-                toast.success(description)
+                toast.success(description);
             }
             const { scheduleData, datasetId: newDatasetId } =
                 await apifyScheduler.scheduleTask({
@@ -165,17 +167,17 @@ ${cronExpression}`
                     historicDataInput: historicDataInput,
                     cronExpression: cronExpression,
                     description: description,
-                    fields: ['url<gx:url>']
-                })
+                    fields: ["url<gx:url>"],
+                });
 
-            schedule = scheduleData.data
+            schedule = scheduleData.data;
 
-            datasetId = newDatasetId
+            datasetId = newDatasetId;
         } catch (err) {
-            error = err instanceof Error ? err.message : String(err)
-            console.error(err)
+            error = err instanceof Error ? err.message : String(err);
+            console.error(err);
         } finally {
-            loading = false
+            loading = false;
         }
     }
 </script>
@@ -193,34 +195,35 @@ ${cronExpression}`
                     cronExpression = composeCronExpression(
                         v.target.value,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 on:change={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 bind:value={intervalNumber}
                 class="input input-sm rounded-full w-[45px] text-center bg-neutral"
             />
 
             <Select.Root
+                preventScroll={false}
                 onOpenChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 onSelectedChange={(e) => {
                     cronExpression = composeCronExpression(
                         intervalNumber,
                         selectedInterval.value,
-                        time
-                    )
+                        time,
+                    );
                 }}
                 bind:selected={selectedInterval}
                 items={options}
@@ -277,11 +280,11 @@ ${cronExpression}`
                 class="btn btn-warning grow rounded-full"
                 on:click={() => {
                     navigator.clipboard.writeText(
-                        `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`
-                    )
+                        `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`,
+                    );
                     toast.info(
-                        'Copied link to dataset to the clipboard. Head to Graphext and create a new project using this link as source'
-                    )
+                        "Copied link to dataset to the clipboard. Head to Graphext and create a new project using this link as source",
+                    );
                 }}>Copy dataset link (to use in Graphext)</button
             >
         </div>
@@ -303,7 +306,7 @@ ${cronExpression}`
     }
 
     /* Firefox */
-    input[type='number'] {
+    input[type="number"] {
         -moz-appearance: textfield;
         appearance: textfield;
     }

@@ -1,4 +1,4 @@
-<div class="mb-5 p-4 rounded-box relative bg-section outline-none">
+<div {...$$restProps} class="p-4 rounded-box relative bg-section outline-none">
     <slot />
 </div>
 

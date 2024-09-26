@@ -1,135 +1,136 @@
 <script lang="ts">
-    import Input from './Input.svelte'
-    import { ApifyClient, ApifyScheduler } from '$lib/apifyEndpoints'
-    import { apifyKey } from '$lib/stores/apifyStore'
-    import { NEWS_ACTOR_ID } from '$lib/actors'
-    import SearchableList from './SearchableList.svelte'
-    import { jsonToCsv, languages } from '../utils'
-    import DatePicker from './DatePicker.svelte'
-    import type { DateRange } from 'bits-ui'
-    import { toast } from 'svelte-sonner'
-    import { tweened } from 'svelte/motion'
-    import { cubicInOut } from 'svelte/easing'
-    import NewspaperClipping from 'phosphor-svelte/lib/NewspaperClipping'
+    import Input from "./Input.svelte";
+    import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
+    import { apifyKey } from "$lib/stores/apifyStore";
+    import { NEWS_ACTOR_ID } from "$lib/actors";
+    import SearchableList from "./SearchableList.svelte";
+    import { jsonToCsv, languages } from "../utils";
+    import DatePicker from "./DatePicker.svelte";
+    import type { DateRange } from "bits-ui";
+    import { toast } from "svelte-sonner";
+    import { tweened } from "svelte/motion";
+    import { cubicInOut } from "svelte/easing";
+    import NewspaperClipping from "phosphor-svelte/lib/NewspaperClipping";
 
-    let keywords: string
-    let maxItems: number = 500
-    let selected = languages[0]
+    let keywords: string;
+    let maxItems: number = 500;
+    let selected = languages[0];
 
-    let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID)
+    let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID);
 
-    let selectedRange: DateRange
-    let timeSteps: Date[]
+    let selectedRange: DateRange;
+    let timeSteps: Date[];
 
-    let error: string
-    let status: string
+    let error: string;
+    let status: string;
 
-    let datasetLink: string
-    let datasetData: any
-    let filename: string
-    let datasetSize: number
+    let datasetLink: string;
+    let datasetData: any;
+    let filename: string;
+    let datasetSize: number;
 
-    let loading: boolean = false
+    let loading: boolean = false;
 
-    let outputProgress: number = 0
-    const springProgress = tweened(outputProgress, { easing: cubicInOut })
+    let outputProgress: number = 0;
+    const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let runId: string
-    let userId: string
+    let runId: string;
+    let userId: string;
 
-    let csvBlob: Blob
+    let csvBlob: Blob;
 
-    let confirmChoice = false
-    $: buttonText = loading ? 'Loading tweets...' : 'Get Tweets'
+    let confirmChoice = false;
+    $: buttonText = loading ? "Loading news..." : "Get News";
 
     async function checkStatus() {
-        if (!runId) return
-        loading = true
+        if (!runId) return;
+        loading = true;
 
         try {
-            const runData = await apifyClient.getRunStatus(runId)
+            const runData = await apifyClient.getRunStatus(runId);
 
-            outputProgress = await apifyClient.getDatasetLength(runId)
-            springProgress.set(outputProgress)
+            outputProgress = await apifyClient.getDatasetLength(runId);
+            springProgress.set(outputProgress);
 
-            status = runData.data.status
+            status = runData.data.status;
 
             if (error) {
-                throw error
+                throw error;
             }
-            if (status === 'SUCCEEDED' || status === 'ABORTED') {
-                toast.success('🎉 Dataset created. Ready to download!')
-                datasetLink = await apifyClient.getDatasetLink(runId, 'json')
+            if (status === "SUCCEEDED" || status === "ABORTED") {
+                toast.success("🎉 Dataset created. Ready to download!");
+                datasetLink = await apifyClient.getDatasetLink(runId, "json");
 
-                csvBlob = await jsonToCsv(datasetLink)
+                csvBlob = await jsonToCsv(datasetLink);
 
-                datasetData = await apifyClient.getDatasetInfo(runId)
-                console.log(datasetData)
+                datasetData = await apifyClient.getDatasetInfo(runId);
+                console.log(datasetData);
 
                 const fileKeyWord = keywords.length
-                    ? keywords.replaceAll(',', '_')
-                    : keywords
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`
+                    ? keywords.replaceAll(",", "_")
+                    : keywords;
+                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
 
-                datasetSize = datasetData.data.itemCount
+                datasetSize = datasetData.data.itemCount;
 
-                loading = false
+                loading = false;
 
-                return
-            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
-                setTimeout(checkStatus, 2000)
-            } else if (status !== 'FAILED' && status !== 'TIMED-OUT') {
-                loading = false
+                return;
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                setTimeout(checkStatus, 2000);
+            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                loading = false;
                 throw Error(
-                    'Run failed, timed-out or aborted. Check the APIFY dashboard to know more.'
-                )
+                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
+                );
             }
         } catch (err) {
-            error = err instanceof Error ? err.message : String(err)
-            loading = false
-            status = 'FAILED'
-            userId = (await apifyClient.getPrivateUserData()).data.id
-            if (error == 'Apify returned an empty dataset.') {
-                toast.error(error)
+            error = err instanceof Error ? err.message : String(err);
+            loading = false;
+            status = "FAILED";
+            userId = (await apifyClient.getPrivateUserData()).data.id;
+            if (error == "Apify returned an empty dataset.") {
+                toast.error(error);
             }
-            console.error(err)
+            console.error(err);
         }
     }
+
     async function handleSubmit() {
-        loading = true
-        datasetLink = ''
-        outputProgress = 0
+        loading = true;
+        datasetLink = "";
+        outputProgress = 0;
 
         const inputData = {
             query: keywords
-                .split(',')
+                .split(",")
                 .map((kw) => kw.trim())
-                .join(' OR '),
+                .join(" OR "),
             language: selected.value,
             dateFrom: selectedRange.start?.toString(),
             dateTo: selectedRange.end?.toString(),
-            maxItems: maxItems
-        }
+            maxItems: maxItems,
+        };
 
         if (!$apifyKey) {
-            console.error('Apify API key is not set')
-            return
+            console.error("Apify API key is not set");
+            return;
         }
 
-        toast.success('Task and run created successfully.')
+        toast.success("Task and run created successfully.");
         setTimeout(() => {
-            toast.info('Fetching data. This may take a while...')
-        }, 1500)
+            toast.info("Fetching data. This may take a while...");
+        }, 1500);
 
         try {
-            const task = await apifyClient.createTask(inputData)
+            const task = await apifyClient.createTask(inputData);
             runId = await apifyClient
                 .runTask(task.data.id)
-                .then((run) => run.data.id)
+                .then((run) => run.data.id);
 
-            checkStatus()
+            checkStatus();
         } catch (err) {
-            console.error('Error creating or running task:', err)
+            console.error("Error creating or running task:", err);
         }
     }
 </script>
@@ -197,6 +198,9 @@
                 class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                 disabled={!$apifyKey || !keywords}
             >
+                {#if loading}
+                    <span class="loading loading-spinner loading-sm"></span>
+                {/if}
                 {buttonText}
             </button>
         </div>
@@ -242,12 +246,12 @@
                     class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
                 >
                     <p class="mt-4">Task status: {status}</p>
-                    {#if status == 'RUNNING'}
+                    {#if status == "RUNNING"}
                         <span>{outputProgress} news downloaded...</span>
                         <span class="loading loading-dots loading-sm"></span>
-                    {:else if status == 'SUCCEEDED'}
+                    {:else if status == "SUCCEEDED"}
                         <span></span>
-                    {:else if status == 'FAILED'}
+                    {:else if status == "FAILED"}
                         <span> </span>
                     {/if}
                 </div>

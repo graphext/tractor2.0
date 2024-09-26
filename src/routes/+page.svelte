@@ -1,12 +1,9 @@
 <script lang="ts">
     import { MetaTags } from "svelte-meta-tags";
-    import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
 
     import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
     import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
-    import User from "$lib/components/User.svelte";
-    import TwitterLogo from "phosphor-svelte/lib/TwitterLogo";
     import Section from "$lib/components/Section.svelte";
 
     let queries: string;
@@ -55,13 +52,18 @@
     }}
 />
 
-<Section>
-    <div class="text-base-content/70 mb-4">QUERY GENERATION</div>
-    <ChatGPTQueries bind:queries bind:enrichedQueries />
-</Section>
+<main class="flex flex-col gap-5">
+    <Section>
+        <div class="text-base-content/70 mb-4">QUERY GENERATION</div>
+        <ChatGPTQueries bind:queries bind:enrichedQueries />
+    </Section>
 
-<Section>
-    <div class="mb-4 text-base-content/70">APIFY</div>
+    <Section>
+        <div class="mb-4 text-base-content/70">APIFY</div>
 
-    <ApifyScraper bind:queries bind:queriesSpreadOverTime={enrichedQueries} />
-</Section>
+        <ApifyScraper
+            bind:queries
+            bind:queriesSpreadOverTime={enrichedQueries}
+        />
+    </Section>
+</main>

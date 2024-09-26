@@ -7,63 +7,15 @@
 
     export let lists: Selected<string>[] = [];
 
-    const options = [
-        {
-            label: "🇺🇸📰 US National News (45)",
-            value: "1332377355562717189",
-        },
-        {
-            label: "🇬🇧📰 UK National News (26)",
-            value: "1339570489530966018",
-        },
-        {
-            label: "🇪🇸📰 Spanish National News (63)",
-            value: "1291353744735600640",
-        },
-        {
-            label: "🇪🇸📰 National & Local News (667)",
-            value: "1378323089533063170",
-        },
-        {
-            label: "🇺🇸 US Members of Congress (550)",
-            value: "34179516",
-        },
-        {
-            label: "🇺🇸 US Political Reporters (137)",
-            value: "234326967",
-        },
-        {
-            label: "🇬🇧 UK Members of Parliament (599)",
-            value: "1810049120318456213",
-        },
-        {
-            label: "🇬🇧 UK Political Reporters (204)",
-            value: "1303626281611919361",
-        },
-        {
-            label: "🇪🇸 Spain Members of Congress (315)",
-            value: "1685953383004262400",
-        },
-        {
-            label: "🇪🇸 Spanish Political Reporters (428)",
-            value: "1314894201180557313",
-        },
-        {
-            label: "🇺🇸 Tech News (231)",
-            value: "31748",
-        },
-        {
-            label: "🇪🇸 Spanish Celebrities",
-            value: "1317420882877448192",
-        },
-        {
-            label: "🇪🇸 Economist Influencers",
-            value: "1120825973056921604",
-        },
-    ];
+    import { listOptions } from "$lib/utils";
 </script>
 
-<Select.Root bind:selected={lists} multiple={true} items={options}>
+<Select.Root
+    preventScroll={false}
+    bind:selected={lists}
+    multiple={true}
+    items={listOptions}
+>
     <div class="flex flex-col gap-1">
         <Tooltip.Root openDelay={100}>
             <Tooltip.Trigger class="text-left">
@@ -111,7 +63,7 @@
         transitionConfig={{ duration: 100, y: -20 }}
         sideOffset={8}
     >
-        {#each options as o}
+        {#each listOptions as o}
             <Select.Item
                 class="flex justify-between h-7 w-full select-none items-center rounded-btn px-3 text-sm outline-none transition-all duration-75 data-[highlighted]:bg-base-300 data-[disabled]:text-base-content/50"
                 value={o.value}
@@ -127,9 +79,3 @@
         {/each}
     </Select.Content>
 </Select.Root>
-
-<style>
-    .list-content {
-        scrollbar-gutter: stable both-edges;
-    }
-</style>
