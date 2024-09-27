@@ -34,9 +34,7 @@
 >
     <Header />
 
-    {#if !apikeyPresent}
-        <ApifyKeyInput />
-    {/if}
+    <ApifyKeyInput />
 
     <div class="flex items-center justify-between mt-10">
         <div class="flex gap-5 items-center my-5">

@@ -56,92 +56,85 @@
         : "Enter your Apify API key";
 </script>
 
-<Section transition={fly}>
-    <div
-        class:keyEntered={apikeyPresent}
-        class="flex h-fit flex-col md:flex-row justify-between items-center w-full p-2 gap-3"
-    >
-        {#if !apikeyPresent}
-            <form on:submit|preventDefault={handleSubmit}>
-                <div
-                    class="flex flex-col md:join md:flex-row md:rounded-full h-fit"
-                >
-                    <input
-                        type="password"
-                        bind:value={key}
-                        {placeholder}
-                        class="input input-bordered input-sm join-item w-full md:w-fit"
-                        disabled={apikeyPresent}
-                        class:inputDisabled={apikeyPresent}
-                    />
-                    {#if !apikeyPresent}
-                        <button
-                            type="submit"
-                            class:btnDisabled={apikeyPresent}
-                            class="btn btn-primary join-item btn-sm h-[10px]"
-                            >Set Token</button
-                        >
-                    {/if}
-                </div>
-            </form>
-        {/if}
-
-        {#if plan === "FREE"}
-            <div
-                transition:slide={{
-                    axis: "y",
-                    easing: backOut,
-                    duration: 300,
-                }}
-                class="mt-5 bg-error dark:bg-error/70 flex flex-col gap-2 shadow-sm rounded-btn py-3 px-4 border-2 border-error"
-            >
-                <div class="flex gap-3 items-start">
-                    <Warning
-                        weight="bold"
-                        size={22}
-                        class="mt-1 fill-error-content"
-                    />
-
-                    <div class="text-error-content">
-                        <p class="text-lg mb-3">
-                            Apify does not allow remote access for FREE
-                            accounts.
-                        </p>
-
-                        <p>
-                            Please, sign up with a paid account and try again.
-                        </p>
-                        <p>
+{#if !apikeyPresent}
+    <Section transition={fly}>
+        <div
+            class:keyEntered={apikeyPresent}
+            class="flex h-fit flex-col md:flex-row justify-between items-center w-full p-2 gap-3"
+        >
+            {#if !apikeyPresent}
+                <form on:submit|preventDefault={handleSubmit}>
+                    <div
+                        class="flex flex-col md:join md:flex-row md:rounded-full h-fit"
+                    >
+                        <input
+                            type="password"
+                            bind:value={key}
+                            {placeholder}
+                            class="input input-bordered input-sm join-item w-full md:w-fit"
+                            disabled={apikeyPresent}
+                            class:inputDisabled={apikeyPresent}
+                        />
+                        {#if !apikeyPresent}
                             <button
-                                class="underline font-bold"
-                                on:click={() => {
-                                    navigator.clipboard.writeText(
-                                        "jesus@graphext.com",
-                                    );
-                                    toast.success(
-                                        "Copied email 'jesus@graphext.com' to clipboard. Reach out if you need any help.",
-                                    );
-                                }}
+                                type="submit"
+                                class:btnDisabled={apikeyPresent}
+                                class="btn btn-primary join-item btn-sm h-[10px]"
+                                >Set Token</button
                             >
-                                Ask the team</button
-                            > for help if needed.
-                        </p>
+                        {/if}
                     </div>
-                </div>
-            </div>
-        {:else}
-            <span></span>
-        {/if}
+                </form>
+            {/if}
 
-        {#if !$apifyKey}
-            <div class="ml-3 hover:text-primary transition-colors">
-                <a href="/token-info" class="underline opacity-70"
-                    >Learn more about the APIFY token</a
-                >
+            {#if !$apifyKey}
+                <div class="ml-3 hover:text-primary transition-colors">
+                    <a href="/token-info" class="underline opacity-70"
+                        >Learn more about the APIFY token</a
+                    >
+                </div>
+            {/if}
+        </div>
+    </Section>
+{/if}
+
+{#if plan === "FREE"}
+    <div
+        transition:slide={{
+            axis: "y",
+            easing: backOut,
+            duration: 300,
+        }}
+        class="mt-5 bg-error dark:bg-error/70 flex flex-col gap-2 shadow-sm rounded-btn py-3 px-4 border-2 border-error"
+    >
+        <div class="flex gap-3 items-start">
+            <Warning weight="bold" size={22} class="mt-1 fill-error-content" />
+
+            <div class="text-error-content">
+                <p class="text-lg mb-3">
+                    Apify does not allow remote access for FREE accounts.
+                </p>
+
+                <p>Please, sign up with a paid account and try again.</p>
+                <p>
+                    <button
+                        class="underline font-bold"
+                        on:click={() => {
+                            navigator.clipboard.writeText("jesus@graphext.com");
+                            toast.success(
+                                "Copied email 'jesus@graphext.com' to clipboard. Reach out if you need any help.",
+                            );
+                        }}
+                    >
+                        Ask the team</button
+                    > for help if needed.
+                </p>
             </div>
-        {/if}
+        </div>
     </div>
-</Section>
+{:else}
+    <span></span>
+{/if}
 
 <style>
     .inputDisabled {
