@@ -16,6 +16,7 @@
     import { TWITTER_ACT_ID } from "$lib/actors";
     import { createFunctionString } from "$lib/postprocess";
     import LiveTable from "./LiveTable.svelte";
+    import Stop from "phosphor-svelte/lib/Stop";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -329,38 +330,49 @@
 {#if error || status}
     <div>
         <div class="divider mt-3 mb-3" />
-        <LiveTable {headers} {rows} />
-        <div class="flex justify-between items-baseline">
-            {#if error}
-                <div class="flex items-center gap-3">
-                    <p>{error}</p>
-                    <a
-                        href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
-                        target="_blank"
-                        class:disabled={userId == undefined ||
-                            runId == undefined}
-                        class="btn btn-xs btn-error">Go to run</a
+        <div class="flex flex-col gap-1">
+            <div class="flex justify-between items-baseline my-5">
+                {#if status == "RUNNING"}
+                    <button
+                        on:click={() => {
+                            if (runId) apifyClient.abortRun(runId);
+                        }}
+                        class="btn btn-error btn-sm"><Stop /> Stop</button
                     >
-                </div>
-            {:else}
-                <p class="opacity-0">error</p>
-            {/if}
+                {/if}
+                {#if error}
+                    <div class="flex items-center gap-3">
+                        <p>{error}</p>
+                        <a
+                            href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
+                            target="_blank"
+                            class:disabled={userId == undefined ||
+                                runId == undefined}
+                            class="btn btn-xs btn-error">Go to run</a
+                        >
+                    </div>
+                {:else}
+                    <p class="opacity-0">error</p>
+                {/if}
 
-            {#if status}
-                <div
-                    class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
-                >
-                    <p class="mt-4">Task status: {status}</p>
-                    {#if status == "RUNNING"}
-                        <span>{outputProgress} tweets analyzed...</span>
-                        <span class="loading loading-dots loading-sm"></span>
-                    {:else if status == "SUCCEEDED"}
-                        <span></span>
-                    {:else if status == "FAILED"}
-                        <span> </span>
-                    {/if}
-                </div>
-            {/if}
+                {#if status}
+                    <div
+                        class="flex gap-3 justify-end items-baseline opacity-30 tabular-nums"
+                    >
+                        <p class="mt-4">Task status: {status}</p>
+                        {#if status == "RUNNING"}
+                            <span>{outputProgress} tweets analyzed...</span>
+                            <span class="loading loading-dots loading-sm"
+                            ></span>
+                        {:else if status == "SUCCEEDED"}
+                            <span></span>
+                        {:else if status == "FAILED"}
+                            <span> </span>
+                        {/if}
+                    </div>
+                {/if}
+            </div>
+            <LiveTable {headers} {rows} />
         </div>
     </div>
 {/if}
