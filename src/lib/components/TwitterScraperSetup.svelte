@@ -15,6 +15,7 @@
 
     import { TWITTER_ACT_ID } from "$lib/actors";
     import { createFunctionString } from "$lib/postprocess";
+    import LiveTable from "./LiveTable.svelte";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -142,7 +143,8 @@
         try {
             const runData = await apifyClient.getRunStatus(runId);
 
-            outputProgress = await apifyClient.getDatasetLength(runId);
+            ({ length: outputProgress } =
+                await apifyClient.getDatasetContent(runId));
             springProgress.set(outputProgress);
 
             status = runData.data.status;
@@ -321,6 +323,9 @@
 {#if error || status}
     <div>
         <div class="divider mt-3 mb-0" />
+        {#if status == "RUNNING"}
+            <LiveTable {headers} {rows} />
+        {/if}
         <div class="flex justify-between items-baseline">
             {#if error}
                 <div class="flex items-center gap-3">

@@ -99,10 +99,14 @@ export class ApifyClient {
 		return data;
 	}
 
-	async getDatasetLength(runId: string) {
-		const endpoint = `/actor-runs/${runId}/dataset/items?clean=true&format=json`;
+	async getDatasetContent(runId: string, omitColumns: string[] = []) {
+		let omitColumnsParams = "";
+		if (omitColumns.length > 0)
+			omitColumnsParams = "&omit=" + omitColumns.join(",");
+
+		const endpoint = `/actor-runs/${runId}/dataset/items?clean=true&format=json${omitColumnsParams}`;
 		const data = await apifyFetch(endpoint);
-		return data.length;
+		return { data: data, length: data.length };
 	}
 
 	async getDatasetLink(
