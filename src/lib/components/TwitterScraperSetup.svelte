@@ -37,6 +37,8 @@
     let numTweets = 5000;
     let prettyData = true;
 
+    let headers: string[], rows: Array<string[]>;
+
     let tweetCost = 0.3 / 1000;
     $: totalApproximateCost = numTweets * tweetCost;
 
@@ -143,9 +145,20 @@
         try {
             const runData = await apifyClient.getRunStatus(runId);
 
-            ({ length: outputProgress } =
-                await apifyClient.getDatasetContent(runId));
+            const { data: liveData, length: dataLength } =
+                await apifyClient.getDatasetContent(runId, ["guid"]);
+
+            outputProgress = dataLength;
             springProgress.set(outputProgress);
+
+            headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
+            rows =
+                dataLength > 0
+                    ? liveData
+                          .reverse()
+                          .filter((d, i) => i < 100) //return 100 last items
+                          .map((d) => Object.values(d))
+                    : [];
 
             status = runData.data.status;
 
@@ -313,19 +326,10 @@
     </a>
 {/if}
 
-<CronEditor
-    {numTweets}
-    {queries}
-    {queriesSpreadOverTime}
-    actorId={TWITTER_ACT_ID}
-/>
-
 {#if error || status}
     <div>
-        <div class="divider mt-3 mb-0" />
-        {#if status == "RUNNING"}
-            <LiveTable {headers} {rows} />
-        {/if}
+        <div class="divider mt-3 mb-3" />
+        <LiveTable {headers} {rows} />
         <div class="flex justify-between items-baseline">
             {#if error}
                 <div class="flex items-center gap-3">
@@ -360,6 +364,13 @@
         </div>
     </div>
 {/if}
+
+<CronEditor
+    {numTweets}
+    {queries}
+    {queriesSpreadOverTime}
+    actorId={TWITTER_ACT_ID}
+/>
 
 <style>
     progress {

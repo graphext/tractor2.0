@@ -2,7 +2,7 @@
     import { Tooltip } from "bits-ui";
     import ClipboardText from "phosphor-svelte/lib/ClipboardText";
     import { toast } from "svelte-sonner";
-    import { fly } from "svelte/transition";
+    import { fly, slide } from "svelte/transition";
 
     export let headers;
     export let rows;
@@ -10,6 +10,7 @@
 
 {#if headers.length && rows.length}
     <div
+        in:slide={{ duration: 400 }}
         class="overflow-auto max-h-[300px] border border-base-content/30 rounded-btn table-zebra"
     >
         <table class="table table-sm">
@@ -24,7 +25,10 @@
 
             <tbody>
                 {#each rows as row, i}
-                    <tr class="hover border border-base-content/10">
+                    <tr
+                        in:slide={{ duration: 300 }}
+                        class="hover border border-base-content/10"
+                    >
                         <td class="opacity-20 text-right">{rows.length - i}</td>
                         {#each row as cell}
                             <td

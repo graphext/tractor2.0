@@ -112,7 +112,7 @@ export class ApifyClient {
 	async getDatasetLink(
 		runId: string,
 		format: "csv" | "json" = "csv",
-		omitColumns: string[],
+		omitColumns: string[] = [],
 	) {
 		const token = get(apifyKey);
 		if (!token) {
