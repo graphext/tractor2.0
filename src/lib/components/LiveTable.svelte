@@ -1,6 +1,6 @@
 <script>
     import { Tooltip } from "bits-ui";
-    import { ClipboardText } from "phosphor-svelte";
+    import ClipboardText from "phosphor-svelte/lib/ClipboardText";
     import { toast } from "svelte-sonner";
     import { fly } from "svelte/transition";
 
