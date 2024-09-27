@@ -341,7 +341,7 @@ export async function jsonToCsv(
 
     let csvString = headers.join(",") + "\n";
 
-    const formatValue = (value: any): string => {
+    const formatValue = (value: any): string | null => {
       if (Array.isArray(value)) {
         // Convert array to comma-separated string and wrap in quotes
         return `"${value.toString()}"`;
@@ -352,6 +352,9 @@ export async function jsonToCsv(
           value.includes('"')
           ? `"${value.replace(/"/g, '""')}"`
           : value;
+      } else if (value == null || value === undefined) {
+        // there may be null links or values, which are indeed supported
+        return null;
       } else {
         // For other types, convert to string
         return value.toString();

@@ -78,6 +78,11 @@ export class ApifyClient {
 		return apifyFetch(endpoint, { method: "POST" });
 	}
 
+	async abortRun(runId: string) {
+		const endpoint = `/actor-runs/${runId}/abort`;
+		return apifyFetch(endpoint, { method: "POST" });
+	}
+
 	async getRunStatus(runId: string) {
 		const endpoint = `/actor-runs/${runId}`;
 		const data = await apifyFetch(endpoint);
