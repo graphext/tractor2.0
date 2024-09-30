@@ -155,14 +155,14 @@
     }
 
     async function checkStatus() {
-        console.log("checking status again");
         if (!runId) return;
 
         try {
             runData = await apifyClient.getRunStatus(runId);
 
             status = runData.data.status;
-            console.log("checking status...", status);
+
+            if (resuming && status == "RUNNING") resuming = false;
 
             const { data: liveData, length: dataLength } =
                 await apifyClient.getDatasetContent(runId, ["guid"]);
@@ -210,7 +210,6 @@
 
                 return;
             } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                if (resuming) resuming = false;
                 checkStatusTimeout = setTimeout(checkStatus, 1000);
             } else if (status === "FAILED" || status === "TIMED-OUT") {
                 loading = false;
@@ -331,18 +330,20 @@
 </div>
 
 {#if csvBlob && filename}
-    <a
-        href={URL.createObjectURL(csvBlob)}
-        download={filename}
+    <button
+        disabled={loading}
         class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
-        >Download Dataset <span
-            class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
-            >.csv</span
-        >
-        {#if datasetSize}
-            — {datasetSize} rows
-        {/if}
-    </a>
+    >
+        <a href={URL.createObjectURL(csvBlob)} download={filename} class=""
+            >Download Dataset <span
+                class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
+                >.csv</span
+            >
+            {#if datasetSize}
+                — {datasetSize} rows
+            {/if}
+        </a>
+    </button>
 {/if}
 
 {#if error || status}
