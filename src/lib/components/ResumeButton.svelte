@@ -1,0 +1,19 @@
+<script lang="ts">
+    import type { ApifyClient } from "$lib/apifyEndpoints";
+    import Play from "phosphor-svelte/lib/Play";
+
+    export let resuming: boolean;
+    export let apifyClient: ApifyClient;
+    export let runId;
+
+    $: resumeButtonText = resuming ? "Resuming..." : "Resume";
+</script>
+
+<button
+    on:click={async () => {
+        resuming = true;
+        if (runId) apifyClient.resurrectRun(runId);
+    }}
+    class="btn btn-accent btn-sm"
+    disabled={resuming}><Play weight="fill" /> {resumeButtonText}</button
+>

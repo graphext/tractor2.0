@@ -12,7 +12,7 @@
     import { cubicInOut } from "svelte/easing";
     import LiveTable from "./LiveTable.svelte";
 
-    import Stop from "phosphor-svelte/lib/Stop";
+    import StopButton from "./StopButton.svelte";
 
     let keywords: string;
     let maxItems: number = 500;
@@ -33,7 +33,6 @@
 
     let loading: boolean = false;
     let stopping: boolean = false;
-    $: stopButtonText = stopping ? "Aborting..." : "Stop";
 
     let headers: string[], rows: Array<string[]>;
 
@@ -251,16 +250,7 @@
         <div class="flex flex-col gap-5">
             <div class="flex justify-between items-baseline">
                 {#if status == "RUNNING"}
-                    <button
-                        on:click={async () => {
-                            stopping = true;
-                            console.log("stopping", stopping);
-                            if (runId) apifyClient.abortRun(runId);
-                        }}
-                        class="btn btn-error btn-sm"
-                        disabled={stopping}
-                        ><Stop weight="fill" /> {stopButtonText}</button
-                    >
+                    <StopButton {stopping} {apifyClient} {runId} />
                 {/if}
 
                 {#if error}

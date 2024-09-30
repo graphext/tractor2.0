@@ -8,7 +8,7 @@
     export let rows;
 </script>
 
-{#if headers.length && rows.length}
+{#if headers && rows && headers.length > 0 && rows.length > 0}
     <div
         in:slide={{ duration: 400 }}
         class="overflow-auto max-h-[300px] border border-base-content/30 rounded-btn table-zebra"

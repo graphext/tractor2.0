@@ -16,7 +16,8 @@
     import { TWITTER_ACT_ID } from "$lib/actors";
     import { createFunctionString } from "$lib/postprocess";
     import LiveTable from "./LiveTable.svelte";
-    import Stop from "phosphor-svelte/lib/Stop";
+    import StopButton from "./StopButton.svelte";
+    import ResumeButton from "./ResumeButton.svelte";
 
     export let queries = "";
     export let queriesSpreadOverTime = "";
@@ -26,14 +27,18 @@
         : 0;
 
     let loading = false;
+    let resuming = false;
 
-    let stopping: boolean = false;
-    $: stopButtonText = stopping ? "Aborting..." : "Stop";
+    $: if (resuming) {
+        loading = true;
+        checkStatus();
+    }
 
     let confirmChoice = false;
 
     let userId: string | null = null;
     let runId: string | null = null;
+    let runData = null;
     let status: string | null = null;
 
     let outputProgress: number = 0;
@@ -145,10 +150,14 @@
     }
 
     async function checkStatus() {
+        console.log("checking status again");
         if (!runId) return;
 
         try {
-            const runData = await apifyClient.getRunStatus(runId);
+            runData = await apifyClient.getRunStatus(runId);
+
+            status = runData.data.status;
+            console.log("checking status...", status);
 
             const { data: liveData, length: dataLength } =
                 await apifyClient.getDatasetContent(runId, ["guid"]);
@@ -165,11 +174,10 @@
                           .map((d) => Object.values(d))
                     : [];
 
-            status = runData.data.status;
-
             if (error) {
                 throw error;
             }
+
             if (status === "SUCCEEDED" || status === "ABORTED") {
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await apifyClient.getDatasetLink(runId, "json");
@@ -206,7 +214,6 @@
         } catch (err) {
             error = err instanceof Error ? err.message : String(err);
             loading = false;
-            status = "FAILED";
             userId = (await apifyClient.getPrivateUserData()).data.id;
             if (error == "Apify returned an empty dataset.") {
                 toast.error(error);
@@ -337,16 +344,13 @@
         <div class="flex flex-col gap-1">
             <div class="flex justify-between items-baseline my-5">
                 {#if status == "RUNNING"}
-                    <button
-                        on:click={async () => {
-                            stopping = true;
-                            if (runId) apifyClient.abortRun(runId);
-                        }}
-                        class="btn btn-error btn-sm"
-                        disabled={stopping}
-                        ><Stop weight="fill" /> {stopButtonText}</button
-                    >
+                    <StopButton {apifyClient} {runId} />
                 {/if}
+
+                {#if status == "ABORTED"}
+                    <ResumeButton bind:resuming {apifyClient} {runId} />
+                {/if}
+
                 {#if error}
                     <div class="flex items-center gap-3">
                         <p>{error}</p>

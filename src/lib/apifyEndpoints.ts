@@ -83,6 +83,11 @@ export class ApifyClient {
 		return apifyFetch(endpoint, { method: "POST" });
 	}
 
+	async resurrectRun(runId: string) {
+		const endpoint = `/actor-runs/${runId}/resurrect`;
+		return apifyFetch(endpoint, { method: "POST" });
+	}
+
 	async getRunStatus(runId: string) {
 		const endpoint = `/actor-runs/${runId}`;
 		const data = await apifyFetch(endpoint);
