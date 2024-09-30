@@ -29,9 +29,14 @@
     let loading = false;
     let resuming = false;
 
+    let checkStatusTimeout: number;
+
     $: if (resuming) {
         loading = true;
-        checkStatus();
+
+        setTimeout(() => {
+            checkStatus();
+        }, 500);
     }
 
     let confirmChoice = false;
@@ -179,6 +184,7 @@
             }
 
             if (status === "SUCCEEDED" || status === "ABORTED") {
+                clearTimeout(checkStatusTimeout);
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await apifyClient.getDatasetLink(runId, "json");
 
@@ -204,8 +210,9 @@
 
                 return;
             } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                setTimeout(checkStatus, 2000);
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+                if (resuming) resuming = false;
+                checkStatusTimeout = setTimeout(checkStatus, 1000);
+            } else if (status === "FAILED" || status === "TIMED-OUT") {
                 loading = false;
                 throw Error(
                     "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
@@ -343,12 +350,17 @@
         <div class="divider mt-3 mb-3" />
         <div class="flex flex-col gap-1">
             <div class="flex justify-between items-baseline my-5">
-                {#if status == "RUNNING"}
+                {#if status == "RUNNING" || status == "ABORTING"}
                     <StopButton {apifyClient} {runId} />
                 {/if}
 
-                {#if status == "ABORTED"}
-                    <ResumeButton bind:resuming {apifyClient} {runId} />
+                {#if status == "ABORTED" || status == "READY"}
+                    <ResumeButton
+                        {status}
+                        bind:resuming
+                        {apifyClient}
+                        {runId}
+                    />
                 {/if}
 
                 {#if error}

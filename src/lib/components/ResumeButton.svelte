@@ -5,6 +5,7 @@
     export let resuming: boolean;
     export let apifyClient: ApifyClient;
     export let runId;
+    export let status;
 
     $: resumeButtonText = resuming ? "Resuming..." : "Resume";
 </script>
