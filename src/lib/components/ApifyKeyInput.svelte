@@ -7,6 +7,9 @@
     import { onMount } from "svelte";
     import Warning from "phosphor-svelte/lib/Warning";
     import Section from "./Section.svelte";
+    import { page } from "$app/stores";
+
+    $: pageUrl = $page.route.id;
 
     let key = "";
     let plan: string | null = null;
@@ -98,7 +101,7 @@
     </Section>
 {/if}
 
-{#if plan === "FREE"}
+{#if plan === "FREE" && pageUrl == "/"}
     <div
         transition:slide={{
             axis: "y",
@@ -112,10 +115,12 @@
 
             <div class="text-error-content">
                 <p class="text-lg mb-3">
-                    Apify does not allow remote access for FREE accounts.
+                    Our Twitter scraper does not allow remote access for FREE
+                    accounts.
                 </p>
 
                 <p>Please, sign up with a paid account and try again.</p>
+                <p>You may also check out other actors available.</p>
                 <p>
                     <button
                         class="underline font-bold"
