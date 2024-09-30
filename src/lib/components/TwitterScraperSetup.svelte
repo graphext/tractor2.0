@@ -26,6 +26,10 @@
         : 0;
 
     let loading = false;
+
+    let stopping: boolean = false;
+    $: stopButtonText = stopping ? "Aborting..." : "Stop";
+
     let confirmChoice = false;
 
     let userId: string | null = null;
@@ -334,10 +338,13 @@
             <div class="flex justify-between items-baseline my-5">
                 {#if status == "RUNNING"}
                     <button
-                        on:click={() => {
+                        on:click={async () => {
+                            stopping = true;
                             if (runId) apifyClient.abortRun(runId);
                         }}
-                        class="btn btn-error btn-sm"><Stop /> Stop</button
+                        class="btn btn-error btn-sm"
+                        disabled={stopping}
+                        ><Stop weight="fill" /> {stopButtonText}</button
                     >
                 {/if}
                 {#if error}

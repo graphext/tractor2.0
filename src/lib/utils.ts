@@ -312,7 +312,7 @@ export async function jsonToCsv(
       jsonData.length === 0 ||
       jsonData === undefined
     ) {
-      throw new Error("Invalid JSON data: expected a non-empty array");
+      throw new Error("Apify returned an empty table.");
     }
 
     if (jsonData.every((o) => o.hasOwnProperty("noResults"))) {

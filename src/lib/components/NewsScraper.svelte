@@ -32,6 +32,8 @@
     let datasetSize: number;
 
     let loading: boolean = false;
+    let stopping: boolean = false;
+    $: stopButtonText = stopping ? "Aborting..." : "Stop";
 
     let headers: string[], rows: Array<string[]>;
 
@@ -75,6 +77,7 @@
                 throw error;
             }
             if (status === "SUCCEEDED" || status === "ABORTED") {
+                stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await apifyClient.getDatasetLink(runId, "json", [
                     "guid",
@@ -249,12 +252,17 @@
             <div class="flex justify-between items-baseline">
                 {#if status == "RUNNING"}
                     <button
-                        on:click={() => {
+                        on:click={async () => {
+                            stopping = true;
+                            console.log("stopping", stopping);
                             if (runId) apifyClient.abortRun(runId);
                         }}
-                        class="btn btn-error btn-sm"><Stop /> Stop</button
+                        class="btn btn-error btn-sm"
+                        disabled={stopping}
+                        ><Stop weight="fill" /> {stopButtonText}</button
                     >
                 {/if}
+
                 {#if error}
                     <div class="flex items-center gap-3">
                         <p>{error}</p>
