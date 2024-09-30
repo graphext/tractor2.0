@@ -320,7 +320,7 @@
             <WarningCost {totalApproximateCost} />
             <button
                 on:click={handleSubmit}
-                class="btn btn-primary w-full shadow-primary/20 shadow-md rounded-full"
+                class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                 disabled={!$apifyKey || !queries}
             >
                 Sure. Let's go.
@@ -330,20 +330,19 @@
 </div>
 
 {#if csvBlob && filename}
-    <button
-        disabled={loading}
+    <a
         class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
-    >
-        <a href={URL.createObjectURL(csvBlob)} download={filename} class=""
-            >Download Dataset <span
-                class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
-                >.csv</span
-            >
-            {#if datasetSize}
-                — {datasetSize} rows
-            {/if}
-        </a>
-    </button>
+        class:disabled={loading}
+        href={URL.createObjectURL(csvBlob)}
+        download={filename}
+        >Download Dataset <span
+            class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
+            >.csv</span
+        >
+        {#if datasetSize}
+            — {datasetSize} rows
+        {/if}
+    </a>
 {/if}
 
 {#if error || status}
@@ -441,5 +440,8 @@
     input[type="number"] {
         -moz-appearance: textfield;
         appearance: textfield;
+    }
+    .disabled {
+        @apply btn-disabled;
     }
 </style>
