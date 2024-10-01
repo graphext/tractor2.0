@@ -13,6 +13,7 @@
     import LiveTable from "./LiveTable.svelte";
 
     import StopButton from "./StopButton.svelte";
+    import ResumeButton from "./ResumeButton.svelte";
 
     let keywords: string;
     let maxItems: number = 500;
@@ -22,6 +23,17 @@
 
     let selectedRange: DateRange;
     let timeSteps: Date[];
+
+    let checkStatusTimeout: number;
+    let resuming: boolean = false;
+
+    $: if (resuming) {
+        loading = true;
+
+        setTimeout(() => {
+            checkStatus();
+        }, 500);
+    }
 
     let error: string;
     let status: string;
@@ -53,6 +65,9 @@
 
         try {
             const runData = await apifyClient.getRunStatus(runId);
+            status = runData.data.status;
+
+            if (resuming && status == "RUNNING") resuming = false;
 
             const { data: liveData, length: dataLength } =
                 await apifyClient.getDatasetContent(runId, ["guid"]);
@@ -66,16 +81,15 @@
                           .filter((d, i) => i < 100) //return 100 last items
                           .map((d) => Object.values(d))
                     : [];
-            console.log(headers, rows);
 
             springProgress.set(outputProgress);
-
-            status = runData.data.status;
 
             if (error) {
                 throw error;
             }
             if (status === "SUCCEEDED" || status === "ABORTED") {
+                clearTimeout(checkStatusTimeout);
+
                 stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await apifyClient.getDatasetLink(runId, "json", [
@@ -98,7 +112,7 @@
 
                 return;
             } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                setTimeout(checkStatus, 2000);
+                checkStatusTimeout = setTimeout(checkStatus, 2000);
             } else if (status !== "FAILED" && status !== "TIMED-OUT") {
                 loading = false;
                 throw Error(
@@ -232,6 +246,7 @@
     <a
         href={URL.createObjectURL(csvBlob)}
         download={filename}
+        class:disabled={loading}
         class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
         >Download Dataset <span
             class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
@@ -249,8 +264,17 @@
 
         <div class="flex flex-col gap-5">
             <div class="flex justify-between items-baseline">
-                {#if status == "RUNNING"}
-                    <StopButton {stopping} {apifyClient} {runId} />
+                {#if status == "RUNNING" || status == "ABORTING"}
+                    <StopButton {apifyClient} {runId} />
+                {/if}
+
+                {#if status == "ABORTED" || status == "READY"}
+                    <ResumeButton
+                        {status}
+                        bind:resuming
+                        {apifyClient}
+                        {runId}
+                    />
                 {/if}
 
                 {#if error}
@@ -290,3 +314,9 @@
         </div>
     </div>
 {/if}
+
+<style>
+    .disabled {
+        @apply btn-disabled;
+    }
+</style>
