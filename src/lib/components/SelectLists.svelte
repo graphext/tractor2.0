@@ -27,7 +27,7 @@
                 transition={fly}
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-[#FEFEFE] dark:bg-[#161616] z-10 shadow-md shadow-base-100 rounded-xl"
+                class="bg-neutral z-10 shadow-md shadow-base-100 rounded-xl"
             >
                 <div class="py-3 px-4 text-balance w-[350px]">
                     <p class="mb-1">

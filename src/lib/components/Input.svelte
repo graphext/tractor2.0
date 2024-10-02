@@ -8,7 +8,7 @@
 
 <input
     type="text"
-    class="input transition-all input-sm text-sm bg-neutral w-full rounded-full"
+    class="input input-sm text-sm bg-neutral w-full rounded-full"
     bind:value
     bind:this={element}
     {placeholder}

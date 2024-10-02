@@ -31,7 +31,7 @@
         onOutsideClick={onBlur}
     >
         <Combobox.Input
-            class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm transition-colors placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
+            class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm  placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
             {placeholder}
             on:click={() => (searchQuery = "")}
             aria-label={placeholder}

@@ -33,7 +33,7 @@
                 transition={fly}
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-[#FEFEFE] dark:bg-[#161616] z-10 shadow-md shadow-base-100 rounded-btn"
+                class="bg-neutral z-10 shadow-md shadow-base-100 rounded-btn"
             >
                 <div class="p-4 text-balance w-[250px]">
                     The more queries you send, the more results you'll get.

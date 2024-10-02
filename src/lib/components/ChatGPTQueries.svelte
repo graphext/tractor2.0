@@ -1,91 +1,98 @@
 <script lang="ts">
-    import { userQuery } from '$lib/stores/userQueryStore'
-    import { onMount } from 'svelte'
-    import { toast } from 'svelte-sonner'
-    import type { DateRange, Selected } from 'bits-ui'
-    import DatePicker from './DatePicker.svelte'
-    import { enrichQueries, getSelectionOptions } from '$lib/utils'
-    import SelectFrequency from './SelectFrequency.svelte'
-    import SelectLists from './SelectLists.svelte'
-    import CaretRight from 'phosphor-svelte/lib/CaretRight'
+    import { userQuery } from "$lib/stores/userQueryStore";
+    import { onMount } from "svelte";
+    import { toast } from "svelte-sonner";
+    import type { DateRange, Selected } from "bits-ui";
+    import DatePicker from "./DatePicker.svelte";
+    import { enrichQueries, getSelectionOptions } from "$lib/utils";
+    import SelectFrequency from "./SelectFrequency.svelte";
+    import SelectLists from "./SelectLists.svelte";
+    import CaretRight from "phosphor-svelte/lib/CaretRight";
 
-    export let queries = ''
-    export let enrichedQueries = ''
-    let lists: Selected<string>[]
+    export let queries = "";
+    export let enrichedQueries = "";
+    let lists: Selected<string>[];
 
     const placeholderIdeas = [
-        'tweets about chocolate with at least 10 likes',
-        'tweets talking about cats but not dogs, that are not replies',
+        "tweets about chocolate with at least 10 likes",
+        "tweets talking about cats but not dogs, that are not replies",
         "tweets including the term 'brand' but not the term 'design'",
-        'tweets mentioning @user_name that are not replies',
-        "mentions of 'space' and either 'big' or 'large', with images, excluding mentions of #asteroid"
-    ]
+        "tweets mentioning @user_name that are not replies",
+        "mentions of 'space' and either 'big' or 'large', with images, excluding mentions of #asteroid",
+    ];
 
-    let index = 0
-    let placeholder = placeholderIdeas[index]
+    let index = 0;
+    let placeholder = placeholderIdeas[index];
 
-    let userPrompt = ''
-    let error = ''
-    let loading = false
+    let userPrompt = "";
+    let error = "";
+    let loading = false;
 
-    let selectedRange: DateRange
-    let timeSteps: Date[]
+    let selectedRange: DateRange;
+    let timeSteps: Date[];
 
-    $: enrichedQueries = enrichQueries(queries, timeSteps, selectedRange, lists) // final result
+    $: enrichedQueries = enrichQueries(
+        queries,
+        timeSteps,
+        selectedRange,
+        lists,
+    ); // final result
 
-    $: options = getSelectionOptions(selectedRange)
+    $: options = getSelectionOptions(selectedRange);
 
-    let interval: Timeout
+    let interval: Timeout;
     interval = setInterval(() => {
-        index = (index + 1) % placeholderIdeas.length
-        placeholder = placeholderIdeas[index]
-    }, 6000)
+        index = (index + 1) % placeholderIdeas.length;
+        placeholder = placeholderIdeas[index];
+    }, 6000);
 
     onMount(() => {
         if ($userQuery) {
-            userPrompt = $userQuery
+            userPrompt = $userQuery;
         }
-    })
+    });
 
     async function generateResponse() {
-        $userQuery = userPrompt
-        loading = true
-        error = ''
-        queries = ''
+        $userQuery = userPrompt;
+        loading = true;
+        error = "";
+        queries = "";
 
         try {
-            const res = await fetch('/api/chat', {
-                method: 'POST',
+            const res = await fetch("/api/chat", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: userPrompt })
-            })
+                body: JSON.stringify({ prompt: userPrompt }),
+            });
 
             if (!res.ok) {
-                const errorData = await res.json()
+                const errorData = await res.json();
                 throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`
-                )
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
-            const reader = res.body.getReader()
-            const decoder = new TextDecoder()
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
 
             while (true) {
-                const { done, value } = await reader.read()
-                if (done) break
-                const chunk = decoder.decode(value)
-                console.log(chunk)
-                queries += chunk
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                console.log(chunk);
+                queries += chunk;
             }
         } catch (err) {
-            console.error('Error:', err)
+            console.error("Error:", err);
             error =
-                err instanceof Error ? err.message : 'An unknown error occurred'
-            toast.error(error)
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
+            toast.error(error);
         } finally {
-            loading = false
+            loading = false;
         }
     }
 </script>
@@ -101,7 +108,7 @@
             >
                 <input
                     type="text"
-                    class="input transition-all input-sm text-sm bg-neutral w-full join-item md:rounded-l-full"
+                    class="input input-sm text-sm bg-neutral w-full join-item md:rounded-l-full"
                     bind:value={userPrompt}
                     {placeholder}
                 />

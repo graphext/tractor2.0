@@ -1,5 +1,6 @@
 <script lang="ts">
     import User from "$lib/components/User.svelte";
+    import ThemeToggler from "./ThemeToggler.svelte";
 </script>
 
 <div class="flex justify-between items-center">
@@ -15,4 +16,5 @@
             <User />
         </div>
     </div>
+    <ThemeToggler />
 </div>

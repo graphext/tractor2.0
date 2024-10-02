@@ -4,7 +4,6 @@ import { browser } from "$app/environment";
 // Initialize the store with the value from localStorage if available
 const storedQuery = browser ? localStorage.getItem("userQuery") : null;
 const storedApifyTerms = browser ? localStorage.getItem("apifyTerms") : null;
-
 export const userQuery = writable<string>(storedQuery || "");
 export const apifyTerms = writable<string>(storedApifyTerms || "");
 
