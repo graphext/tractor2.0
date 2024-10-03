@@ -36,7 +36,7 @@ export function createFunctionString() {
 		.map((e) => '"' + e + "<gx:" + tweetTypeMap[e] + ">" + '": ' + e)
 		.join(
 			", ",
-		)}, ${Object.keys(tweetAuthorMap).map((e) => '"' + e + "<gx:" + tweetAuthorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
+		)}, "first_media_element<gx:url>": media[0], ${Object.keys(tweetAuthorMap).map((e) => '"' + e + "<gx:" + tweetAuthorMap[e] + ">" + '": ' + "author." + e.slice(6).charAt(0).toLowerCase() + e.slice(7))} }; }`;
 }
 
 const gNewsTypeMap = {
@@ -50,6 +50,8 @@ const gNewsTypeMap = {
 	image: "url",
 };
 
+// this makes no sense cause it depends on the actor, not apify.
+// the customMapFunction is only supported in the twitter actor
 export function gNewsMapFunction() {
 	return `(object) => return { ${Object.keys(gNewsTypeMap).map((e) => '"' + e + "<gx:" + gNewsTypeMap[e] + ">" + '": ' + e)} }`;
 }

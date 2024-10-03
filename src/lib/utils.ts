@@ -318,16 +318,13 @@ export async function jsonToCsv(
     if (jsonData.every((o) => o.hasOwnProperty("noResults"))) {
       throw new Error("Apify returned an empty dataset.");
     }
-    // Get all available headers from the first object
-    // sometimes, Apify will return a {noResults: true} object
-    // which will mess up with the csv creation
+
     let firstValidObjectIndex = 0;
     while (Object.keys(jsonData[firstValidObjectIndex]).length <= 1) {
       firstValidObjectIndex++;
     }
     const allHeaders = Object.keys(jsonData[firstValidObjectIndex]);
 
-    // Determine the final header order
     let headers: string[];
     if (customColumnOrder) {
       // Use custom order, but include any missing headers at the end
@@ -343,10 +340,10 @@ export async function jsonToCsv(
 
     const formatValue = (value: any): string | null => {
       if (Array.isArray(value)) {
-        // Convert array to comma-separated string and wrap in quotes
+        // convert array to comma-separated string and wrap in quotes
         return `"${value.toString()}"`;
       } else if (typeof value === "string") {
-        // Wrap strings in quotes if they contain commas, newlines, or quotes
+        // wrap strings in quotes if they contain commas, newlines, or quotes
         return value.includes(",") ||
           value.includes("\n") ||
           value.includes('"')
@@ -356,7 +353,7 @@ export async function jsonToCsv(
         // there may be null links or values, which are indeed supported
         return null;
       } else {
-        // For other types, convert to string
+        // for other types, convert to string
         return value.toString();
       }
     };
