@@ -57,7 +57,7 @@ export class ApifyClient {
 		const endpoint = "/actor-tasks";
 		const body = JSON.stringify({
 			actId: this.actorId,
-			name: `TRCTR-${tokenEnd}-${Math.floor(Math.random() * 10000)
+			name: `TRCTR-${tokenEnd}-${Math.floor(Math.random() * 100000)
 				.toString()
 				.padStart(5, "0")}`,
 			options: {
@@ -220,10 +220,23 @@ ${cronExpression}`);
 	
 	${cronExpression}`);
 
-		await apifyFetch(`/datasets/${datasetId}`, {
-			method: "PUT",
-			body: JSON.stringify({ name: datasetName }),
-		});
+		try {
+			await apifyFetch(`/datasets/${datasetId}`, {
+				method: "PUT",
+				body: JSON.stringify({
+					name: datasetName,
+				}),
+			});
+		} catch (e) {
+			console.log(e);
+
+			await apifyFetch(`/datasets/${datasetId}`, {
+				method: "PUT",
+				body: JSON.stringify({
+					name: `${datasetName}-${Math.floor(Math.random() * 1000)}`,
+				}),
+			});
+		}
 
 		// Update webhook payload
 		const webhookPayload = {

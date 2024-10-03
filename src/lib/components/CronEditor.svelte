@@ -290,7 +290,7 @@ ${cronExpression}`;
         </div>
     {:else}
         <div
-            class="select-none btn btn-disabled btn-primary btn-outline w-full"
+            class="select-none btn btn-disabled btn-primary btn-outline w-full rounded-full"
         >
             loading...
         </div>
