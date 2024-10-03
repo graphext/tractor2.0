@@ -23,7 +23,7 @@
     ];
 
     let selectedInterval: Selected<string> = options[2];
-    let intervalNumber: number = 2;
+    let intervalNumber: number = 1;
 
     let withinTimeParameter: string = `within_time:${intervalNumber}d`;
     $: switch (selectedInterval.value) {
