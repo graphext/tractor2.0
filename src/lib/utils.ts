@@ -294,6 +294,10 @@ export function addListsToQueries(queries: string, lists: Selected<string>[]) {
   return queriesWithLists;
 }
 
+function unique(array, field) {
+  return Array.from(new Map(array.map((item) => [item[field], item])).values());
+}
+
 export async function jsonToCsv(
   url: string,
   customColumnOrder?: string[],
@@ -304,9 +308,8 @@ export async function jsonToCsv(
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const jsonData: any[] = await response.json();
+    let jsonData: any[] = await response.json();
 
-    console.log(jsonData);
     if (
       !Array.isArray(jsonData) ||
       jsonData.length === 0 ||
@@ -323,7 +326,12 @@ export async function jsonToCsv(
     while (Object.keys(jsonData[firstValidObjectIndex]).length <= 1) {
       firstValidObjectIndex++;
     }
+
     const allHeaders = Object.keys(jsonData[firstValidObjectIndex]);
+
+    console.log("Before unique", jsonData.length);
+    jsonData = unique(jsonData, "url<gx:url>");
+    console.log("After unique", jsonData.length);
 
     let headers: string[];
     if (customColumnOrder) {
@@ -366,6 +374,7 @@ export async function jsonToCsv(
           ? formatValue(value)
           : "";
       });
+
       if (row.every((v) => v === "")) {
         csvString += "";
       } else {
