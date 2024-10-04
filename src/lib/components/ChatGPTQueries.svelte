@@ -28,7 +28,7 @@
     let error = "";
     let loading = false;
 
-    let selectedRange: DateRange;
+    export let selectedRange: DateRange;
     let timeSteps: Date[];
 
     $: enrichedQueries = enrichQueries(
@@ -110,6 +110,7 @@
                     type="text"
                     class="input input-sm text-sm bg-neutral w-full join-item md:rounded-l-full"
                     bind:value={userPrompt}
+                    on:change={() => ($userQuery = userPrompt)}
                     {placeholder}
                 />
                 <button

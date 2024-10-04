@@ -18,6 +18,7 @@
         if (e) {
             $frequencyStore = e.label;
             selectedLabel = e.label;
+            console.log("changed", $frequencyStore);
         }
     }}
     items={options}

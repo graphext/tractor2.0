@@ -6,6 +6,12 @@
     import { toast } from "svelte-sonner";
     import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
     import { createFunctionString } from "$lib/postprocess";
+    import { userQuery } from "$lib/stores/userQueryStore";
+    import {
+        frequencyStore,
+        selectedDateRange,
+        selectedLists,
+    } from "$lib/stores/store";
 
     export let queries: string;
     export let queriesSpreadOverTime: string;
@@ -58,14 +64,6 @@
         selectedInterval.value,
         time,
     );
-
-    $: cronExpressionScope = identifyCronExpression(
-        cronExpression,
-        intervalNumber,
-    );
-    $: console.log(cronExpressionScope);
-
-    $: console.log(cronExpression);
 
     let loading: boolean = false,
         error;
@@ -128,6 +126,30 @@ ${cronExpression}`;
 
             const nQueries = queries.split("\n").length;
             const maxTweetsPerQuery = Math.ceil(scheduleNumTweets / nQueries);
+
+            if (window.dataLayer) {
+                const sendEvent = {
+                    "tr-event": "schedule",
+                    "tr-social-media": "twitter",
+                    "tr-gpt-query": $userQuery,
+                    "tr-queries-schedule": queryListWithinTime,
+                    "tr-queries-historic": queriesSpreadOverTimeArray,
+                    "tr-schedule-frequency-number": intervalNumber,
+                    "tr-schedule-frequency": selectedInterval.value,
+                    "tr-num-items": numTweets,
+                    "tr-num-items-per-schedule": scheduleNumTweets,
+                    "tr-lists": $selectedLists,
+                    "tr-frequency-historic-data": $frequencyStore,
+                    "tr-cron-expression-schedule": cronExpression,
+                    "tr-date-range-start-historic-data":
+                        $selectedDateRange!.start?.toString(),
+                    "tr-date-range-end-historic-data":
+                        $selectedDateRange!.end?.toString(),
+                };
+
+                console.log(sendEvent);
+                window.dataLayer.push(sendEvent);
+            }
 
             const scheduledTaskInput = {
                 customMapFunction: createFunctionString(),

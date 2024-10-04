@@ -2,18 +2,20 @@
     import { Select, Tooltip, type Selected } from "bits-ui";
     import { fly } from "svelte/transition";
     import Check from "phosphor-svelte/lib/Check";
-
+    import { selectedLists } from "$lib/stores/store";
+    import { listOptions } from "$lib/utils";
     import Scroll from "phosphor-svelte/lib/Scroll";
 
     export let lists: Selected<string>[] = [];
-
-    import { listOptions } from "$lib/utils";
 </script>
 
 <Select.Root
     preventScroll={false}
     bind:selected={lists}
     multiple={true}
+    onOpenChange={() => {
+        $selectedLists = lists.map((l) => l.label);
+    }}
     items={listOptions}
 >
     <div class="flex flex-col gap-1">

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { DateRange } from "bits-ui";
     import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
     import ChatGPTQueries from "$lib/components/ChatGPTQueries.svelte";
 
@@ -6,12 +7,14 @@
 
     let queries: string;
     let enrichedQueries: string;
+    let selectedRange: DateRange;
+    let frequency: DateRange;
 </script>
 
 <main class="flex flex-col gap-5">
     <Section>
         <div class="text-base-content/70 mb-4">QUERY GENERATION</div>
-        <ChatGPTQueries bind:queries bind:enrichedQueries />
+        <ChatGPTQueries bind:selectedRange bind:queries bind:enrichedQueries />
     </Section>
 
     <Section>
@@ -19,6 +22,7 @@
 
         <ApifyScraper
             bind:queries
+            {selectedRange}
             bind:queriesSpreadOverTime={enrichedQueries}
         />
     </Section>

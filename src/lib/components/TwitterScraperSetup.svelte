@@ -18,8 +18,13 @@
     import LiveTable from "./LiveTable.svelte";
     import StopButton from "./StopButton.svelte";
     import ResumeButton from "./ResumeButton.svelte";
+    import { userQuery } from "$lib/stores/userQueryStore";
+    import type { DateRange } from "bits-ui";
+
+    import { frequencyStore, selectedLists } from "$lib/stores/store";
 
     export let queries = "";
+    export let selectedRange: DateRange;
     export let queriesSpreadOverTime = "";
 
     $: numQueries = queriesSpreadOverTime
@@ -98,6 +103,23 @@
             toast.info("Fetching data. This may take a while...");
         }, 1500);
 
+        if (window.dataLayer) {
+            const sendEvent = {
+                "tr-event": "download",
+                "tr-social-media": "twitter",
+                "tr-gpt-query": $userQuery,
+                "tr-queries": queryList,
+                "tr-num-items": numTweets,
+                "tr-frequency": $frequencyStore,
+                "tr-date-range-start": selectedRange.start?.toString(),
+                "tr-date-range-end": selectedRange.end?.toString(),
+                "tr-lists": $selectedLists,
+            };
+
+            console.log(sendEvent);
+            window.dataLayer.push(sendEvent);
+        }
+
         try {
             loading = true;
 
@@ -120,6 +142,7 @@
             error = null;
 
             checkStatus();
+            loading = false;
         } catch (err) {
             error =
                 "Error: " + (err instanceof Error ? err.message : String(err));

@@ -1,167 +1,172 @@
 <script lang="ts">
-    import type { DateRange } from 'bits-ui'
+    import type { DateRange } from "bits-ui";
     import {
         today,
         getLocalTimeZone,
         CalendarDate,
-        type DateValue
-    } from '@internationalized/date'
-    import { DateRangePicker } from 'bits-ui'
-    import { fly } from 'svelte/transition'
+        type DateValue,
+    } from "@internationalized/date";
+    import { DateRangePicker } from "bits-ui";
+    import { fly } from "svelte/transition";
     import {
         utcDay,
         utcMonth,
         utcMonday,
         utcYear,
-        type CountableTimeInterval
-    } from 'd3-time'
-    import { frequencyStore } from '$lib/stores/store'
-    import { onMount } from 'svelte'
-    import CaretLeft from 'phosphor-svelte/lib/CaretLeft'
-    import CaretRight from 'phosphor-svelte/lib/CaretRight'
-    import CalendarDots from 'phosphor-svelte/lib/CalendarDots'
+        type CountableTimeInterval,
+    } from "d3-time";
+    import { frequencyStore, selectedDateRange } from "$lib/stores/store";
+    import { onMount } from "svelte";
+    import CaretLeft from "phosphor-svelte/lib/CaretLeft";
+    import CaretRight from "phosphor-svelte/lib/CaretRight";
+    import CalendarDots from "phosphor-svelte/lib/CalendarDots";
 
     export let selectedRange: DateRange = {
         start: today(getLocalTimeZone()).subtract({ months: 1, days: 1 }),
-        end: today(getLocalTimeZone())
-    }
+        end: today(getLocalTimeZone()),
+    };
 
-    export let timeSteps: Date[]
+    export let timeSteps: Date[];
 
     const presets = [
         {
-            label: 'Yesterday',
+            label: "Yesterday",
             func: () => {
                 selectedRange = {
                     start: today(getLocalTimeZone()).subtract({
-                        days: 1
+                        days: 1,
                     }),
-                    end: today(getLocalTimeZone())
-                }
-            }
+                    end: today(getLocalTimeZone()),
+                };
+            },
         },
         {
-            label: 'Last 3 days',
+            label: "Last 3 days",
             func: () => {
                 selectedRange = {
                     start: today(getLocalTimeZone()).subtract({
-                        days: 3
+                        days: 3,
                     }),
-                    end: today(getLocalTimeZone())
-                }
-            }
-        },
-
-        {
-            label: 'Last Week',
-            func: () => {
-                selectedRange = {
-                    start: today(getLocalTimeZone()).subtract({
-                        weeks: 1
-                    }),
-                    end: today(getLocalTimeZone())
-                }
-            }
+                    end: today(getLocalTimeZone()),
+                };
+            },
         },
 
         {
-            label: 'Last Month',
+            label: "Last Week",
             func: () => {
                 selectedRange = {
                     start: today(getLocalTimeZone()).subtract({
-                        months: 1
+                        weeks: 1,
                     }),
-                    end: today(getLocalTimeZone())
-                }
-            }
+                    end: today(getLocalTimeZone()),
+                };
+            },
         },
 
         {
-            label: 'Last Year',
+            label: "Last Month",
             func: () => {
                 selectedRange = {
                     start: today(getLocalTimeZone()).subtract({
-                        years: 1
+                        months: 1,
                     }),
-                    end: today(getLocalTimeZone())
-                }
-            }
+                    end: today(getLocalTimeZone()),
+                };
+            },
         },
 
         {
-            label: 'Last 3 Years',
+            label: "Last Year",
             func: () => {
                 selectedRange = {
                     start: today(getLocalTimeZone()).subtract({
-                        years: 3
+                        years: 1,
                     }),
-                    end: today(getLocalTimeZone())
-                }
-            }
-        }
-    ]
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
+
+        {
+            label: "Last 3 Years",
+            func: () => {
+                selectedRange = {
+                    start: today(getLocalTimeZone()).subtract({
+                        years: 3,
+                    }),
+                    end: today(getLocalTimeZone()),
+                };
+            },
+        },
+    ];
 
     const functionMap: Record<string, CountableTimeInterval> = {
         Daily: utcDay,
         Weekly: utcMonday,
         Monthly: utcMonth,
-        Anually: utcYear
-    }
+        Anually: utcYear,
+    };
 
     function debounce(func: Function, delay: number) {
-        let timeoutId
+        let timeoutId;
         return (...args) => {
-            clearTimeout(timeoutId)
-            timeoutId = setTimeout(() => func(...args), delay)
-        }
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func(...args), delay);
+        };
     }
 
     function recalculateDateRange(
         selectedRange: DateRange,
-        frequencyStore: string
+        frequencyStore: string,
     ) {
         if (selectedRange && selectedRange.start && selectedRange.end) {
             timeSteps = functionMap[frequencyStore].range(
                 new Date(
                     selectedRange.start.year,
                     selectedRange.start.month - 1,
-                    selectedRange.start.day
+                    selectedRange.start.day,
                 ),
                 new Date(
                     selectedRange.end.year,
                     selectedRange.end.month - 1,
-                    selectedRange.end.day
+                    selectedRange.end.day,
                 ),
-                1
-            )
+                1,
+            );
         }
     }
 
-    const debouncedDateRange = debounce(recalculateDateRange, 600)
+    const debouncedDateRange = debounce(recalculateDateRange, 600);
 
     $: {
-        debouncedDateRange(selectedRange, $frequencyStore)
+        debouncedDateRange(selectedRange, $frequencyStore);
     }
 
     onMount(() => {
-        if ($frequencyStore == 'Anually') {
-            $frequencyStore = 'Daily'
+        if ($frequencyStore == "Anually") {
+            $frequencyStore = "Daily";
         }
-    })
 
-    const minValue: DateValue = new CalendarDate(2006, 3, 21)
+        $selectedDateRange = selectedRange;
+    });
+
+    const minValue: DateValue = new CalendarDate(2006, 3, 21);
 </script>
 
-<div class="flex flex-col gap-1" class:disabled={$$props['disabled']}>
+<div class="flex flex-col gap-1" class:disabled={$$props["disabled"]}>
     <DateRangePicker.Root
         {...$$props}
         bind:value={selectedRange}
         weekdayFormat="short"
         pagedNavigation={true}
+        onValueChange={() => {
+            $selectedDateRange = selectedRange;
+        }}
         locale="en-UK"
         {minValue}
         isDateDisabled={(date) => {
-            return date < new CalendarDate(2006, 3, 21) //twitter foundation date
+            return date < new CalendarDate(2006, 3, 21); //twitter foundation date
         }}
         numberOfMonths={2}
     >
@@ -174,7 +179,7 @@
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">
-                    {#if part === 'literal'}
+                    {#if part === "literal"}
                         <DateRangePicker.Segment
                             type="start"
                             {part}
@@ -192,7 +197,7 @@
             <div aria-hidden class="px-3">—</div>
             {#each segments.end as { part, value }}
                 <div class="inline-block select-none">
-                    {#if part === 'literal'}
+                    {#if part === "literal"}
                         <DateRangePicker.Segment type="end" {part} class="p-1">
                             {value}
                         </DateRangePicker.Segment>
