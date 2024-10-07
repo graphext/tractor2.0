@@ -105,7 +105,7 @@
 
         if (window.dataLayer) {
             const sendEvent = {
-                event: "tractor_download",
+                event: "tractor-download",
                 tr_social_media: "twitter",
                 tr_gpt_query: $userQuery,
                 tr_user_queries: queryList,
