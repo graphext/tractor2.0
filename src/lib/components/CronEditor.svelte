@@ -129,21 +129,21 @@ ${cronExpression}`;
 
             if (window.dataLayer) {
                 const sendEvent = {
-                    "tr-event": "schedule",
-                    "tr-social-media": "twitter",
-                    "tr-gpt-query": $userQuery,
-                    "tr-queries-schedule": queryListWithinTime,
-                    "tr-queries-historic": queriesSpreadOverTimeArray,
-                    "tr-schedule-frequency-number": intervalNumber,
-                    "tr-schedule-frequency": selectedInterval.value,
-                    "tr-num-items": numTweets,
-                    "tr-num-items-per-schedule": scheduleNumTweets,
-                    "tr-lists": $selectedLists,
-                    "tr-frequency-historic-data": $frequencyStore,
-                    "tr-cron-expression-schedule": cronExpression,
-                    "tr-date-range-start-historic-data":
+                    event: "tractor-schedule",
+                    tr_social_media: "twitter",
+                    tr_gpt_query: $userQuery,
+                    tr_queries_schedule: queryListWithinTime,
+                    tr_queries_historic: queriesSpreadOverTimeArray,
+                    tr_schedule_frequency_number: intervalNumber,
+                    tr_schedule_frequency: selectedInterval.value,
+                    tr_num_items: numTweets,
+                    tr_num_items_per_schedule: scheduleNumTweets,
+                    tr_lists: $selectedLists,
+                    tr_frequency_historic_data: $frequencyStore,
+                    tr_cron_expression_schedule: cronExpression,
+                    tr_date_range_start_historic_data:
                         $selectedDateRange!.start?.toString(),
-                    "tr-date-range-end-historic-data":
+                    tr_date_range_end_historic_data:
                         $selectedDateRange!.end?.toString(),
                 };
 

@@ -105,15 +105,15 @@
 
         if (window.dataLayer) {
             const sendEvent = {
-                "tr-event": "download",
-                "tr-social-media": "twitter",
-                "tr-gpt-query": $userQuery,
-                "tr-queries": queryList,
-                "tr-num-items": numTweets,
-                "tr-frequency": $frequencyStore,
-                "tr-date-range-start": selectedRange.start?.toString(),
-                "tr-date-range-end": selectedRange.end?.toString(),
-                "tr-lists": $selectedLists,
+                event: "tractor_download",
+                tr_social_media: "twitter",
+                tr_gpt_query: $userQuery,
+                tr_user_queries: queryList,
+                tr_num_items_retrieved: numTweets,
+                tr_time_frequency: $frequencyStore,
+                tr_date_range_start: selectedRange.start?.toString(),
+                tr_date_range_end: selectedRange.end?.toString(),
+                tr_lists: $selectedLists,
             };
 
             console.log(sendEvent);
