@@ -13,7 +13,12 @@
     export let tooltipContent: string | null = null;
 </script>
 
-<Select.Root preventScroll={false} bind:selected items={options}>
+<Select.Root
+    disabled={$$props["disabled"]}
+    preventScroll={false}
+    bind:selected
+    items={options}
+>
     <div class="flex flex-col gap-1">
         {#if tooltipContent}
             <Tooltip.Root openDelay={100}>

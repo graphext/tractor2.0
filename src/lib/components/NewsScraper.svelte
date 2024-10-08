@@ -95,7 +95,7 @@
                     "guid",
                 ]);
 
-                csvBlob = await jsonToCsv(datasetLink);
+                csvBlob = await jsonToCsv({ url: datasetLink });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
                 console.log(datasetData);

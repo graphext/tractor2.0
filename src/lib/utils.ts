@@ -294,14 +294,19 @@ export function addListsToQueries(queries: string, lists: Selected<string>[]) {
   return queriesWithLists;
 }
 
-function unique(array, field) {
+function unique(array: object[], field: string) {
   return Array.from(new Map(array.map((item) => [item[field], item])).values());
 }
 
-export async function jsonToCsv(
-  url: string,
-  customColumnOrder?: string[],
-): Promise<Blob> {
+export async function jsonToCsv({
+  url,
+  dedupKey = null,
+  customColumnOrder,
+}: {
+  url: string;
+  dedupKey?: string | null;
+  customColumnOrder?: string[];
+}): Promise<Blob> {
   try {
     // Fetch JSON data from the provided URL
     const response = await fetch(url);
@@ -329,13 +334,15 @@ export async function jsonToCsv(
 
     const allHeaders = Object.keys(jsonData[firstValidObjectIndex]);
 
-    console.log("Before unique", jsonData.length);
-    jsonData = unique(jsonData, "url<gx:url>");
-    console.log("After unique", jsonData.length);
+    console.log("dedupKey", dedupKey);
+    if (dedupKey != "" && dedupKey != null && dedupKey != undefined) {
+      console.log("Before unique", jsonData.length);
+      jsonData = unique(jsonData, dedupKey);
+      console.log("After unique", jsonData.length);
+    }
 
     let headers: string[];
     if (customColumnOrder) {
-      // Use custom order, but include any missing headers at the end
       const missingHeaders = allHeaders.filter(
         (h) => !customColumnOrder.includes(h),
       );
