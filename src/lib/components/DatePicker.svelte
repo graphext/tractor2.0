@@ -10,14 +10,12 @@
         type DateValue,
     } from "@internationalized/date";
 
-    export let selectedDate: DateValue = today(getLocalTimeZone()).subtract({
-        months: 2,
-    });
-
+    export let selectedDate: DateValue;
     export let label = "Select a date";
 </script>
 
 <DatePicker.Root
+    disabled={$$props["disabled"]}
     bind:value={selectedDate}
     numberOfMonths={2}
     weekStartsOn={1}

@@ -1,4 +1,3 @@
-<a href="/" class="btn btn-primary">Back Home</a>
 <main
     class="prose mt-10 max-w-2xl hover:prose-a:text-primary prose-a:font-bold prose-a:transition-colors"
 >

@@ -1,5 +1,6 @@
 <script lang="ts">
     import User from "$lib/components/User.svelte";
+    import { Book, Gauge } from "phosphor-svelte";
     import ThemeToggler from "./ThemeToggler.svelte";
 </script>
 
@@ -16,5 +17,19 @@
             <User />
         </div>
     </div>
-    <ThemeToggler />
+
+    <div class="flex gap-3 items-center">
+        <a
+            class="btn btn-circle btn-ghost"
+            target="_blank"
+            href="https://console.apify.com/actors/runs"
+        >
+            <Gauge size={24} weight="bold" />
+        </a>
+
+        <a href="/docs" class="btn btn-circle btn-ghost">
+            <Book size={24} weight="bold" />
+        </a>
+        <ThemeToggler />
+    </div>
 </div>

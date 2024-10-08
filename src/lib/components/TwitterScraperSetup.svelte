@@ -211,13 +211,17 @@
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await apifyClient.getDatasetLink(runId, "json");
 
-                csvBlob = await jsonToCsv(datasetLink, [
-                    "createdAt<gx:date>",
-                    "authorName<gx:category>",
-                    "text<gx:text>",
-                    "url<gx:url>",
-                    "viewCount<gx:number>",
-                ]);
+                csvBlob = await jsonToCsv({
+                    url: datasetLink,
+                    dedupKey: "url<gx:url>",
+                    customColumnOrder: [
+                        "createdAt<gx:date>",
+                        "authorName<gx:category>",
+                        "text<gx:text>",
+                        "url<gx:url>",
+                        "viewCount<gx:number>",
+                    ],
+                });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
                 console.log(datasetData);
@@ -285,22 +289,7 @@
 
     <div class="w-full flex flex-col gap-3">
         <div class="flex justify-between">
-            <div class="flex flex-col gap-2">
-                <a
-                    class="hover:text-primary text-neutral-400 hover:underline transition-all flex gap-1 items-end"
-                    target="_blank"
-                    href="https://console.apify.com/actors/runs"
-                >
-                    <Gauge size={20} /> APIFY Runs Dashboard</a
-                >
-
-                <a
-                    href="/docs"
-                    class="hover:text-primary hover:underline text-neutral-400 transition-all flex gap-1 items-center"
-                >
-                    <Book size={20} /> Tractor Docs
-                </a>
-            </div>
+            <div class="flex flex-col gap-2"></div>
 
             <label
                 for="Numtweets"
