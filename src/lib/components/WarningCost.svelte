@@ -2,7 +2,8 @@
     import { backOut } from "svelte/easing";
     import { fly } from "svelte/transition";
 
-    export let totalApproximateCost;
+    export let unitPrice;
+    export let maxItems;
 </script>
 
 <div
@@ -13,10 +14,12 @@
     <div class="relative z-10">
         This operation will cost, at maximum,
         <span class="font-semibold tabular-nums"
-            >${totalApproximateCost.toFixed(2)}</span
+            >${(unitPrice * maxItems).toFixed(2)}</span
         >.
         <span class="text-sm font-italic text-warning-content/80">
-            Actor price is <span class="font-semibold">$0.3/1K tweets</span>.
+            Actor price is <span class="font-semibold"
+                >${(unitPrice * 1000).toFixed(2)}/1K tweets</span
+            >.
         </span>
     </div>
 </div>

@@ -3,7 +3,7 @@
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import type { DateRange, Selected } from "bits-ui";
-    import DatePicker from "./DatePicker.svelte";
+    import DateRangePicker from "./DateRangePicker.svelte";
     import { enrichQueries, getSelectionOptions } from "$lib/utils";
     import SelectFrequency from "./SelectFrequency.svelte";
     import SelectLists from "./SelectLists.svelte";
@@ -135,7 +135,7 @@
 </div>
 
 <div class="flex items-start gap-3 w-full overflow-x-clip">
-    <DatePicker bind:selectedRange bind:timeSteps />
+    <DateRangePicker bind:selectedRange bind:timeSteps />
     <SelectFrequency {options} />
     <SelectLists bind:lists />
 </div>

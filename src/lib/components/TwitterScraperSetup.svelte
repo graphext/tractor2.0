@@ -340,7 +340,7 @@
                 {buttonText}
             </button>
         {:else}
-            <WarningCost {totalApproximateCost} />
+            <WarningCost unitPrice={0.3 / 1000} maxItems={numTweets} />
             <button
                 on:click={handleSubmit}
                 class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
