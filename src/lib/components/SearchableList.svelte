@@ -24,7 +24,6 @@
 <div class:disabled={$$props["disabled"]}>
     <Combobox.Root
         preventScroll={false}
-        {...$$props}
         {selected}
         items={filteredOptions}
         bind:inputValue={searchQuery}
@@ -32,7 +31,7 @@
     >
         <Combobox.Input
             class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm  placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
-            {placeholder}
+            placeholder={$$props["placeholder"]}
             on:click={() => (searchQuery = "")}
             aria-label={placeholder}
         />
@@ -63,12 +62,5 @@
     .disabled {
         opacity: 0.5;
         cursor: not-allowed;
-    }
-    .combo-content::-webkit-scrollbar {
-        display: none;
-    }
-    .combo-content {
-        -ms-overflow-style: none; /* IE and Edge */
-        scrollbar-width: none; /* Firefox */
     }
 </style>

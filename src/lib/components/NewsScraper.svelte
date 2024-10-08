@@ -5,7 +5,7 @@
     import { NEWS_ACTOR_ID } from "$lib/actors";
     import SearchableList from "./SearchableList.svelte";
     import { jsonToCsv, languages } from "../utils";
-    import DatePicker from "./DatePicker.svelte";
+    import DateRangePicker from "./DateRangePicker.svelte";
     import type { DateRange } from "bits-ui";
     import { toast } from "svelte-sonner";
     import { tweened } from "svelte/motion";
@@ -56,7 +56,6 @@
 
     let csvBlob: Blob;
 
-    let confirmChoice = false;
     $: buttonText = loading ? "Loading news..." : "Get News";
 
     async function checkStatus() {
@@ -178,14 +177,15 @@
             >
             <Input
                 bind:value={keywords}
+                id="keywords"
                 placeholder="Enter keywords separated by commas"
                 disabled={loading}
             />
         </div>
 
-        <div class="flex gap-3 justify-between">
+        <div class="flex gap-3">
             <div>
-                <DatePicker
+                <DateRangePicker
                     disabled={loading}
                     bind:selectedRange
                     bind:timeSteps
@@ -204,12 +204,12 @@
                 />
             </div>
 
-            <div class="flex flex-col gap-1 items-end justify-between">
+            <div class="flex flex-col gap-1 justify-between">
                 <label for="maxItems" class="text-sm text-base-content/60"
                     >News to search for:</label
                 >
                 <input
-                    class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral text-right"
+                    class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
                     inputmode="numeric"
                     type="number"
                     id="maxItems"
@@ -229,7 +229,6 @@
                 ></progress>
             {/if}
             <button
-                on:click={() => (confirmChoice = true)}
                 class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                 disabled={!$apifyKey || !keywords}
             >
