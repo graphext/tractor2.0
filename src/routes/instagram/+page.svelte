@@ -69,11 +69,14 @@
 
     function processInstagramInput(keywords: string) {
         const urls = keywords.split(",").map((u) => {
+            u = u.trim();
             switch (true) {
                 case u.startsWith("@"):
                     return `https://instagram.com/${u.trim().replace("@", "")}`;
                 case u.startsWith("#"):
                     return `https://www.instagram.com/explore/search/keyword/?q=%23${u.trim().replace("#", "")}`;
+                case u.startsWith("https://www.instagram.com"):
+                    return u;
                 default:
                     return `https://www.instagram.com/explore/search/keyword/?q=%23${u.trim().replace("#", "")}`;
             }
@@ -126,16 +129,16 @@
             toast.info("Fetching data. This may take a while...");
         }, 1500);
 
-        try {
-            const task = await apifyClient.createTask(inputData);
-            runId = await apifyClient
-                .runTask(task.data.id)
-                .then((run) => run.data.id);
-
-            checkStatus();
-        } catch (err) {
-            console.error("Error creating or running task:", err);
-        }
+        // try {
+        //     const task = await apifyClient.createTask(inputData);
+        //     runId = await apifyClient
+        //         .runTask(task.data.id)
+        //         .then((run) => run.data.id);
+        //
+        //     checkStatus();
+        // } catch (err) {
+        //     console.error("Error creating or running task:", err);
+        // }
     }
 
     async function checkStatus() {
