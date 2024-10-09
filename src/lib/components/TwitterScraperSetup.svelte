@@ -83,6 +83,7 @@
     async function handleSubmit() {
         confirmChoice = false;
         datasetLink = "";
+        filename = "";
         outputProgress = 0;
 
         if (!$apifyKey) {

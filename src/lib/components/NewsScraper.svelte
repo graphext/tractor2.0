@@ -133,6 +133,7 @@
     async function handleSubmit() {
         loading = true;
         datasetLink = "";
+        filename = "";
         outputProgress = 0;
 
         const inputData = {

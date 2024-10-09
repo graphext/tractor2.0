@@ -1,7 +1,8 @@
 <script lang="ts">
     import User from "$lib/components/User.svelte";
-    import { Book, Gauge } from "phosphor-svelte";
+    import { Book, Gauge, FileText } from "phosphor-svelte";
     import ThemeToggler from "./ThemeToggler.svelte";
+    import HeaderNavItem from "./HeaderNavItem.svelte";
 </script>
 
 <div class="flex justify-between items-center">
@@ -18,18 +19,15 @@
         </div>
     </div>
 
-    <div class="flex gap-3 items-center">
-        <a
-            class="btn btn-circle btn-ghost"
-            target="_blank"
-            href="https://console.apify.com/actors/runs"
-        >
-            <Gauge size={24} weight="bold" />
-        </a>
+    <div class="flex gap-5 items-center">
+        <HeaderNavItem icon={FileText} url="/tasks" tooltipContent="Tasks" />
+        <HeaderNavItem
+            icon={Gauge}
+            url="https://console.apify.com/actors/runs"
+            tooltipContent="Go to Apify Dashboard"
+        />
+        <HeaderNavItem icon={Book} url="/docs" tooltipContent="Documentation" />
 
-        <a href="/docs" class="btn btn-circle btn-ghost">
-            <Book size={24} weight="bold" />
-        </a>
         <ThemeToggler />
     </div>
 </div>

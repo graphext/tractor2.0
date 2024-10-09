@@ -91,6 +91,7 @@
     async function handleSubmit() {
         loading = true;
         datasetLink = "";
+        filename = "";
         outputProgress = 0;
         confirmChoice = false;
 
