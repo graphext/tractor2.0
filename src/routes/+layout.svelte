@@ -81,18 +81,18 @@
     <ApifyKeyInput />
 
     <div class="flex items-center justify-between mt-10">
-        <div class="flex gap-5 items-center my-5">
+        <div class="flex gap-6 items-center my-5">
             {#each actors as actor}
                 <a href={actor.id} class="group">
                     <div class="flex gap-2 items-center">
                         <svelte:component
                             this={actor.icon}
-                            size={28}
+                            size={24}
                             weight={pageUrl == actor.id ? "fill" : "regular"}
                             class="fill-primary group-hover:-rotate-12 transition-all"
                         />
                         <h2
-                            class={`text-xl transition-opacity ${pageUrl == actor.id ? "font-bold opacity-100" : "font-normal opacity-50 hover:opacity-80"}`}
+                            class={`transition-opacity ${pageUrl == actor.id ? "font-bold opacity-100" : "font-normal opacity-50 hover:opacity-80"}`}
                         >
                             {actor.title}
                         </h2>
