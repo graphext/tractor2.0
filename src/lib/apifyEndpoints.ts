@@ -42,7 +42,13 @@ export async function getRunsForTask(taskId: string) {
 	return data;
 }
 export async function getTasks() {
-	const endpoint = "/actor-tasks?limit=30&desc=true";
+	const endpoint = "/actor-tasks?limit=100&desc=true";
+	const data = await apifyFetch(endpoint);
+	return data;
+}
+
+export async function getPrivateUserData() {
+	const endpoint = "/users/me";
 	const data = await apifyFetch(endpoint);
 	return data;
 }

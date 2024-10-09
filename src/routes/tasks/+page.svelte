@@ -10,7 +10,6 @@
         const allTasks: Task[] = data.data.items;
 
         const userTasks = allTasks.filter((t: Task) => {
-            console.log(t.name);
             return (
                 $apifyKey.slice(-4) == t.name.split("-")[1] &&
                 t.name.includes("TRCTR")
@@ -28,8 +27,6 @@
     }
 </script>
 
-<a href="/" class="btn btn-primary">Back Home</a>
-
 <h1 class="mt-10 text-3xl font-bold mb-3">Tasks</h1>
 
 {#await getUserTasks()}
@@ -42,7 +39,7 @@
                 <TaskElement {task} />
             </li>
             {#if i < tasks.length - 1}
-                <div class="divider"></div>
+                <div class="divider my-0"></div>
             {/if}
         {/each}
     </ol>
