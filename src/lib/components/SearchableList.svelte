@@ -36,7 +36,7 @@
             aria-label={placeholder}
         />
         <Combobox.Content
-            class="w-full combo-content bg-base-200 p-1 shadow-md shadow-base-100 border border-base-content/5 overflow-y-scroll max-h-[250px] rounded-xl"
+            class="w-full combo-content bg-base-200 p-1 shadow-md border border-base-content/10 overflow-y-scroll max-h-[250px] rounded-xl"
         >
             {#each filteredOptions as option (option.value)}
                 <Combobox.Item

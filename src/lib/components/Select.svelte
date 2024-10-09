@@ -4,6 +4,7 @@
     import Check from "phosphor-svelte/lib/Check";
     import { MagnifyingGlass } from "phosphor-svelte";
     import { Placeholder } from "phosphor-svelte";
+    import TooltipContent from "./TooltipContent.svelte";
 
     export let selected: Selected<string>;
 
@@ -27,16 +28,12 @@
                         >{label}</Select.Label
                     >
                 </Tooltip.Trigger>
-                <Tooltip.Content
-                    transition={fly}
+                <TooltipContent
                     transitionConfig={{ y: 8, duration: 150 }}
                     sideOffset={8}
-                    class="bg-neutral z-10 shadow-md shadow-base-100 rounded-btn"
                 >
-                    <div class="p-4 text-balance w-[350px]">
-                        {tooltipContent}
-                    </div>
-                </Tooltip.Content>
+                    {tooltipContent}
+                </TooltipContent>
             </Tooltip.Root>
         {:else}
             <Select.Label class="text-sm text-base-content/60"
@@ -58,7 +55,7 @@
         </Select.Trigger>
     </div>
     <Select.Content
-        class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md shadow-base-100 px-1 py-1 outline-none"
+        class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md  border border-base-content/10 px-1 py-1 outline-none"
         transition={fly}
         transitionConfig={{ duration: 100, y: -20 }}
         sideOffset={8}

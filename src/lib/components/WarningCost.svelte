@@ -18,7 +18,7 @@
         >.
         <span class="text-sm font-italic text-warning-content/80">
             Actor price is <span class="font-semibold"
-                >${(unitPrice * 1000).toFixed(2)}/1K tweets</span
+                >${(unitPrice * 1000).toFixed(2)}/1K results</span
             >.
         </span>
     </div>

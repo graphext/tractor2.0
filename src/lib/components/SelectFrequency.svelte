@@ -5,6 +5,7 @@
     import Timer from "phosphor-svelte/lib/Timer";
 
     import { frequencyStore } from "$lib/stores/store";
+    import TooltipContent from "./TooltipContent.svelte";
 
     let selectedLabel: string;
 
@@ -30,16 +31,13 @@
                     >Break the queries down</Select.Label
                 >
             </Tooltip.Trigger>
-            <Tooltip.Content
-                transition={fly}
+
+            <TooltipContent
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-neutral z-10 shadow-md shadow-base-100 rounded-btn"
             >
-                <div class="p-4 text-balance w-[250px]">
-                    The more queries you send, the more results you'll get.
-                </div>
-            </Tooltip.Content>
+                The more queries you send, the more results you'll get.
+            </TooltipContent>
         </Tooltip.Root>
 
         <Select.Trigger

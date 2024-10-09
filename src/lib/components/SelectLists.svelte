@@ -5,6 +5,7 @@
     import { selectedLists } from "$lib/stores/store";
     import { listOptions } from "$lib/utils";
     import Scroll from "phosphor-svelte/lib/Scroll";
+    import TooltipContent from "./TooltipContent.svelte";
 
     export let lists: Selected<string>[] = [];
 </script>
@@ -25,27 +26,23 @@
                     >Add lists to your search</Select.Label
                 >
             </Tooltip.Trigger>
-            <Tooltip.Content
-                transition={fly}
+            <TooltipContent
                 transitionConfig={{ y: 8, duration: 150 }}
                 sideOffset={8}
-                class="bg-neutral z-10 shadow-md shadow-base-100 rounded-xl"
             >
-                <div class="py-3 px-4 text-balance w-[350px]">
-                    <p class="mb-1">
-                        Lists curated by the team. Specially tuned to the
-                        Spanish media with a balanced mix of politics, economics
-                        and celebrities.
-                    </p>
+                <p class="mb-1">
+                    Lists curated by the team. Specially tuned to the Spanish
+                    media with a balanced mix of politics, economics and
+                    celebrities.
+                </p>
 
-                    <p class="opacity-70">
-                        Learn more about <a
-                            href="/lists"
-                            class="underline text-primary">the lists</a
-                        >.
-                    </p>
-                </div>
-            </Tooltip.Content>
+                <p class="opacity-70">
+                    Learn more about <a
+                        href="/lists"
+                        class="underline text-primary">the lists</a
+                    >.
+                </p>
+            </TooltipContent>
         </Tooltip.Root>
 
         <Select.Trigger
