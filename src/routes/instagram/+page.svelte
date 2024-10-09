@@ -8,21 +8,24 @@
     import Section from "$lib/components/Section.svelte";
     import Select from "$lib/components/Select.svelte";
     import StopButton from "$lib/components/StopButton.svelte";
+    import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { jsonToCsv } from "$lib/utils";
 
     import { type DateValue } from "@internationalized/date";
-    import type { Selected } from "bits-ui";
+    import { type Selected, Tooltip } from "bits-ui";
+    import { QuestionMark } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
+    import { fly } from "svelte/transition";
 
     let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID);
 
     let keywords = "";
     let loading: boolean = false;
-    let maxItems = 5000;
+    let maxItems = 500;
     let confirmChoice = false;
 
     $: buttonText = loading
@@ -229,14 +232,59 @@
 <Section>
     <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
         <div>
-            <label for="keywords" class="text-sm text-base-content/60"
-                >Keywords:</label
-            >
+            <div class="flex items-center mb-2 gap-1">
+                <label for="keywords" class="text-sm text-base-content/60"
+                    >Keywords:</label
+                >
+                <Tooltip.Root openDelay={0}>
+                    <Tooltip.Trigger class="w-fit">
+                        <QuestionMark
+                            size={20}
+                            weight="bold"
+                            class="rounded-full bg-neutral border-2 border-base-300"
+                        />
+                    </Tooltip.Trigger>
+                    <TooltipContent
+                        side="right"
+                        sideOffset={30}
+                        transitionConfig={{ duration: 100, x: -5 }}
+                    >
+                        <ul class="list-disc list-inside">
+                            <li>
+                                Use <span class="text-primary font-bold">@</span
+                                >
+                                before usernames and
+                                <span class="text-primary font-bold">#</span> before
+                                hashtags.
+                            </li>
+                            <li>
+                                A single term with no <span
+                                    class="text-primary font-bold">@</span
+                                >
+                                or <span class="text-primary font-bold">#</span>
+                                before it will be interpreted as a (<span
+                                    class="text-primary font-bold">#</span
+                                >) hashtag.
+                            </li>
+                            <li>
+                                Direct urls (starting with <span
+                                    class="text-primary font-bold"
+                                    >https://instagram.com</span
+                                >/... ) are also supported.
+                            </li>
+                        </ul>
+                    </TooltipContent>
+                </Tooltip.Root>
+            </div>
             <Input
                 bind:value={keywords}
                 id="keywords"
-                placeholder="Enter instagram usernames or hashtags separated by commas"
+                placeholder="Enter instagram usernames, urls or hashtags separated by commas"
                 disabled={loading}
+                on:keyown={(e) => {
+                    console.log(e);
+                    console.log("yea");
+                }}
             />
         </div>
 
