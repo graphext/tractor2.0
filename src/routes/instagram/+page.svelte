@@ -117,6 +117,11 @@
             directUrls: urls,
             resultsLimit: maxItems,
             resultsType: selectedResultType.value,
+            searchLimit: 1,
+            searchType: "hashtag",
+            enhanceUserSearchWithFacebookPage: false,
+            isUserReelFeedURL: false,
+            isUserTaggedFeedURL: false,
         };
 
         if (selectedDate) {
