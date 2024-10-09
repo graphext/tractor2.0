@@ -91,9 +91,11 @@
 
                 stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await apifyClient.getDatasetLink(runId, "json", [
-                    "guid",
-                ]);
+                datasetLink = await apifyClient.getDatasetLink({
+                    runId: runId,
+                    format: "json",
+                    omitColumns: ["guid"],
+                });
 
                 csvBlob = await jsonToCsv({ url: datasetLink });
 

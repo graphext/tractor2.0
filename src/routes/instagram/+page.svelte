@@ -19,7 +19,6 @@
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
-    import { fly } from "svelte/transition";
 
     let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID);
 
@@ -183,9 +182,33 @@
 
                 stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await apifyClient.getDatasetLink(runId, "json", [
-                    "guid",
-                ]);
+                datasetLink = await apifyClient.getDatasetLink({
+                    runId: runId,
+                    format: "json",
+                    includeOnly: [
+                        "alt",
+                        "caption",
+                        "coauthorProducers_0_username",
+                        "commentsCount",
+                        "displayUrl",
+                        "firstComment",
+                        "hashtags_0",
+                        "likesCount",
+                        "locationName",
+                        "mentions_0",
+                        "paidPartnership",
+                        "taggedUsers_0_full_name",
+                        "timestamp",
+                        "type",
+                        "url",
+                        "videoDuration",
+                        "videoPlayCount",
+                        "videoViewCount",
+                        "captions",
+                    ],
+                });
+
+                datasetLink += "";
 
                 csvBlob = await jsonToCsv({
                     url: datasetLink,

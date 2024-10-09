@@ -120,11 +120,17 @@ export class ApifyClient {
 		return { data: data, length: data.length };
 	}
 
-	async getDatasetLink(
-		runId: string,
-		format: "csv" | "json" = "csv",
-		omitColumns: string[] = [],
-	) {
+	async getDatasetLink({
+		runId,
+		format = "json",
+		omitColumns,
+		includeOnly,
+	}: {
+		runId: string;
+		format?: "csv" | "json";
+		omitColumns?: string[];
+		includeOnly?: string[];
+	}) {
 		const token = get(apifyKey);
 		if (!token) {
 			throw new Error("Apify API token is not set");
@@ -134,7 +140,11 @@ export class ApifyClient {
 		if (omitColumns != undefined)
 			omitColumnsParams = "&omit=" + omitColumns.join(",");
 
-		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true${omitColumnsParams}`;
+		let includeOnlyParams = "";
+		if (includeOnly != undefined)
+			includeOnlyParams = "&fields=" + includeOnly.join(",");
+
+		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true${omitColumnsParams}${includeOnlyParams}`;
 
 		console.log(`${BASE_URL}${endpoint}`);
 
