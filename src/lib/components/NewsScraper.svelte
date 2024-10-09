@@ -172,7 +172,7 @@
 
 <div class="">
     <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
-        <div>
+        <div class="flex flex-col gap-2">
             <label for="keywords" class="text-sm text-base-content/60"
                 >Keywords:</label
             >
