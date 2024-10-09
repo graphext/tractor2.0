@@ -132,16 +132,16 @@
             toast.info("Fetching data. This may take a while...");
         }, 1500);
 
-        // try {
-        //     const task = await apifyClient.createTask(inputData);
-        //     runId = await apifyClient
-        //         .runTask(task.data.id)
-        //         .then((run) => run.data.id);
-        //
-        //     checkStatus();
-        // } catch (err) {
-        //     console.error("Error creating or running task:", err);
-        // }
+        try {
+            const task = await apifyClient.createTask(inputData);
+            runId = await apifyClient
+                .runTask(task.data.id)
+                .then((run) => run.data.id);
+
+            checkStatus();
+        } catch (err) {
+            console.error("Error creating or running task:", err);
+        }
     }
 
     async function checkStatus() {
