@@ -125,7 +125,7 @@
         };
 
         if (selectedDate) {
-            inputData.onlyPostsNewerThan = selectedDate;
+            inputData.onlyPostsNewerThan = selectedDate.toString();
         }
 
         if (!$apifyKey) {
