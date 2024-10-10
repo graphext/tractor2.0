@@ -12,7 +12,7 @@
         <Tooltip.Trigger>
             <a
                 target={url.startsWith("/") ? "_self" : "_blank"}
-                class="btn btn-circle btn-ghost"
+                class="btn btn-circle btn-ghost border border-base-content/10 shadow-sm text-base-content/60 hover:text-base-content/80"
                 href={url}
             >
                 <svelte:component this={icon} size={24} weight="bold"
