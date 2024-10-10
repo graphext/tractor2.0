@@ -40,10 +40,10 @@
         <div>loading...</div>
     {:then runs}
         {#if runs.items.length > 0}
-            {#each runs.items as run, i}
-                <div class="flex gap-3 items-center">
+            <div class="flex w-fit gap-3 overflow-x-scroll">
+                {#each runs.items as run, i}
                     <a
-                        class="btn h-fit flex flex-col items-start p-3 w-fit"
+                        class="btn font-normal border border-base-300 shadow-sm h-fit flex flex-col items-start p-3 w-min"
                         target="_blank"
                         href={`https://console.apify.com/organization/${userId}/actors/tasks/${task.id}/runs/${run.id}#output`}
                     >
@@ -63,8 +63,8 @@
                             ${run.usageTotalUsd.toFixed(4)}
                         </div>
                     </a>
-                </div>
-            {/each}
+                {/each}
+            </div>
         {:else}
             <div>No runs executed for this task</div>
         {/if}

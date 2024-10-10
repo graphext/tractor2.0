@@ -42,7 +42,7 @@ export async function getRunsForTask(taskId: string) {
 	return data;
 }
 export async function getTasks() {
-	const endpoint = "/actor-tasks?limit=100&desc=true";
+	const endpoint = "/actor-tasks?limit=80&desc=true";
 	const data = await apifyFetch(endpoint);
 	return data;
 }
