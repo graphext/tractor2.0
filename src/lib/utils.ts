@@ -298,15 +298,87 @@ function unique(array: object[], field: string) {
   return Array.from(new Map(array.map((item) => [item[field], item])).values());
 }
 
+interface UnwindField {
+  field: string;
+  alias?: string; // Optional alias for the output column name
+}
+
+interface UnwindTarget {
+  targetCol: string;
+  fields: UnwindField[];
+  take?: number; // New parameter for how many items to take
+}
+
+interface JsonToCsvOptions {
+  url: string;
+  dedupKey?: string | null;
+  customColumnOrder?: string[];
+  unwind?: UnwindTarget[] | null;
+}
+
+function getNestedValue(obj: any, path: string): any {
+  return path.split(".").reduce((current, part) => current?.[part], obj);
+}
+
+function flattenObjectWithUnwind(
+  obj: any,
+  unwindTargets: UnwindTarget[] | null = null,
+  prefix: string = "",
+): Record<string, any> {
+  return Object.keys(obj).reduce((acc: Record<string, any>, key: string) => {
+    const pre = prefix.length ? `${prefix}.` : "";
+    const value = obj[key];
+
+    // Check if this key is one of our unwind targets
+    const unwindTarget = unwindTargets?.find(
+      (target) => target.targetCol === key,
+    );
+
+    if (unwindTarget && Array.isArray(value)) {
+      // Handle the unwind case for this target
+      unwindTarget.fields.forEach((fieldDef) => {
+        const take = unwindTarget.take || 1;
+        const fieldPath = fieldDef.field;
+
+        // Extract values from the array
+        const extractedValues = value
+          .slice(0, take)
+          .map((item) => getNestedValue(item, fieldPath))
+          .filter((v) => v !== undefined);
+
+        // Use alias if provided, otherwise construct default column name
+        const outputKey = fieldDef.alias || `${pre}${key}.${fieldDef.field}`;
+
+        // If we're taking multiple values, store as an array
+        // If taking just one, store as a single value for backward compatibility
+        acc[outputKey] = take === 1 ? extractedValues[0] : extractedValues;
+      });
+
+      // Keep the original array as well
+      acc[pre + key] = value;
+    } else if (
+      typeof value === "object" &&
+      value !== null &&
+      !Array.isArray(value)
+    ) {
+      Object.assign(
+        acc,
+        flattenObjectWithUnwind(value, unwindTargets, pre + key),
+      );
+    } else {
+      acc[pre + key] = value;
+    }
+
+    return acc;
+  }, {});
+}
+
 export async function jsonToCsv({
   url,
   dedupKey = null,
   customColumnOrder,
-}: {
-  url: string;
-  dedupKey?: string | null;
-  customColumnOrder?: string[];
-}): Promise<Blob> {
+  unwind = null,
+}: JsonToCsvOptions): Promise<Blob> {
   try {
     // Fetch JSON data from the provided URL
     const response = await fetch(url);
@@ -327,19 +399,19 @@ export async function jsonToCsv({
       throw new Error("Apify returned an empty dataset.");
     }
 
-    let firstValidObjectIndex = 0;
-    while (Object.keys(jsonData[firstValidObjectIndex]).length <= 1) {
-      firstValidObjectIndex++;
-    }
-
-    const allHeaders = Object.keys(jsonData[firstValidObjectIndex]);
-
-    console.log("dedupKey", dedupKey);
-    if (dedupKey != "" && dedupKey != null && dedupKey != undefined) {
-      console.log("Before unique", jsonData.length);
+    if (dedupKey && dedupKey !== "") {
+      console.log("# of items before deduplication", jsonData.length);
       jsonData = unique(jsonData, dedupKey);
-      console.log("After unique", jsonData.length);
+      console.log("# of items after deduplication", jsonData.length);
     }
+
+    const flattenedData = jsonData.map((item) =>
+      flattenObjectWithUnwind(item, unwind),
+    );
+
+    const allHeaders = [
+      ...new Set(flattenedData.flatMap((item) => Object.keys(item))),
+    ];
 
     let headers: string[];
     if (customColumnOrder) {
@@ -351,43 +423,28 @@ export async function jsonToCsv({
       headers = allHeaders;
     }
 
-    let csvString = headers.join(",") + "\n";
+    const rows = flattenedData.map((item) =>
+      headers.map((header) => {
+        const value = item[header] ?? "";
+        // Handle different types of values
+        const stringValue = Array.isArray(value)
+          ? JSON.stringify(value)
+          : String(value);
+        // Check if value needs to be quoted
+        const needsQuoting =
+          stringValue.includes(",") ||
+          stringValue.includes("\n") ||
+          stringValue.includes('"');
 
-    const formatValue = (value: any): string | null => {
-      if (Array.isArray(value)) {
-        // convert array to comma-separated string and wrap in quotes
-        return `"${value.toString()}"`;
-      } else if (typeof value === "string") {
-        // wrap strings in quotes if they contain commas, newlines, or quotes
-        return value.includes(",") ||
-          value.includes("\n") ||
-          value.includes('"')
-          ? `"${value.replace(/"/g, '""')}"`
-          : value;
-      } else if (value == null || value === undefined) {
-        // there may be null links or values, which are indeed supported
-        return null;
-      } else {
-        // for other types, convert to string
-        return value.toString();
-      }
-    };
+        if (needsQuoting) {
+          // Escape quotes and wrap in quotes
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      }),
+    );
 
-    // Add data rows
-    jsonData.forEach((item) => {
-      const row: string[] = headers.map((header) => {
-        const value = item[header];
-        return value !== undefined && value !== "noResults"
-          ? formatValue(value)
-          : "";
-      });
-
-      if (row.every((v) => v === "")) {
-        csvString += "";
-      } else {
-        csvString += row.join(",") + "\n";
-      }
-    });
+    let csvString = [headers, ...rows].map((row) => row.join(",")).join("\n");
 
     return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
   } catch (error) {

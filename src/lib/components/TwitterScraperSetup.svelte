@@ -189,7 +189,7 @@
             if (resuming && status == "RUNNING") resuming = false;
 
             const { data: liveData, length: dataLength } =
-                await apifyClient.getDatasetContent(runId, ["guid"]);
+                await apifyClient.getDatasetContent(runId);
 
             outputProgress = dataLength;
             springProgress.set(outputProgress);

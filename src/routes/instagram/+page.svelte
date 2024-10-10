@@ -93,6 +93,7 @@
         filename = "";
         outputProgress = 0;
         confirmChoice = false;
+        status = "STARTING";
 
         let urls = processInstagramInput(keywords);
 
@@ -160,7 +161,7 @@
             if (resuming && status == "RUNNING") resuming = false;
 
             const { data: liveData, length: dataLength } =
-                await apifyClient.getDatasetContent(runId, ["guid"]);
+                await apifyClient.getDatasetContent(runId);
 
             outputProgress = dataLength;
             headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
@@ -182,33 +183,34 @@
 
                 stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
+                // TODO: still does not work properly
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
                     includeOnly: [
                         "alt",
                         "caption",
-                        "coauthorProducers_0_username",
+                        "coauthorProducers",
                         "commentsCount",
                         "displayUrl",
                         "firstComment",
-                        "hashtags_0",
+                        "hashtags",
                         "likesCount",
                         "locationName",
-                        "mentions_0",
+                        "mentions",
                         "paidPartnership",
-                        "taggedUsers_0_full_name",
+                        "taggedUsers",
                         "timestamp",
                         "type",
                         "url",
                         "videoDuration",
                         "videoPlayCount",
                         "videoViewCount",
-                        "captions",
+                        "id",
                     ],
                 });
 
-                datasetLink += "";
+                console.log(datasetLink);
 
                 csvBlob = await jsonToCsv({
                     url: datasetLink,
@@ -217,15 +219,30 @@
                         "timestamp",
                         "caption",
                         "url",
-                        "captions",
                         "type",
                         "likesCount",
                         "commentsCount",
                     ],
+                    unwind: [
+                        {
+                            targetCol: "coauthorProducers",
+                            fields: [
+                                {
+                                    field: "username",
+                                },
+                            ],
+                        },
+                        {
+                            targetCol: "taggedUsers",
+                            take: 4,
+                            fields: [
+                                { field: "username", alias: "first_4_tagged" },
+                            ],
+                        },
+                    ],
                 });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
-                console.log(datasetData);
 
                 const fileKeyWord = keywords.length
                     ? keywords.replaceAll(",", "_")
