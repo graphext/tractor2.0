@@ -28,7 +28,7 @@
     {#if !confirmDelete}
         <button
             class:btnDisabled={!apikeyPresent}
-            class="btn grow no-animation opacity-40 absolute bottom-0 right-0 hover:opacity-100 w-fit hover:btn-error btn-sm btn-outline self-end"
+            class="btn grow no-animation opacity-40 shadow-md absolute bottom-0 right-0 hover:opacity-100 w-fit hover:btn-error btn-sm btn-outline self-end"
             out:fly={{ duration: 100 }}
             in:fly={{ duration: 650, y: -10, easing: backOut }}
             on:click={() => {

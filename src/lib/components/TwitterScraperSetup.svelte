@@ -260,7 +260,7 @@
 </script>
 
 <div class="flex flex-col gap-3">
-    <PaneGroup direction="horizontal" class="items-center gap-1 mb-4">
+    <PaneGroup direction="horizontal" class="items-center gap-1 mb-4 ">
         <Pane defaultSize={30} class="p-1">
             <div
                 class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
@@ -302,7 +302,7 @@
                     ><b>Max</b> number of tweets to fetch</span
                 >
                 <input
-                    class="input input-sm rounded-full tabular-nums bg-neutral text-right"
+                    class="input input-sm rounded-full tabular-nums bg-neutral text-right shadow-sm"
                     inputmode="numeric"
                     bind:value={numTweets}
                     type="number"
@@ -315,7 +315,7 @@
     <div class="w-full relative">
         {#if loading}
             <progress
-                class="progress-overlay mix-blend-overlay absolute h-full rounded-full w-full opacity-40"
+                class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
                 max={numTweets}
                 value={$springProgress}
             ></progress>
@@ -323,8 +323,9 @@
         {#if !confirmChoice}
             <button
                 on:click={() => (confirmChoice = true)}
-                class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
+                class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-md"
                 disabled={!$apifyKey || !queries}
+                class:disabled={!$apifyKey || !queries}
             >
                 {#if loading}
                     <span class="loading loading-ring"></span>
@@ -457,6 +458,6 @@
         appearance: textfield;
     }
     .disabled {
-        @apply btn-disabled;
+        @apply btn-disabled shadow-none;
     }
 </style>

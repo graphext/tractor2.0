@@ -372,7 +372,7 @@
         <div class="w-full relative">
             {#if loading}
                 <progress
-                    class="progress-overlay mix-blend-overlay absolute h-full rounded-full w-full opacity-40"
+                    class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
                     max={maxItems}
                     value={$springProgress}
                 ></progress>
@@ -382,6 +382,7 @@
                     on:click={() => (confirmChoice = true)}
                     class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                     disabled={!$apifyKey || !keywords}
+                    class:disabled={!$apifyKey || !keywords}
                 >
                     {#if loading}
                         <span class="loading loading-ring"></span>
@@ -477,3 +478,30 @@
         </div>
     {/if}
 </Section>
+
+<style>
+    progress {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+    }
+
+    /* For Chrome and Safari */
+    progress::-webkit-progress-bar {
+        background-color: transparent;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: white;
+    }
+
+    /* For Firefox */
+    progress::-moz-progress-bar {
+        background-color: white;
+    }
+
+    .disabled {
+        @apply btn-disabled shadow-none;
+    }
+</style>

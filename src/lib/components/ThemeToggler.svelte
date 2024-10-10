@@ -34,7 +34,10 @@
     }
 </script>
 
-<button on:click={toggleTheme} class="btn btn-ghost btn-circle relative">
+<button
+    on:click={toggleTheme}
+    class="btn btn-ghost btn-circle relative border border-base-content/10 shadow-sm"
+>
     {#if theme === "light"}
         <div transition:fly class="absolute">
             <Sun weight="bold" size={24} />
