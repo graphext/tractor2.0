@@ -183,7 +183,6 @@
 
                 stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
-                // TODO: still does not work properly
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
