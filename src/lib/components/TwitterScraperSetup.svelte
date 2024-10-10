@@ -143,7 +143,6 @@
             error = null;
 
             checkStatus();
-            loading = false;
         } catch (err) {
             error =
                 "Error: " + (err instanceof Error ? err.message : String(err));
