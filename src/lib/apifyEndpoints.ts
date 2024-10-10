@@ -125,11 +125,13 @@ export class ApifyClient {
 		format = "json",
 		omitColumns,
 		includeOnly,
+		unwind,
 	}: {
 		runId: string;
 		format?: "csv" | "json";
 		omitColumns?: string[];
 		includeOnly?: string[];
+		unwind?: string[];
 	}) {
 		const token = get(apifyKey);
 		if (!token) {
@@ -144,7 +146,12 @@ export class ApifyClient {
 		if (includeOnly != undefined)
 			includeOnlyParams = "&fields=" + includeOnly.join(",");
 
-		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true${omitColumnsParams}${includeOnlyParams}`;
+		let unwindParams = "";
+		if (unwind != undefined) {
+			unwindParams = "&unwind=" + unwind.join(",");
+		}
+
+		let endpoint = `/actor-runs/${runId}/dataset/items?token=${token}&format=${format}&attachment=true&clean=true${omitColumnsParams}${includeOnlyParams}${unwindParams}`;
 
 		console.log(`${BASE_URL}${endpoint}`);
 
