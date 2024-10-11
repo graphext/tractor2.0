@@ -75,12 +75,10 @@
             switch (true) {
                 case u.startsWith("@"):
                     return `https://instagram.com/${u.trim().replace("@", "")}`;
-                case u.startsWith("#"):
-                    return `https://www.instagram.com/explore/search/keyword/?q=%23${u.trim().replace("#", "")}`;
                 case u.startsWith("https://www.instagram.com"):
                     return u;
                 default:
-                    return `https://www.instagram.com/explore/search/keyword/?q=%23${u.trim().replace("#", "")}`;
+                    return `https://instagram.com/${u.trim().replace("@", "")}`;
             }
         });
 
@@ -294,28 +292,26 @@
                         sideOffset={30}
                         transitionConfig={{ duration: 100, x: -5 }}
                     >
-                        <ul class="list-disc list-inside">
+                        <ul class="list-disc list-inside flex flex-col gap-2">
                             <li>
                                 Use <span class="text-primary font-bold">@</span
-                                >
-                                before usernames and
-                                <span class="text-primary font-bold">#</span> before
-                                hashtags.
+                                ><span class="opacity-70">username</span> to search
+                                posts from a profile
                             </li>
+
                             <li>
-                                A single term with no <span
-                                    class="text-primary font-bold">@</span
-                                >
-                                or <span class="text-primary font-bold">#</span>
-                                before it will be interpreted as a (<span
-                                    class="text-primary font-bold">#</span
-                                >) hashtag.
-                            </li>
-                            <li>
-                                Direct urls (starting with <span
-                                    class="text-primary font-bold"
+                                You can include a link to a profile: <span
+                                    class="font-bold"
                                     >https://instagram.com</span
-                                >/... ) are also supported.
+                                ><span class="opacity-70">/username</span>
+                            </li>
+
+                            <li>
+                                You can also include a link to a specific post: <span
+                                    class="font-bold"
+                                    >https://instagram.com</span
+                                ><span class="opacity-70">/p/postID</span>, to
+                                search for comments, for example.
                             </li>
                         </ul>
                     </TooltipContent>
