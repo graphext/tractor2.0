@@ -10,7 +10,12 @@
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import type { SearchGoogleResult } from "$lib/types";
-    import { jsonToCsv } from "$lib/utils";
+    import {
+        checkTaskStatus,
+        jsonToCsv,
+        sendEventData,
+        submitTask,
+    } from "$lib/utils";
     import { Tooltip } from "bits-ui";
     import { QuestionMark } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
@@ -34,7 +39,7 @@
         loading = true;
 
         setTimeout(() => {
-            checkStatus();
+            checkGoogleTaskStatus({ apifyClient, runId, maxPages });
         }, 500);
     }
 
@@ -45,52 +50,64 @@
     let stopping: boolean;
     let csvBlob: Blob;
     let headers: string[], rows: Array<string[]>;
-    let checkStatusTimeout: number;
     let userId: string;
     let datasetData: any;
     let filename: string;
     let datasetSize: number;
     let confirmChoice: boolean = false;
 
-    async function checkStatus() {
-        if (!runId) return;
-        loading = true;
+    const checkGoogleTaskStatus = ({
+        apifyClient,
+        runId,
+        maxPages,
+    }: {
+        apifyClient: ApifyClient;
+        runId: string;
+        maxPages: number;
+    }) => {
+        checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults: maxPages,
+            // new data? plot it
+            onStatusUpdate: ({
+                status: currentStatus,
+                dataLength,
+                liveData,
+            }: {
+                status: string;
+                dataLength: number;
+                liveData: any;
+            }) => {
+                status = currentStatus;
+                outputProgress = dataLength;
 
-        try {
-            const runData = await apifyClient.getRunStatus(runId);
-            status = runData.data.status;
+                headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
+                rows =
+                    dataLength > 0
+                        ? liveData
+                              .reverse()
+                              .filter((d, i) => i < 100) //return 100 last items
+                              .map((d) => Object.values(d))
+                        : [];
+            },
 
-            if (resuming && status == "RUNNING") resuming = false;
+            //finished? create links and blobs, process data with
+            //jsonToCsv
+            onComplete: async ({
+                datasetLink,
+                runId,
+            }: {
+                datasetLink: string;
+                runId: string;
+            }) => {
+                let datasetData = await apifyClient.getDatasetInfo(runId);
 
-            const { data: liveData, length: dataLength } =
-                await apifyClient.getDatasetContent(runId);
+                const fileKeyWord = keywords.length
+                    ? keywords.replaceAll(",", "_")
+                    : keywords;
 
-            outputProgress = dataLength;
-            headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
-            rows =
-                dataLength > 0
-                    ? liveData
-                          .reverse()
-                          .filter((d, i) => i < 100) //return 100 last items
-                          .map((d) => Object.values(d))
-                    : [];
-
-            springProgress.set(outputProgress);
-
-            if (error) {
-                throw error;
-            }
-            if (status === "SUCCEEDED" || status === "ABORTED") {
-                clearTimeout(checkStatusTimeout);
-
-                stopping = false;
-                toast.success("🎉 Dataset created. Ready to download!");
-                datasetLink = await apifyClient.getDatasetLink({
-                    runId: runId,
-                    format: "json",
-                });
-
-                console.log(datasetLink);
+                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
 
                 csvBlob = await jsonToCsv<SearchGoogleResult>({
                     url: datasetLink,
@@ -115,62 +132,33 @@
                     ],
                 });
 
-                datasetData = await apifyClient.getDatasetInfo(runId);
-
-                const fileKeyWord = keywords.length
-                    ? keywords.replaceAll(",", "_")
-                    : keywords;
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
-
                 datasetSize = datasetData.data.itemCount;
 
                 loading = false;
+                console.log(loading);
+            },
 
-                return;
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                checkStatusTimeout = setTimeout(checkStatus, 2000);
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+            //oh shoot
+            onError: (err) => {
+                error = err.message;
                 loading = false;
-                throw Error(
-                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
-                );
-            }
-        } catch (err) {
-            error = err instanceof Error ? err.message : String(err);
-            loading = false;
-            status = "FAILED";
-            userId = (await apifyClient.getPrivateUserData()).data.id;
-            if (error == "Apify returned an empty dataset.") {
-                toast.error(error);
-            }
-            console.error(err);
-        }
-    }
+            },
+        });
+    };
 
-    async function handleSubmit() {
-        loading = true;
+    async function handleGoogleSubmit() {
         datasetLink = "";
         filename = "";
         outputProgress = 0;
         confirmChoice = false;
         status = "STARTING";
 
-        if (window.dataLayer) {
-            const sendEvent = {
-                event: "tractor-download",
-                tr_social_media: "google",
-                tr_keywords: keywords.split(",").map((k) => k.trim()),
-                tr_num_items_retrieved: maxPages,
-            };
-
-            window.dataLayer.push(sendEvent);
-        }
         let queries = keywords
             .split(",")
             .map((k) => k.trim())
             .join("\n");
 
-        const inputData = {
+        let inputData = {
             includeIcons: false,
             includeUnfilteredResults: false,
             maxPagesPerQuery: 5,
@@ -182,31 +170,40 @@
             languageCode: "",
         };
 
-        if (!$apifyKey) {
-            console.error("Apify API key is not set");
-            return;
-        }
+        sendEventData({
+            event: "tractor-download",
+            tr_social_media: "google",
+            tr_keywords: keywords.split(",").map((k) => k.trim()),
+            tr_num_items_retrieved: maxPages,
+        });
 
-        toast.success("Task and run created successfully.");
-        setTimeout(() => {
-            toast.info("Fetching data. This may take a while...");
-        }, 1500);
+        submitTask({
+            apifyClient,
+            inputData,
+            onTaskCreated: (createdRunId) => {
+                runId = createdRunId;
 
-        try {
-            const task = await apifyClient.createTask(inputData);
-            runId = await apifyClient
-                .runTask(task.data.id)
-                .then((run) => run.data.id);
+                toast.info("Fetching data. This may take a while...");
 
-            checkStatus();
-        } catch (err) {
-            console.error("Error creating or running task:", err);
-        }
+                loading = true;
+                // check for task status and update UI
+                checkGoogleTaskStatus({ apifyClient, maxPages, runId });
+            },
+
+            //oh shoot
+            onError: (err: Error) => {
+                error = err.message;
+                loading = false;
+            },
+        });
     }
 </script>
 
 <Section>
-    <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
+    <form
+        class="flex flex-col gap-5"
+        on:submit|preventDefault={handleGoogleSubmit}
+    >
         <div>
             <div class="flex w-full justify-between gap-3 items-center">
                 <div class="flex flex-col gap-2 w-full">
@@ -291,7 +288,7 @@
             {:else}
                 <WarningCost unitPrice={3.5 / 1000} maxItems={maxPages} />
                 <button
-                    on:click={handleSubmit}
+                    on:click={handleGoogleSubmit}
                     class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                     disabled={!$apifyKey || !keywords}
                 >

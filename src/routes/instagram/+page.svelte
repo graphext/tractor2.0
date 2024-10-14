@@ -12,7 +12,7 @@
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import type { InstagramComment, InstagramPost } from "$lib/types";
-    import { jsonToCsv } from "$lib/utils";
+    import { jsonToCsv, sendEventData } from "$lib/utils";
 
     import { type DateValue } from "@internationalized/date";
     import { type Selected, Tooltip } from "bits-ui";
@@ -96,20 +96,14 @@
 
         let urls = processInstagramInput(keywords);
 
-        if (window.dataLayer) {
-            const sendEvent = {
-                event: "tractor-download",
-                tr_social_media: "instagram",
-                tr_url_keywords: urls,
-                tr_posts_newer_than: selectedDate
-                    ? selectedDate.toString()
-                    : "",
-                tr_search_type: selectedResultType,
-                tr_num_items_retrieved: selectedResultType,
-            };
-
-            window.dataLayer.push(sendEvent);
-        }
+        sendEventData({
+            event: "tractor-download",
+            tr_social_media: "instagram",
+            tr_url_keywords: urls,
+            tr_posts_newer_than: selectedDate ? selectedDate.toString() : "",
+            tr_search_type: selectedResultType,
+            tr_num_items_retrieved: selectedResultType,
+        });
 
         const inputData = {
             addParentData: true,

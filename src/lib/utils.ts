@@ -1,4 +1,5 @@
 import type { DateRange, Selected } from "bits-ui";
+import type { ApifyClient } from "./apifyEndpoints";
 import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
@@ -600,5 +601,95 @@ export function identifyCronExpression(
 
     case yRegex.test(cronExpression):
       return "years";
+  }
+}
+
+
+export async function submitTask(
+  {
+    apifyClient,
+    inputData,
+    onTaskCreated,
+    onError,
+    onStatusCheckStart,
+  }:
+    {
+      apifyClient: ApifyClient,
+      inputData: any,
+      onTaskCreated: Function,
+      onError: Function,
+      onStatusCheckStart?: Function,
+    }) {
+  let runId;
+
+  try {
+    const task = await apifyClient.createTask(inputData);
+    runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
+
+    onTaskCreated(runId);
+
+    if (onStatusCheckStart)
+      setTimeout(onStatusCheckStart, 1500);
+  } catch (err) {
+    onError(err);
+  }
+}
+
+
+export async function checkTaskStatus({
+  apifyClient,
+  runId,
+  maxResults,
+  onStatusUpdate,
+  onComplete,
+  onError,
+}: {
+  apifyClient: ApifyClient,
+  runId: string,
+  maxResults: number,
+  onStatusUpdate: Function,
+  onComplete: Function,
+  onError: Function,
+
+}) {
+  let status;
+
+  try {
+    const runData = await apifyClient.getRunStatus(runId);
+    status = runData.data.status;
+
+    const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId);
+
+    if (status === "SUCCEEDED" || status === "ABORTED") {
+      const datasetLink = await apifyClient.getDatasetLink({
+        runId: runId,
+        format: "json",
+      });
+
+
+      onComplete({
+        datasetLink,
+        runId,
+      });
+
+      return;
+    }
+
+    if (status !== "FAILED" && status !== "TIMED-OUT") {
+      setTimeout(() => checkTaskStatus({ apifyClient, runId, maxResults, onStatusUpdate, onComplete, onError }), 1000);
+    } else {
+      throw new Error("Run failed or timed-out.");
+    }
+
+    onStatusUpdate({ status, dataLength, liveData });
+
+  } catch (err) {
+    onError(err);
+  }
+}
+
+export function sendEventData(eventData: any) {
+  if (window.dataLayer) {
+    window.dataLayer.push(eventData)
   }
 }

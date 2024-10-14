@@ -7,7 +7,7 @@
     import { cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
     import WarningCost from "./WarningCost.svelte";
-    import { jsonToCsv } from "$lib/utils";
+    import { jsonToCsv, sendEventData } from "$lib/utils";
     import CronEditor from "./CronEditor.svelte";
     import Gauge from "phosphor-svelte/lib/Gauge";
     import Book from "phosphor-svelte/lib/Book";
@@ -104,22 +104,17 @@
             toast.info("Fetching data. This may take a while...");
         }, 1500);
 
-        if (window.dataLayer) {
-            const sendEvent = {
-                event: "tractor-download",
-                tr_social_media: "twitter",
-                tr_gpt_query: $userQuery,
-                tr_user_queries: queryList,
-                tr_num_items_retrieved: numTweets,
-                tr_time_frequency: $frequencyStore,
-                tr_date_range_start: selectedRange.start?.toString(),
-                tr_date_range_end: selectedRange.end?.toString(),
-                tr_lists: $selectedLists,
-            };
-
-            console.log(sendEvent);
-            window.dataLayer.push(sendEvent);
-        }
+        sendEventData({
+            event: "tractor-download",
+            tr_social_media: "twitter",
+            tr_gpt_query: $userQuery,
+            tr_user_queries: queryList,
+            tr_num_items_retrieved: numTweets,
+            tr_time_frequency: $frequencyStore,
+            tr_date_range_start: selectedRange.start?.toString(),
+            tr_date_range_end: selectedRange.end?.toString(),
+            tr_lists: $selectedLists,
+        });
 
         try {
             loading = true;
