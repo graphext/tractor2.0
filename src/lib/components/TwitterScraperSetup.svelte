@@ -40,8 +40,6 @@
     let loading = false;
     let resuming = false;
 
-    let checkStatusTimeout: number;
-
     $: if (resuming) {
         loading = true;
 
@@ -54,7 +52,6 @@
 
     let userId: string | null = null;
     let runId: string | null = null;
-    let runData = null;
     let status: string | null = null;
 
     let outputProgress: number = 0;
@@ -174,11 +171,9 @@
             },
 
             onComplete: async ({
-                datasetLink,
                 runId,
                 status: completedStatus,
             }: {
-                datasetLink: string;
                 runId: string;
                 status: string;
             }) => {
@@ -226,7 +221,10 @@
     }
 </script>
 
-<div class="flex flex-col gap-3">
+<form
+    on:submit|preventDefault={handleTwitterSubmit}
+    class="flex flex-col gap-3"
+>
     <PaneGroup direction="horizontal" class="items-center gap-1 mb-4 ">
         <Pane defaultSize={30} class="p-1">
             <div
@@ -302,7 +300,6 @@
         {:else}
             <WarningCost unitPrice={0.3 / 1000} maxItems={numTweets} />
             <button
-                on:click={handleTwitterSubmit}
                 class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                 disabled={!$apifyKey || !queries}
             >
@@ -310,7 +307,7 @@
             </button>
         {/if}
     </div>
-</div>
+</form>
 
 {#if csvBlob && filename}
     <a

@@ -12,7 +12,12 @@
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import type { InstagramComment, InstagramPost } from "$lib/types";
-    import { jsonToCsv, sendEventData } from "$lib/utils";
+    import {
+        checkTaskStatus,
+        jsonToCsv,
+        sendEventData,
+        submitTask,
+    } from "$lib/utils";
 
     import { type DateValue } from "@internationalized/date";
     import { type Selected, Tooltip } from "bits-ui";
@@ -44,16 +49,14 @@
         loading = true;
 
         setTimeout(() => {
-            checkStatus();
+            checkInstagramTaskStatus({ apifyClient, maxItems, runId });
         }, 500);
     }
 
     let status: string;
     let error: string;
-    let stopping: boolean;
     let csvBlob: Blob;
     let headers: string[], rows: Array<string[]>;
-    let checkStatusTimeout: number;
     let userId: string;
     let datasetData: any;
     let filename: string;
@@ -86,7 +89,7 @@
         return urls;
     }
 
-    async function handleSubmit() {
+    async function handleInstagramSubmit() {
         loading = true;
         datasetLink = "";
         filename = "";
@@ -118,64 +121,76 @@
         };
 
         if (selectedDate) {
-            inputData.onlyPostsNewerThan = selectedDate.toString();
+            inputData["onlyPostsNewerThan"] = selectedDate.toString();
         }
 
-        if (!$apifyKey) {
-            console.error("Apify API key is not set");
-            return;
-        }
+        submitTask({
+            apifyClient,
+            inputData,
+            onTaskCreated: (createdRunId) => {
+                runId = createdRunId;
 
-        toast.success("Task and run created successfully.");
-        setTimeout(() => {
-            toast.info("Fetching data. This may take a while...");
-        }, 1500);
+                toast.info("Fetching data. This may take a while...");
 
-        try {
-            const task = await apifyClient.createTask(inputData);
-            runId = await apifyClient
-                .runTask(task.data.id)
-                .then((run) => run.data.id);
+                loading = true;
+                checkInstagramTaskStatus({ apifyClient, maxItems, runId });
+            },
 
-            checkStatus();
-        } catch (err) {
-            console.error("Error creating or running task:", err);
-        }
+            onError: (err: Error) => {
+                error = err.message;
+                loading = false;
+            },
+        });
     }
 
-    async function checkStatus() {
-        if (!runId) return;
-        loading = true;
+    async function checkInstagramTaskStatus({
+        apifyClient,
+        maxItems,
+        runId,
+    }: {
+        apifyClient: ApifyClient;
+        maxItems: number;
+        runId: string;
+    }) {
+        checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults: maxItems,
 
-        try {
-            const runData = await apifyClient.getRunStatus(runId);
-            status = runData.data.status;
+            onStatusUpdate: ({
+                status: currentStatus,
+                dataLength,
+                liveData,
+            }: {
+                status: string;
+                dataLength: number;
+                liveData: any;
+            }) => {
+                if (resuming && status == "RUNNING") resuming = false;
 
-            if (resuming && status == "RUNNING") resuming = false;
+                status = currentStatus;
+                outputProgress = dataLength;
 
-            const { data: liveData, length: dataLength } =
-                await apifyClient.getDatasetContent(runId);
+                headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
+                rows =
+                    dataLength > 0
+                        ? liveData
+                              .reverse()
+                              .filter((d, i) => i < 100) //return 100 last items
+                              .map((d) => Object.values(d))
+                        : [];
+            },
+            onComplete: async ({
+                runId,
+                status: completedStatus,
+            }: {
+                runId: string;
+                status: string;
+            }) => {
+                status = completedStatus;
 
-            outputProgress = dataLength;
-            headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
-            rows =
-                dataLength > 0
-                    ? liveData
-                          .reverse()
-                          .filter((d, i) => i < 100) //return 100 last items
-                          .map((d) => Object.values(d))
-                    : [];
-
-            springProgress.set(outputProgress);
-
-            if (error) {
-                throw error;
-            }
-            if (status === "SUCCEEDED" || status === "ABORTED") {
-                clearTimeout(checkStatusTimeout);
-
-                stopping = false;
                 toast.success("🎉 Dataset created. Ready to download!");
+
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
@@ -201,10 +216,6 @@
                         "id",
                     ],
                 });
-
-                console.log(datasetLink);
-
-                // TODO: continue with typescript masturbation
 
                 csvBlob = await jsonToCsv<InstagramPost>({
                     url: datasetLink,
@@ -251,31 +262,21 @@
                 datasetSize = datasetData.data.itemCount;
 
                 loading = false;
-
-                return;
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                checkStatusTimeout = setTimeout(checkStatus, 2000);
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+            },
+            onError: (err: Error) => {
+                error = err.message;
                 loading = false;
-                throw Error(
-                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
-                );
-            }
-        } catch (err) {
-            error = err instanceof Error ? err.message : String(err);
-            loading = false;
-            status = "FAILED";
-            userId = (await apifyClient.getPrivateUserData()).data.id;
-            if (error == "Apify returned an empty dataset.") {
-                toast.error(error);
-            }
-            console.error(err);
-        }
+                toast.error(err.message);
+            },
+        });
     }
 </script>
 
 <Section>
-    <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
+    <form
+        class="flex flex-col gap-5"
+        on:submit|preventDefault={handleInstagramSubmit}
+    >
         <div>
             <div class="flex items-center mb-2 gap-1">
                 <label for="keywords" class="text-sm text-base-content/60"
@@ -386,7 +387,6 @@
             {:else}
                 <WarningCost unitPrice={2.3 / 1000} {maxItems} />
                 <button
-                    on:click={handleSubmit}
                     class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                     disabled={!$apifyKey || !keywords}
                 >
