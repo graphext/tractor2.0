@@ -147,11 +147,9 @@
             //finished? create links and blobs, process data with
             //jsonToCsv
             onComplete: async ({
-                datasetLink,
                 runId,
                 status: completedStatus,
             }: {
-                datasetLink: string;
                 runId: string;
                 status: string;
             }) => {
@@ -293,7 +291,6 @@
             {:else}
                 <WarningCost unitPrice={3.5 / 1000} maxItems={maxPages} />
                 <button
-                    on:click={handleGoogleSubmit}
                     class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                     disabled={!$apifyKey || !keywords}
                 >

@@ -680,21 +680,16 @@ export async function checkTaskStatus({
   let status;
 
   try {
-    const runData = await apifyClient.getRunStatus(runId);
+    const runData = await apifyClient.getRunStatus(runId!);
     status = runData.data.status;
 
 
 
-    const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId);
+    const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId!);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
-      const datasetLink = await apifyClient.getDatasetLink({
-        runId: runId,
-        format: "json",
-      });
 
       onComplete({
-        datasetLink,
         runId,
         status
       });
