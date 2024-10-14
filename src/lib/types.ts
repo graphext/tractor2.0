@@ -212,64 +212,76 @@ export type InstagramHashtag = {
 	}[];
 };
 
-export type GoogleSearchResult = {
-	searchQuery: {
-		term: string;
-		url: string;
-		device: string;
-		page: number;
-		type: string;
-		domain: string;
-		countryCode: string;
-		languageCode: string | null;
-		locationUule: string | null;
-		resultsPerPage: string;
-	};
+
+type SiteLink = {
+	title: string;
 	url: string;
-	hasNextPage: boolean;
-	serpProviderCode: string;
+	description: string;
+};
+
+type SearchQuery = {
+	term: string;
+	url: string;
+	device: "DESKTOP" | "MOBILE"; // Specify if other devices might be present
+	page: number;
+	type: "SEARCH"; // Specify if other types might be present
+	domain: string;
+	countryCode: string;
+	languageCode: string | null;
+	locationUule: string | null;
+	resultsPerPage: string;
+};
+
+type RelatedQuery = {
+	title: string;
+	url: string;
+};
+
+type PeopleAlsoAsk = {
+	question: string;
+	answer: string;
+	url: string;
+	title: string;
+	date: string;
+};
+
+type OrganicResult = {
+	title: string;
+	url: string;
+	displayedUrl: string;
+	description: string;
+	date: string; // Consider using Date type if you need to manipulate it as a date
+	emphasizedKeywords: string[];
+	siteLinks: SiteLink[]; // Assuming site links are represented as strings
+	productInfo: Record<string, unknown>; // Replace with a more specific type if known
+	type: "organic"; // Specify if other types might be present
+	position: number;
+};
+
+type PaidResult = {
+	title: string;
+	url: string;
+	displayedUrl: string;
+	description: string;
+	emphasizedKeywords: string[];
+	siteLinks: SiteLink[];
+	type: "paid"; // Specify if other types might be present
+	adPosition: number;
+};
+
+export type SearchGoogleResult = {
+	searchQuery: SearchQuery;
 	resultsTotal: number;
-	relatedQueries: {
-		title: string;
-		url: string;
-	}[];
-	paidResults: {
-		title: string;
-		url: string;
-		displayedUrl: string;
-		description: string;
-		emphasizedKeywords: string[];
-		siteLinks: {
-			title: string;
-			url: string;
-			description: string;
-		}[];
-		type: "paid";
-		adPosition: number;
-	}[];
-	paidProducts: any[]; // Assuming no structured data available
-	organicResults: {
-		title: string;
-		url: string;
-		displayedUrl: string;
-		description: string;
-		emphasizedKeywords: string[];
-		siteLinks: any[];
-		productInfo: any; // No detailed product info given in the example
-		type: "organic";
-		position: number;
-	}[];
-	peopleAlsoAsk: {
-		question: string;
-		answer: string;
-		url: string;
-		title: string;
-		date: string;
-	}[];
+	relatedQueries: RelatedQuery[];
+	paidResults: PaidResult[]; // Specify the type if known
+	paidProducts: any[]; // Specify the type if known
+	organicResults: OrganicResult[]; // Specify the type if known
+	peopleAlsoAsk: PeopleAlsoAsk[];
 	customData: {
 		pageTitle: string;
-	};
+	}
 };
+
 
 
 // typescript masturbation to make LSP work with types from apify
@@ -290,7 +302,7 @@ interface TypedUnwindField<T> {
 export interface TypedUnwindTarget<T, K extends ArrayKeys<T>> {
 	targetCol: K;
 	fields: TypedUnwindField<ArrayElement<T[K]>>[];  // Directly pass the object type from the array
-	take?: number;
+	take?: number | "max";
 }
 
 export interface TypedJsonToCsvOptions<T> {

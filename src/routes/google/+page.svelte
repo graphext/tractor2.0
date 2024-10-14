@@ -2,10 +2,14 @@
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
     import Input from "$lib/components/Input.svelte";
+    import LiveTable from "$lib/components/LiveTable.svelte";
+    import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Section from "$lib/components/Section.svelte";
+    import StopButton from "$lib/components/StopButton.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
+    import type { SearchGoogleResult } from "$lib/types";
     import { jsonToCsv } from "$lib/utils";
     import { Tooltip } from "bits-ui";
     import { QuestionMark } from "phosphor-svelte";
@@ -88,32 +92,25 @@
 
                 console.log(datasetLink);
 
-                csvBlob = await jsonToCsv({
+                csvBlob = await jsonToCsv<SearchGoogleResult>({
                     url: datasetLink,
-                    dedupKey: "id",
-                    customColumnOrder: [
-                        "timestamp",
-                        "caption",
-                        "url",
-                        "type",
-                        "likesCount",
-                        "commentsCount",
-                    ],
                     unwind: [
                         {
-                            targetCol: "coauthorProducers",
+                            targetCol: "organicResults",
+                            take: "max",
                             fields: [
                                 {
-                                    field: "username",
+                                    field: "title",
+                                },
+                                {
+                                    field: "siteLinks",
                                 },
                             ],
                         },
                         {
-                            targetCol: "taggedUsers",
+                            targetCol: "relatedQueries",
                             take: 4,
-                            fields: [
-                                { field: "username", alias: "first_4_tagged" },
-                            ],
+                            fields: [{ field: "title" }, { field: "url" }],
                         },
                     ],
                 });
@@ -303,6 +300,81 @@
             {/if}
         </div>
     </form>
+
+    {#if csvBlob && filename}
+        <a
+            href={URL.createObjectURL(csvBlob)}
+            download={filename}
+            class:disabled={loading}
+            class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
+            >Download Dataset <span
+                class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
+                >.csv</span
+            >
+            {#if datasetSize}
+                — {datasetSize} rows
+            {/if}
+        </a>
+    {/if}
+
+    {#if error || status}
+        <div>
+            <div class="divider mt-3 mb-3" />
+
+            <div class="flex flex-col gap-5">
+                <div class="flex justify-between items-baseline">
+                    {#if status == "RUNNING" || status == "ABORTING"}
+                        <StopButton {apifyClient} {runId} />
+                    {/if}
+
+                    {#if status == "ABORTED" || status == "READY"}
+                        <ResumeButton
+                            {status}
+                            bind:resuming
+                            {apifyClient}
+                            {runId}
+                        />
+                    {/if}
+
+                    {#if error}
+                        <div class="flex items-center gap-3">
+                            <p>{error}</p>
+                            <a
+                                href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
+                                target="_blank"
+                                class:disabled={userId == undefined ||
+                                    runId == undefined}
+                                class="btn btn-xs btn-error">Go to run</a
+                            >
+                        </div>
+                    {:else}
+                        <p class="opacity-0">error</p>
+                    {/if}
+
+                    {#if status}
+                        <div
+                            class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
+                        >
+                            <p class="mt-4">Task status: {status}</p>
+                            {#if status == "RUNNING"}
+                                <span
+                                    >{outputProgress} results downloaded...</span
+                                >
+                                <span class="loading loading-dots loading-sm"
+                                ></span>
+                            {:else if status == "SUCCEEDED"}
+                                <span></span>
+                            {:else if status == "FAILED"}
+                                <span> </span>
+                            {/if}
+                        </div>
+                    {/if}
+                </div>
+
+                <LiveTable {headers} {rows} />
+            </div>
+        </div>
+    {/if}
 </Section>
 
 <style>

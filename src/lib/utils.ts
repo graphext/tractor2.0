@@ -342,9 +342,12 @@ function flattenObjectWithUnwind<T>(
         const take = unwindTarget.take || 1;
         const fieldPath = fieldDef.field;
 
+        if (take != "max") {
+          value.slice(0, take)
+        }
+
         // Extract values from the array
         const extractedValues = value
-          .slice(0, take)
           .map((item) => getNestedValue(item, fieldPath))
           .filter((v) => v !== undefined);
 
