@@ -44,6 +44,7 @@
     }
 
     let datasetLink: string;
+    let datasetData;
     let runId: string;
     let status: string;
     let error: string;
@@ -155,13 +156,18 @@
             }) => {
                 status = completedStatus;
 
-                let datasetData = await apifyClient.getDatasetInfo(runId);
+                datasetData = await apifyClient.getDatasetInfo(runId);
 
                 const fileKeyWord = keywords.length
                     ? keywords.replaceAll(",", "_")
                     : keywords;
 
                 filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+
+                datasetLink = await apifyClient.getDatasetLink({
+                    runId: runId,
+                    format: "json",
+                });
 
                 csvBlob = await jsonToCsv<SearchGoogleResult>({
                     url: datasetLink,
@@ -174,7 +180,7 @@
                                     field: "title",
                                 },
                                 {
-                                    field: "siteLinks",
+                                    field: "url",
                                 },
                             ],
                         },
@@ -189,7 +195,6 @@
                 datasetSize = datasetData.data.itemCount;
 
                 loading = false;
-                console.log(loading);
             },
 
             //oh shoot
