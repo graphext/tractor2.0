@@ -57,7 +57,6 @@
     let datasetSize: number;
     let confirmChoice: boolean = false;
 
-    $: console.log(status);
     const checkGoogleTaskStatus = ({
         apifyClient,
         runId,
@@ -81,6 +80,8 @@
                 dataLength: number;
                 liveData: any;
             }) => {
+                if (resuming && status == "RUNNING") resuming = false;
+
                 status = currentStatus;
                 outputProgress = dataLength;
 
