@@ -2,6 +2,8 @@ import type { DateRange, Selected } from "bits-ui";
 import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
+import type { Task, TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
+
 export const listOptions = [
   {
     label: "🇺🇸📰 US National News (45)",
@@ -320,9 +322,9 @@ function getNestedValue(obj: any, path: string): any {
   return path.split(".").reduce((current, part) => current?.[part], obj);
 }
 
-function flattenObjectWithUnwind(
+function flattenObjectWithUnwind<T>(
   obj: any,
-  unwindTargets: UnwindTarget[] | null = null,
+  unwindTargets: TypedUnwindTarget<T>[] | null = null,
   prefix: string = "",
 ): Record<string, any> {
   return Object.keys(obj).reduce((acc: Record<string, any>, key: string) => {
@@ -373,12 +375,12 @@ function flattenObjectWithUnwind(
   }, {});
 }
 
-export async function jsonToCsv({
+export async function jsonToCsv<T>({
   url,
   dedupKey = null,
   customColumnOrder,
-  unwind = null,
-}: JsonToCsvOptions): Promise<Blob> {
+  unwind,
+}: TypedJsonToCsvOptions<T>): Promise<Blob> {
   try {
     // Fetch JSON data from the provided URL
     const response = await fetch(url);
@@ -406,7 +408,7 @@ export async function jsonToCsv({
     }
 
     const flattenedData = jsonData.map((item) =>
-      flattenObjectWithUnwind(item, unwind),
+      flattenObjectWithUnwind<T>(item, unwind),
     );
 
     const allHeaders = [
