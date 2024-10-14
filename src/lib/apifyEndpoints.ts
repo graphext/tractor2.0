@@ -127,7 +127,7 @@ export class ApifyClient {
 		includeOnly,
 		unwind,
 	}: {
-		runId: string;
+		runId: string | null;
 		format?: "csv" | "json";
 		omitColumns?: string[];
 		includeOnly?: string[];

@@ -605,6 +605,31 @@ export function identifyCronExpression(
 }
 
 
+export async function generateDatasetName(queries: string) {
+  try {
+    const res = await fetch("/api/ids", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt: queries }),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(
+        errorData.error || `HTTP error! status: ${res.status}`,
+      );
+    }
+
+    return res.text();
+  } catch (err) {
+    console.error("Error:", err);
+    throw err;
+  }
+}
+
+
 export async function submitTask(
   {
     apifyClient,
@@ -645,7 +670,7 @@ export async function checkTaskStatus({
   onError,
 }: {
   apifyClient: ApifyClient,
-  runId: string,
+  runId: string | null,
   maxResults: number,
   onStatusUpdate: Function,
   onComplete: Function,
