@@ -658,6 +658,8 @@ export async function checkTaskStatus({
     const runData = await apifyClient.getRunStatus(runId);
     status = runData.data.status;
 
+
+
     const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
