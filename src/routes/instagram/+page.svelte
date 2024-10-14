@@ -179,6 +179,8 @@
                               .filter((d, i) => i < 100) //return 100 last items
                               .map((d) => Object.values(d))
                         : [];
+
+                springProgress.set(outputProgress);
             },
             onComplete: async ({
                 runId,

@@ -114,7 +114,7 @@
         submitTask({
             apifyClient,
             inputData,
-            onTaskCreated: (createdRunId) => {
+            onTaskCreated: (createdRunId: string) => {
                 runId = createdRunId;
 
                 toast.info("Fetching data. This may take a while...");
@@ -158,15 +158,17 @@
                 if (resuming && status == "RUNNING") resuming = false;
 
                 status = currentStatus;
+
                 outputProgress = dataLength;
+                springProgress.set(outputProgress);
 
                 headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
                 rows =
                     dataLength > 0
                         ? liveData
                               .reverse()
-                              .filter((d, i) => i < 100) //return 100 last items
-                              .map((d) => Object.values(d))
+                              .filter((d: any, i: number) => i < 100) //return 100 last items
+                              .map((d: any) => Object.values(d))
                         : [];
             },
 
