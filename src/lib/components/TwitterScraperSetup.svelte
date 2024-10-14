@@ -7,7 +7,13 @@
     import { cubicInOut } from "svelte/easing";
     import DotsSixVertical from "phosphor-svelte/lib/DotsSixVertical";
     import WarningCost from "./WarningCost.svelte";
-    import { jsonToCsv, sendEventData } from "$lib/utils";
+    import {
+        checkTaskStatus,
+        generateDatasetName,
+        jsonToCsv,
+        sendEventData,
+        submitTask,
+    } from "$lib/utils";
     import CronEditor from "./CronEditor.svelte";
     import Gauge from "phosphor-svelte/lib/Gauge";
     import Book from "phosphor-svelte/lib/Book";
@@ -40,7 +46,7 @@
         loading = true;
 
         setTimeout(() => {
-            checkStatus();
+            checkTwitterTaskStatus({ apifyClient, runId, numTweets });
         }, 500);
     }
 
@@ -55,12 +61,8 @@
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let numTweets = 5000;
-    let prettyData = true;
 
     let headers: string[], rows: Array<string[]>;
-
-    let tweetCost = 0.3 / 1000;
-    $: totalApproximateCost = numTweets * tweetCost;
 
     let datasetLink: string | null = null;
     let datasetData;
@@ -69,28 +71,18 @@
     let filename: string | null = null;
     let datasetSize: number | null = null;
 
-    const churro =
-        "&omit=author,id,type,twitterUrl,inReplyToId,inReplyToUserId,inReplyToUsername,extendedEntities,card,place,entities,quote,quoteId,isConversationControlled";
-
-    $: datasetLinkInButton = `${datasetLink}${prettyData ? churro : ""}`;
-
     let error: string | null = null;
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     const apifyClient = new ApifyClient(TWITTER_ACT_ID); // Twitter Actor ID
 
-    async function handleSubmit() {
+    async function handleTwitterSubmit() {
         confirmChoice = false;
         datasetLink = "";
         filename = "";
         outputProgress = 0;
-
-        if (!$apifyKey) {
-            toast.error("Please set your Apify API key first.");
-            error = "Please set your Apify API key first.";
-            return;
-        }
+        status = "STARTING";
 
         const queryList = queriesSpreadOverTime
             .split("\n")
@@ -98,11 +90,17 @@
         const nQueries = queriesSpreadOverTime.split("\n").length;
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
-        toast.success("Task and run created successfully.");
-
-        setTimeout(() => {
-            toast.info("Fetching data. This may take a while...");
-        }, 1500);
+        const inputData = {
+            searchTerms: queryList,
+            maxItems: numTweets,
+            maxTweetsPerQuery: maxTweetsPerQuery,
+            onlyImage: false,
+            onlyQuote: false,
+            onlyTwitterBlue: false,
+            onlyVerifiedUsers: false,
+            onlyVideo: false,
+            customMapFunction: createFunctionString(),
+        };
 
         sendEventData({
             event: "tractor-download",
@@ -116,94 +114,78 @@
             tr_lists: $selectedLists,
         });
 
-        try {
-            loading = true;
+        submitTask({
+            apifyClient,
+            inputData,
+            onTaskCreated: (createdRunId) => {
+                runId = createdRunId;
 
-            const task = await apifyClient.createTask({
-                searchTerms: queryList,
-                maxItems: numTweets,
-                maxTweetsPerQuery: maxTweetsPerQuery,
-                onlyImage: false,
-                onlyQuote: false,
-                onlyTwitterBlue: false,
-                onlyVerifiedUsers: false,
-                onlyVideo: false,
-                customMapFunction: createFunctionString(),
-            });
+                toast.info("Fetching data. This may take a while...");
 
-            runId = await apifyClient
-                .runTask(task.data.id)
-                .then((run) => run.data.id);
+                loading = true;
+                // check for task status and update UI
+                checkTwitterTaskStatus({ apifyClient, numTweets, runId });
+            },
 
-            error = null;
-
-            checkStatus();
-        } catch (err) {
-            error =
-                "Error: " + (err instanceof Error ? err.message : String(err));
-            console.error(err);
-        }
+            //oh shoot
+            onError: (err: Error) => {
+                error = err.message;
+                loading = false;
+            },
+        });
     }
 
-    async function generateDatasetName(queries: string) {
-        try {
-            const res = await fetch("/api/ids", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ prompt: queriesSpreadOverTime }),
-            });
+    async function checkTwitterTaskStatus({
+        apifyClient,
+        numTweets,
+        runId,
+    }: {
+        apifyClient: ApifyClient;
+        numTweets: number;
+        runId: string | null;
+    }) {
+        checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults: numTweets,
 
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`,
-                );
-            }
+            onStatusUpdate: ({
+                status: currentStatus,
+                dataLength,
+                liveData,
+            }: {
+                status: string;
+                dataLength: number;
+                liveData: any;
+            }) => {
+                if (resuming && status == "RUNNING") resuming = false;
 
-            return res.text();
-        } catch (err) {
-            console.error("Error:", err);
-            error =
-                err instanceof Error
-                    ? err.message
-                    : "An unknown error occurred";
-        }
-    }
+                status = currentStatus;
+                outputProgress = dataLength;
 
-    async function checkStatus() {
-        if (!runId) return;
+                headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
+                rows =
+                    dataLength > 0
+                        ? liveData
+                              .reverse()
+                              .filter((d, i) => i < 100) //return 100 last items
+                              .map((d) => Object.values(d))
+                        : [];
+            },
 
-        try {
-            runData = await apifyClient.getRunStatus(runId);
+            onComplete: async ({
+                datasetLink,
+                runId,
+                status: completedStatus,
+            }: {
+                datasetLink: string;
+                runId: string;
+                status: string;
+            }) => {
+                status = completedStatus;
 
-            status = runData.data.status;
-
-            if (resuming && status == "RUNNING") resuming = false;
-
-            const { data: liveData, length: dataLength } =
-                await apifyClient.getDatasetContent(runId);
-
-            outputProgress = dataLength;
-            springProgress.set(outputProgress);
-
-            headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
-            rows =
-                dataLength > 0
-                    ? liveData
-                          .reverse()
-                          .filter((d, i) => i < 100) //return 100 last items
-                          .map((d) => Object.values(d))
-                    : [];
-
-            if (error) {
-                throw error;
-            }
-
-            if (status === "SUCCEEDED" || status === "ABORTED") {
-                clearTimeout(checkStatusTimeout);
                 toast.success("🎉 Dataset created. Ready to download!");
+
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
@@ -222,35 +204,25 @@
                 });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
+
                 console.log(datasetData);
 
                 const fileKeyWord = await generateDatasetName(
                     queriesSpreadOverTime,
                 );
+
                 filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
 
                 datasetSize = datasetData.data.itemCount;
 
                 loading = false;
-
-                return;
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                checkStatusTimeout = setTimeout(checkStatus, 1000);
-            } else if (status === "FAILED" || status === "TIMED-OUT") {
+            },
+            onError: (err: Error) => {
+                error = err.message;
                 loading = false;
-                throw Error(
-                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
-                );
-            }
-        } catch (err) {
-            error = err instanceof Error ? err.message : String(err);
-            loading = false;
-            userId = (await apifyClient.getPrivateUserData()).data.id;
-            if (error == "Apify returned an empty dataset.") {
-                toast.error(error);
-            }
-            console.error(err);
-        }
+                toast.error(err.message);
+            },
+        });
     }
 </script>
 
@@ -330,7 +302,7 @@
         {:else}
             <WarningCost unitPrice={0.3 / 1000} maxItems={numTweets} />
             <button
-                on:click={handleSubmit}
+                on:click={handleTwitterSubmit}
                 class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                 disabled={!$apifyKey || !queries}
             >

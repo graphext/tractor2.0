@@ -46,16 +46,65 @@
     let datasetLink: string;
     let runId: string;
     let status: string;
-    $: console.log(status);
     let error: string;
-    let stopping: boolean;
     let csvBlob: Blob;
     let headers: string[], rows: Array<string[]>;
     let userId: string;
-    let datasetData: any;
     let filename: string;
     let datasetSize: number;
     let confirmChoice: boolean = false;
+
+    async function handleGoogleSubmit() {
+        datasetLink = "";
+        filename = "";
+        outputProgress = 0;
+        confirmChoice = false;
+        status = "STARTING";
+
+        let queries = keywords
+            .split(",")
+            .map((k) => k.trim())
+            .join("\n");
+
+        let inputData = {
+            includeIcons: false,
+            includeUnfilteredResults: false,
+            maxPagesPerQuery: 5,
+            mobileResults: false,
+            queries: queries,
+            resultsPerPage: 100,
+            saveHtml: false,
+            saveHtmlToKeyValueStore: false,
+            languageCode: "",
+        };
+
+        sendEventData({
+            event: "tractor-download",
+            tr_social_media: "google",
+            tr_keywords: keywords.split(",").map((k) => k.trim()),
+            tr_num_items_retrieved: maxPages,
+        });
+
+        submitTask({
+            apifyClient,
+            inputData,
+            onTaskCreated: (createdRunId: string) => {
+                runId = createdRunId;
+
+                toast.info("Fetching data. This may take a while...");
+
+                loading = true;
+                // check for task status and update UI
+                checkGoogleTaskStatus({ apifyClient, maxPages, runId });
+            },
+
+            //oh shoot
+            onError: (err: Error) => {
+                error = err.message;
+                loading = false;
+            },
+        });
+    }
 
     const checkGoogleTaskStatus = ({
         apifyClient,
@@ -63,7 +112,7 @@
         maxPages,
     }: {
         apifyClient: ApifyClient;
-        runId: string;
+        runId: string | null;
         maxPages: number;
     }) => {
         checkTaskStatus({
@@ -146,64 +195,13 @@
             },
 
             //oh shoot
-            onError: (err) => {
-                error = err.message;
-                loading = false;
-            },
-        });
-    };
-
-    async function handleGoogleSubmit() {
-        datasetLink = "";
-        filename = "";
-        outputProgress = 0;
-        confirmChoice = false;
-        status = "STARTING";
-
-        let queries = keywords
-            .split(",")
-            .map((k) => k.trim())
-            .join("\n");
-
-        let inputData = {
-            includeIcons: false,
-            includeUnfilteredResults: false,
-            maxPagesPerQuery: 5,
-            mobileResults: false,
-            queries: queries,
-            resultsPerPage: 100,
-            saveHtml: false,
-            saveHtmlToKeyValueStore: false,
-            languageCode: "",
-        };
-
-        sendEventData({
-            event: "tractor-download",
-            tr_social_media: "google",
-            tr_keywords: keywords.split(",").map((k) => k.trim()),
-            tr_num_items_retrieved: maxPages,
-        });
-
-        submitTask({
-            apifyClient,
-            inputData,
-            onTaskCreated: (createdRunId) => {
-                runId = createdRunId;
-
-                toast.info("Fetching data. This may take a while...");
-
-                loading = true;
-                // check for task status and update UI
-                checkGoogleTaskStatus({ apifyClient, maxPages, runId });
-            },
-
-            //oh shoot
             onError: (err: Error) => {
                 error = err.message;
                 loading = false;
+                toast.error(err.message);
             },
         });
-    }
+    };
 </script>
 
 <Section>
