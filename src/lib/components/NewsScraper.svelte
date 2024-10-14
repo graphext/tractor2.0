@@ -4,7 +4,13 @@
     import { apifyKey } from "$lib/stores/apifyStore";
     import { NEWS_ACTOR_ID } from "$lib/actors";
     import SearchableList from "./SearchableList.svelte";
-    import { jsonToCsv, languages } from "../utils";
+    import {
+        checkTaskStatus,
+        jsonToCsv,
+        languages,
+        sendEventData,
+        submitTask,
+    } from "../utils";
     import DateRangePicker from "./DateRangePicker.svelte";
     import type { DateRange } from "bits-ui";
     import { toast } from "svelte-sonner";
@@ -17,21 +23,20 @@
 
     let keywords: string;
     let maxItems: number = 500;
-    let selected = languages[0];
+    let languageSelected = languages[0];
 
     let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID);
 
     let selectedRange: DateRange;
     let timeSteps: Date[];
 
-    let checkStatusTimeout: number;
     let resuming: boolean = false;
 
     $: if (resuming) {
         loading = true;
 
         setTimeout(() => {
-            checkStatus();
+            checkNewsTaskStatus({ apifyClient, maxItems, runId });
         }, 500);
     }
 
@@ -44,7 +49,6 @@
     let datasetSize: number;
 
     let loading: boolean = false;
-    let stopping: boolean = false;
 
     let headers: string[], rows: Array<string[]>;
 
@@ -58,38 +62,102 @@
 
     $: buttonText = loading ? "Loading news..." : "Get News";
 
-    async function checkStatus() {
-        if (!runId) return;
+    async function handleNewsSubmit() {
         loading = true;
+        datasetLink = "";
+        filename = "";
+        outputProgress = 0;
+        status = "STARTING";
 
-        try {
-            const runData = await apifyClient.getRunStatus(runId);
-            status = runData.data.status;
+        sendEventData({
+            event: "tractor-download",
+            tr_social_media: "google-news",
+            tr_user_queries: keywords.split(",").map((kw) => kw.trim()),
+            tr_date_range_start: selectedRange.start?.toString(),
+            tr_date_range_end: selectedRange.end?.toString(),
+            tr_lang_region: languageSelected.value,
+            tr_num_items_retrieved: maxItems,
+        });
 
-            if (resuming && status == "RUNNING") resuming = false;
+        const inputData = {
+            query: keywords
+                .split(",")
+                .map((kw) => kw.trim())
+                .join(" OR "),
+            language: languageSelected.value,
+            dateFrom: selectedRange.start?.toString(),
+            dateTo: selectedRange.end?.toString(),
+            maxItems: maxItems,
+        };
 
-            const { data: liveData, length: dataLength } =
-                await apifyClient.getDatasetContent(runId, ["guid"]);
+        submitTask({
+            apifyClient,
+            inputData,
 
-            outputProgress = dataLength;
-            headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
-            rows =
-                dataLength > 0
-                    ? liveData
-                          .reverse()
-                          .filter((d, i) => i < 100) //return 100 last items
-                          .map((d) => Object.values(d))
-                    : [];
+            onTaskCreated: (createdRunId: string) => {
+                runId = createdRunId;
 
-            springProgress.set(outputProgress);
+                toast.info("Fetching data. This may take a while...");
+                loading = true;
 
-            if (error) {
-                throw error;
-            }
-            if (status === "SUCCEEDED" || status === "ABORTED") {
-                clearTimeout(checkStatusTimeout);
+                checkNewsTaskStatus({ apifyClient, maxItems, runId });
+            },
 
-                stopping = false;
+            onError: (err: Error) => {
+                error = err.message;
+                loading = false;
+            },
+        });
+    }
+
+    async function checkNewsTaskStatus({
+        apifyClient,
+        maxItems,
+        runId,
+    }: {
+        apifyClient: ApifyClient;
+        maxItems: number;
+        runId: string;
+    }) {
+        checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults: maxItems,
+
+            onStatusUpdate: ({
+                status: currentStatus,
+                dataLength,
+                liveData,
+            }: {
+                status: string;
+                dataLength: number;
+                liveData: any;
+            }) => {
+                if (resuming && status == "RUNNING") resuming = false;
+
+                status = currentStatus;
+
+                outputProgress = dataLength;
+                springProgress.set(outputProgress);
+
+                headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
+                rows =
+                    dataLength > 0
+                        ? liveData
+                              .reverse()
+                              .filter((d: any, i: number) => i < 100) //return 100 last items
+                              .map((d: any) => Object.values(d))
+                        : [];
+            },
+            onComplete: async ({
+                runId,
+                status: completedStatus,
+            }: {
+                runId: string;
+                status: string;
+            }) => {
+                status = completedStatus;
+
                 toast.success("🎉 Dataset created. Ready to download!");
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
@@ -100,7 +168,6 @@
                 csvBlob = await jsonToCsv({ url: datasetLink });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
-                console.log(datasetData);
 
                 const fileKeyWord = keywords.length
                     ? keywords.replaceAll(",", "_")
@@ -110,70 +177,20 @@
                 datasetSize = datasetData.data.itemCount;
 
                 loading = false;
-
-                return;
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
-                checkStatusTimeout = setTimeout(checkStatus, 2000);
-            } else if (status !== "FAILED" && status !== "TIMED-OUT") {
+            },
+            onError: (err: Error) => {
+                error = err.message;
                 loading = false;
-                throw Error(
-                    "Run failed, timed-out or aborted. Check the APIFY dashboard to know more.",
-                );
-            }
-        } catch (err) {
-            error = err instanceof Error ? err.message : String(err);
-            loading = false;
-            status = "FAILED";
-            userId = (await apifyClient.getPrivateUserData()).data.id;
-            if (error == "Apify returned an empty dataset.") {
-                toast.error(error);
-            }
-            console.error(err);
-        }
-    }
-
-    async function handleSubmit() {
-        loading = true;
-        datasetLink = "";
-        filename = "";
-        outputProgress = 0;
-
-        const inputData = {
-            query: keywords
-                .split(",")
-                .map((kw) => kw.trim())
-                .join(" OR "),
-            language: selected.value,
-            dateFrom: selectedRange.start?.toString(),
-            dateTo: selectedRange.end?.toString(),
-            maxItems: maxItems,
-        };
-
-        if (!$apifyKey) {
-            console.error("Apify API key is not set");
-            return;
-        }
-
-        toast.success("Task and run created successfully.");
-        setTimeout(() => {
-            toast.info("Fetching data. This may take a while...");
-        }, 1500);
-
-        try {
-            const task = await apifyClient.createTask(inputData);
-            runId = await apifyClient
-                .runTask(task.data.id)
-                .then((run) => run.data.id);
-
-            checkStatus();
-        } catch (err) {
-            console.error("Error creating or running task:", err);
-        }
+            },
+        });
     }
 </script>
 
 <div class="">
-    <form class="flex flex-col gap-5" on:submit|preventDefault={handleSubmit}>
+    <form
+        class="flex flex-col gap-5"
+        on:submit|preventDefault={handleNewsSubmit}
+    >
         <div class="flex flex-col gap-2">
             <label for="keywords" class="text-sm text-base-content/60"
                 >Keywords:</label
@@ -201,7 +218,7 @@
                 >
                 <SearchableList
                     options={languages}
-                    bind:selected
+                    bind:selected={languageSelected}
                     disabled={loading}
                     placeholder="Select language and region"
                 />
