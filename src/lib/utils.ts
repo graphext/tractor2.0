@@ -666,10 +666,10 @@ export async function checkTaskStatus({
         format: "json",
       });
 
-
       onComplete({
         datasetLink,
         runId,
+        status
       });
 
       return;

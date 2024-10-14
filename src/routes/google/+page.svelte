@@ -46,6 +46,7 @@
     let datasetLink: string;
     let runId: string;
     let status: string;
+    $: console.log(status);
     let error: string;
     let stopping: boolean;
     let csvBlob: Blob;
@@ -56,6 +57,7 @@
     let datasetSize: number;
     let confirmChoice: boolean = false;
 
+    $: console.log(status);
     const checkGoogleTaskStatus = ({
         apifyClient,
         runId,
@@ -97,10 +99,14 @@
             onComplete: async ({
                 datasetLink,
                 runId,
+                status: completedStatus,
             }: {
                 datasetLink: string;
                 runId: string;
+                status: string;
             }) => {
+                status = completedStatus;
+
                 let datasetData = await apifyClient.getDatasetInfo(runId);
 
                 const fileKeyWord = keywords.length
