@@ -11,6 +11,7 @@
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
+    import type { InstagramComment, InstagramPost } from "$lib/types";
     import { jsonToCsv } from "$lib/utils";
 
     import { type DateValue } from "@internationalized/date";
@@ -209,7 +210,9 @@
 
                 console.log(datasetLink);
 
-                csvBlob = await jsonToCsv({
+                // TODO: continue with typescript masturbation
+
+                csvBlob = await jsonToCsv<InstagramPost>({
                     url: datasetLink,
                     dedupKey: "id",
                     customColumnOrder: [
@@ -223,9 +226,11 @@
                     unwind: [
                         {
                             targetCol: "coauthorProducers",
+                            take: 3,
                             fields: [
                                 {
                                     field: "username",
+                                    alias: "coauthorProducers_username",
                                 },
                             ],
                         },
@@ -233,7 +238,10 @@
                             targetCol: "taggedUsers",
                             take: 4,
                             fields: [
-                                { field: "username", alias: "first_4_tagged" },
+                                {
+                                    field: "username",
+                                    alias: "first_4_tagged",
+                                },
                             ],
                         },
                     ],
@@ -322,10 +330,6 @@
                 id="keywords"
                 placeholder="Enter instagram usernames, urls or hashtags separated by commas"
                 disabled={loading}
-                on:keyown={(e) => {
-                    console.log(e);
-                    console.log("yea");
-                }}
             />
         </div>
 

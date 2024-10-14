@@ -14,12 +14,13 @@
     import ResetApiButton from "$lib/components/ResetApiButton.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { MetaTags } from "svelte-meta-tags";
-    import { InstagramLogo } from "phosphor-svelte";
+    import { InstagramLogo, GoogleLogo } from "phosphor-svelte";
 
     $: pageUrl = $page.route.id;
 
     let actors = [
         { id: "/", icon: TwitterLogo, title: "Twitter" },
+        { id: "/google", icon: GoogleLogo, title: "Google" },
         { id: "/news", icon: NewspaperClipping, title: "Google News" },
         { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
     ];
