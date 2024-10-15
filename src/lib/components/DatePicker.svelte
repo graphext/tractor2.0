@@ -4,11 +4,7 @@
     import { CalendarDots, CaretLeft, CaretRight } from "phosphor-svelte";
     import { fly } from "svelte/transition";
 
-    import {
-        today,
-        getLocalTimeZone,
-        type DateValue,
-    } from "@internationalized/date";
+    import { type DateValue } from "@internationalized/date";
 
     export let selectedDate: DateValue;
     export let label = "Select a date";
@@ -21,6 +17,7 @@
     weekStartsOn={1}
     locale="en-UK"
     pagedNavigation={true}
+    isDateDisabled={$$props["isDateDisabled"]}
 >
     <DatePicker.Label class="text-sm text-base-content/60"
         >{label}</DatePicker.Label
@@ -97,7 +94,10 @@
                                             <DatePicker.Day
                                                 {date}
                                                 month={month.value}
-                                                class="group relative inline-flex size-10 items-center justify-center overflow-visible whitespace-nowrap rounded-9px border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:text-base-content data-[selection-end]:bg-primary/10 data-[selection-end]:border-2 data-[selection-end]:border-primary data-[selection-start]:bg-primary/5 data-[selection-start]:border-2 data-[selection-start]:border-primary data-[highlighted]:bg-base-content/20 data-[selected]:bg-primary data-[selected]:text-primary-content  data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-start]:text-base-content data-[unavailable]:line-through data-[disabled]:text-base-content/20"
+                                                class="group relative
+                                                inline-flex size-10 items-center
+                                                justify-center overflow-visible
+                                                whitespace-nowrap rounded-sm border border-transparent bg-background bg-transparent p-0 text-sm font-normal transition-all data-[disabled]:pointer-events-none data-[outside-month]:pointer-events-none data-[outside-month]:text-base-content/40 data-[highlighted]:rounded-none data-[selection-end]:text-base-content data-[selection-end]:bg-primary/10 data-[selection-end]:border-2 data-[selection-end]:border-primary data-[selection-start]:bg-primary/5 data-[selection-start]:border-2 data-[selection-start]:border-primary data-[highlighted]:bg-base-content/20 data-[selected]:bg-primary data-[today]:border-primary/30 data-[selected]:text-primary-content  data-[selection-start]:bg-foreground data-[selected]:font-bold data-[selection-end]:font-bold data-[selection-start]:font-bold data-[disabled]:text-foreground/30 data-[selected]:text-foreground data-[selection-start]:text-base-content data-[unavailable]:line-through data-[disabled]:text-base-content/20"
                                             />
                                         </DatePicker.Cell>
                                     {/each}

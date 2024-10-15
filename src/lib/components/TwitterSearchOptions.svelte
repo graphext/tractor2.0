@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { today, getLocalTimeZone } from "@internationalized/date";
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
@@ -135,7 +136,13 @@
 </div>
 
 <div class="flex items-start gap-3 w-full overflow-x-clip">
-    <DateRangePicker bind:selectedRange bind:timeSteps />
+    <DateRangePicker
+        isDateDisabled={(d) => {
+            return d > today(getLocalTimeZone());
+        }}
+        bind:selectedRange
+        bind:timeSteps
+    />
     <SelectFrequency {options} />
     <SelectLists bind:lists />
 </div>

@@ -20,9 +20,9 @@
 
     let actors = [
         { id: "/", icon: TwitterLogo, title: "Twitter" },
+        { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
         { id: "/google", icon: GoogleLogo, title: "Google" },
         { id: "/news", icon: NewspaperClipping, title: "Google News" },
-        { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
     ];
 
     $: apikeyPresent = $apifyKey != "";
@@ -81,11 +81,13 @@
 
     <ApifyKeyInput />
 
-    <div class="flex items-center justify-between mt-10">
+    <div class="flex items-baseline justify-between mt-10">
         <div class="flex gap-6 items-center my-5">
             {#each actors as actor}
                 <a href={actor.id} class="group">
-                    <div class="flex gap-2 items-center">
+                    <div
+                        class={`hover-underline-animation flex gap-2 pb-2 items-center`}
+                    >
                         <svelte:component
                             this={actor.icon}
                             size={24}
@@ -93,7 +95,11 @@
                             class="fill-primary group-hover:-rotate-12 transition-all"
                         />
                         <h2
-                            class={`transition-opacity ${pageUrl == actor.id ? "font-bold opacity-100" : "font-normal opacity-50 hover:opacity-80"}`}
+                            class={`transition-opacity ${
+                                pageUrl == actor.id
+                                    ? "font-bold opacity-100"
+                                    : "font-normal opacity-50 hover:opacity-80"
+                            }`}
                         >
                             {actor.title}
                         </h2>
@@ -112,3 +118,27 @@
     <slot />
     <Footer />
 </main>
+
+<style>
+    .hover-underline-animation {
+        position: relative;
+    }
+
+    .hover-underline-animation::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        @apply bg-primary/20;
+        transform-origin: bottom right;
+        transition: transform 0.15s ease-in-out;
+    }
+
+    .hover-underline-animation:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+</style>

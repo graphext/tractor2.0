@@ -393,16 +393,18 @@ export async function jsonToCsv<T>({
     }
     let jsonData: any[] = await response.json();
 
+    const emptyError = new Error("Apify returned an empty table. This could mean your search is too narrow. Try searching for broader topics or dates.");
+
     if (
       !Array.isArray(jsonData) ||
       jsonData.length === 0 ||
       jsonData === undefined
     ) {
-      throw new Error("Apify returned an empty table.");
+      throw emptyError;
     }
 
     if (jsonData.every((o) => o.hasOwnProperty("noResults"))) {
-      throw new Error("Apify returned an empty dataset.");
+      throw emptyError;
     }
 
     if (dedupKey && dedupKey !== "") {
@@ -683,16 +685,19 @@ export async function checkTaskStatus({
     const runData = await apifyClient.getRunStatus(runId!);
     status = runData.data.status;
 
-
-
     const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId!);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
 
-      onComplete({
-        runId,
-        status
-      });
+      try {
+        await onComplete({
+          runId,
+          status
+        });
+
+      } catch (e) {
+        onError(e);
+      }
 
       return;
     }
@@ -707,7 +712,9 @@ export async function checkTaskStatus({
 
   } catch (err) {
     onError(err);
+    throw err;
   }
+
 }
 
 export function sendEventData(eventData: any) {

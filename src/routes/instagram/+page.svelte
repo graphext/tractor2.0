@@ -1,12 +1,15 @@
 <script lang="ts">
     import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
-    import { ApifyClient } from "$lib/apifyEndpoints";
+    import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import DatePicker from "$lib/components/DatePicker.svelte";
+    import DownloadButton from "$lib/components/DownloadButton.svelte";
+    import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
     import LiveTable from "$lib/components/LiveTable.svelte";
     import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Section from "$lib/components/Section.svelte";
     import Select from "$lib/components/Select.svelte";
+    import Status from "$lib/components/Status.svelte";
     import StopButton from "$lib/components/StopButton.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
@@ -19,7 +22,11 @@
         submitTask,
     } from "$lib/utils";
 
-    import { type DateValue } from "@internationalized/date";
+    import {
+        type DateValue,
+        today,
+        getLocalTimeZone,
+    } from "@internationalized/date";
     import { type Selected, Tooltip } from "bits-ui";
     import { QuestionMark } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
@@ -29,6 +36,7 @@
     let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID);
 
     let keywords = "";
+    $: urlsLength = processInstagramInput(keywords).length;
     let loading: boolean = false;
     let maxItems = 500;
     let confirmChoice = false;
@@ -55,6 +63,7 @@
 
     let status: string;
     let error: string;
+
     let csvBlob: Blob;
     let headers: string[], rows: Array<string[]>;
     let userId: string;
@@ -96,6 +105,7 @@
         outputProgress = 0;
         confirmChoice = false;
         status = "STARTING";
+        error = "";
 
         let urls = processInstagramInput(keywords);
 
@@ -137,6 +147,7 @@
             },
 
             onError: (err: Error) => {
+                console.log("error");
                 error = err.message;
                 loading = false;
             },
@@ -191,8 +202,6 @@
             }) => {
                 status = completedStatus;
 
-                toast.success("🎉 Dataset created. Ready to download!");
-
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
@@ -200,6 +209,9 @@
                         "alt",
                         "caption",
                         "coauthorProducers",
+                        "followersCount",
+                        "followsCount",
+                        "biography",
                         "commentsCount",
                         "displayUrl",
                         "firstComment",
@@ -218,7 +230,6 @@
                         "id",
                     ],
                 });
-
                 csvBlob = await jsonToCsv<InstagramPost>({
                     url: datasetLink,
                     dedupKey: "id",
@@ -259,16 +270,25 @@
                 const fileKeyWord = keywords.length
                     ? keywords.replaceAll(",", "_")
                     : keywords;
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+                filename = `data_TRCTR_${fileKeyWord
+                    .replaceAll("https://instagram.com/", "")
+                    .replaceAll("/", "")
+                    .replaceAll(".", "")
+                    .replaceAll(" ", "")
+                    .replaceAll("@", "")}_${datasetData.data.id}`;
 
                 datasetSize = datasetData.data.itemCount;
 
+                toast.success("🎉 Dataset created. Ready to download!");
                 loading = false;
             },
-            onError: (err: Error) => {
+            onError: async (err: Error) => {
                 error = err.message;
+                userId = (await getPrivateUserData()).data.id;
+                toast.error(err.message, {
+                    duration: 10000,
+                });
                 loading = false;
-                toast.error(err.message);
             },
         });
     }
@@ -335,6 +355,9 @@
                 <DatePicker
                     disabled={loading}
                     label={"Search posts newer than"}
+                    isDateDisabled={(d) => {
+                        return d > today(getLocalTimeZone());
+                    }}
                     bind:selectedDate
                 />
             </div>
@@ -351,9 +374,20 @@
             </div>
 
             <div class="flex flex-col gap-1">
-                <label for="maxItems" class="text-sm text-base-content/60"
-                    >{selectedResultType.label} to search for:</label
-                >
+                <Tooltip.Root openDelay={0}>
+                    <Tooltip.Trigger class="w-fit text-left">
+                        <label
+                            for="maxItems"
+                            class="text-sm text-base-content/60"
+                            >{selectedResultType.label} to search for:</label
+                        >
+                    </Tooltip.Trigger>
+                    <TooltipContent transitionConfig={{ duration: 100, y: -5 }}>
+                        This will return {maxItems} results for every user you include.
+                        If you were to include 3 users, you will get approximately
+                        {maxItems * 3} results.
+                    </TooltipContent>
+                </Tooltip.Root>
                 <input
                     class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
                     inputmode="numeric"
@@ -370,7 +404,7 @@
             {#if loading}
                 <progress
                     class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
-                    max={maxItems}
+                    max={maxItems * urlsLength}
                     value={$springProgress}
                 ></progress>
             {/if}
@@ -399,19 +433,7 @@
     </form>
 
     {#if csvBlob && filename}
-        <a
-            href={URL.createObjectURL(csvBlob)}
-            download={filename}
-            class:disabled={loading}
-            class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
-            >Download Dataset <span
-                class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
-                >.csv</span
-            >
-            {#if datasetSize}
-                — {datasetSize} rows
-            {/if}
-        </a>
+        <DownloadButton csvBlob filename datasetSize loading />
     {/if}
 
     {#if error || status}
@@ -434,38 +456,13 @@
                     {/if}
 
                     {#if error}
-                        <div class="flex items-center gap-3">
-                            <p>{error}</p>
-                            <a
-                                href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
-                                target="_blank"
-                                class:disabled={userId == undefined ||
-                                    runId == undefined}
-                                class="btn btn-xs btn-error">Go to run</a
-                            >
-                        </div>
+                        <Error error userId runId />
                     {:else}
                         <p class="opacity-0">error</p>
                     {/if}
 
                     {#if status}
-                        <div
-                            class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
-                        >
-                            <p class="mt-4">Task status: {status}</p>
-                            {#if status == "RUNNING"}
-                                <span
-                                    >{outputProgress}
-                                    {selectedResultType.label?.toLowerCase()} downloaded...</span
-                                >
-                                <span class="loading loading-dots loading-sm"
-                                ></span>
-                            {:else if status == "SUCCEEDED"}
-                                <span></span>
-                            {:else if status == "FAILED"}
-                                <span> </span>
-                            {/if}
-                        </div>
+                        <Status status outputProgress />
                     {/if}
                 </div>
 

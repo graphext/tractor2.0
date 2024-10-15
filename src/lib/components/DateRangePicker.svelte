@@ -166,9 +166,6 @@
         }}
         locale="en-UK"
         {minValue}
-        isDateDisabled={(date) => {
-            return date < new CalendarDate(2006, 3, 21); //twitter foundation date
-        }}
         numberOfMonths={2}
     >
         <DateRangePicker.Label class="text-sm text-base-content/60"

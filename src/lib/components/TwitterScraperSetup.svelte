@@ -17,7 +17,7 @@
     import CronEditor from "./CronEditor.svelte";
     import Gauge from "phosphor-svelte/lib/Gauge";
     import Book from "phosphor-svelte/lib/Book";
-    import { ApifyClient } from "../apifyEndpoints";
+    import { ApifyClient, getPrivateUserData } from "../apifyEndpoints";
 
     import { TWITTER_ACT_ID } from "$lib/actors";
     import { createFunctionString } from "$lib/postprocess";
@@ -28,6 +28,10 @@
     import type { DateRange } from "bits-ui";
 
     import { frequencyStore, selectedLists } from "$lib/stores/store";
+    import Error from "./Error.svelte";
+    import User from "./User.svelte";
+    import Status from "./Status.svelte";
+    import DownloadButton from "./DownloadButton.svelte";
 
     export let queries = "";
     export let selectedRange: DateRange;
@@ -181,8 +185,6 @@
             }) => {
                 status = completedStatus;
 
-                toast.success("🎉 Dataset created. Ready to download!");
-
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
@@ -212,12 +214,17 @@
 
                 datasetSize = datasetData.data.itemCount;
 
+                toast.success("🎉 Dataset created. Ready to download!");
+
                 loading = false;
             },
-            onError: (err: Error) => {
+            onError: async (err: Error) => {
                 error = err.message;
+                userId = (await getPrivateUserData()).data.id;
+                toast.error(err.message, {
+                    duration: 10000,
+                });
                 loading = false;
-                toast.error(err.message);
             },
         });
     }
@@ -312,26 +319,21 @@
 </form>
 
 {#if csvBlob && filename}
-    <a
-        class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
-        class:disabled={loading}
-        href={URL.createObjectURL(csvBlob)}
-        download={filename}
-        >Download Dataset <span
-            class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
-            >.csv</span
-        >
-        {#if datasetSize}
-            — {datasetSize} rows
-        {/if}
-    </a>
+    <DownloadButton csvBlob filename datasetSize loading />
 {/if}
 
+<CronEditor
+    {numTweets}
+    {queries}
+    {queriesSpreadOverTime}
+    actorId={TWITTER_ACT_ID}
+/>
+
 {#if error || status}
+    <div class="divider mt-3 mb-3" />
     <div>
-        <div class="divider mt-3 mb-3" />
         <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-baseline my-5">
+            <div class="flex justify-between items-baseline mb-5">
                 {#if status == "RUNNING" || status == "ABORTING"}
                     <StopButton {apifyClient} {runId} />
                 {/if}
@@ -346,48 +348,19 @@
                 {/if}
 
                 {#if error}
-                    <div class="flex items-center gap-3">
-                        <p>{error}</p>
-                        <a
-                            href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
-                            target="_blank"
-                            class:disabled={userId == undefined ||
-                                runId == undefined}
-                            class="btn btn-xs btn-error">Go to run</a
-                        >
-                    </div>
+                    <Error error userId runId />
                 {:else}
                     <p class="opacity-0">error</p>
                 {/if}
 
                 {#if status}
-                    <div
-                        class="flex gap-3 justify-end items-baseline opacity-30 tabular-nums"
-                    >
-                        <p class="mt-4">Task status: {status}</p>
-                        {#if status == "RUNNING"}
-                            <span>{outputProgress} tweets analyzed...</span>
-                            <span class="loading loading-dots loading-sm"
-                            ></span>
-                        {:else if status == "SUCCEEDED"}
-                            <span></span>
-                        {:else if status == "FAILED"}
-                            <span> </span>
-                        {/if}
-                    </div>
+                    <Status status outputProgress />
                 {/if}
             </div>
             <LiveTable {headers} {rows} />
         </div>
     </div>
 {/if}
-
-<CronEditor
-    {numTweets}
-    {queries}
-    {queriesSpreadOverTime}
-    actorId={TWITTER_ACT_ID}
-/>
 
 <style>
     progress {

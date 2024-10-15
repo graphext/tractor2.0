@@ -1,10 +1,13 @@
 <script lang="ts">
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
+    import DownloadButton from "$lib/components/DownloadButton.svelte";
+    import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
     import LiveTable from "$lib/components/LiveTable.svelte";
     import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Section from "$lib/components/Section.svelte";
+    import Status from "$lib/components/Status.svelte";
     import StopButton from "$lib/components/StopButton.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
@@ -306,19 +309,7 @@
     </form>
 
     {#if csvBlob && filename}
-        <a
-            href={URL.createObjectURL(csvBlob)}
-            download={filename}
-            class:disabled={loading}
-            class="btn btn-outline btn-primary w-full mt-5 group rounded-full"
-            >Download Dataset <span
-                class="font-mono badge badge-primary badge-xs group-hover:badge-warning"
-                >.csv</span
-            >
-            {#if datasetSize}
-                — {datasetSize} rows
-            {/if}
-        </a>
+        <DownloadButton csvBlob filename datasetSize loading />
     {/if}
 
     {#if error || status}
@@ -341,37 +332,13 @@
                     {/if}
 
                     {#if error}
-                        <div class="flex items-center gap-3">
-                            <p>{error}</p>
-                            <a
-                                href="https://console.apify.com/organization/{userId}/actors/runs/{runId}#output"
-                                target="_blank"
-                                class:disabled={userId == undefined ||
-                                    runId == undefined}
-                                class="btn btn-xs btn-error">Go to run</a
-                            >
-                        </div>
+                        <Error error userId runId />
                     {:else}
                         <p class="opacity-0">error</p>
                     {/if}
 
                     {#if status}
-                        <div
-                            class="flex gap-3 justify-end items-end opacity-30 tabular-nums text-right"
-                        >
-                            <p class="mt-4">Task status: {status}</p>
-                            {#if status == "RUNNING"}
-                                <span
-                                    >{outputProgress} results downloaded...</span
-                                >
-                                <span class="loading loading-dots loading-sm"
-                                ></span>
-                            {:else if status == "SUCCEEDED"}
-                                <span></span>
-                            {:else if status == "FAILED"}
-                                <span> </span>
-                            {/if}
-                        </div>
+                        <Status status outputProgress />
                     {/if}
                 </div>
 
