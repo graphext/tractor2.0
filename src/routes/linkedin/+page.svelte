@@ -20,6 +20,7 @@
         submitTask,
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
+    import { QuestionMark } from "phosphor-svelte";
     import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
@@ -266,58 +267,63 @@
         <div class="flex flex-col gap-5">
             <div class="flex flex-col gap-2 w-full">
                 <div class="flex justify-between">
-                    <Tooltip.Root openDelay={0}>
-                        <Tooltip.Trigger>
-                            <label
-                                for="keywords"
-                                class="text-sm text-base-content/60"
-                                >Your LinkedIn cookies:</label
-                            >
-                        </Tooltip.Trigger>
-                        <TooltipContent
-                            side="bottom"
-                            align="start"
-                            sideOffset={10}
+                    <div class="flex items-center gap-1">
+                        <label
+                            for="keywords"
+                            class="text-sm text-base-content/60"
+                            >Your LinkedIn cookies:</label
                         >
-                            <div class="flex flex-col gap-3">
-                                <p>
-                                    Cookies are used to authorize the actor with
-                                    Linkedin. Without them, we cannot scrape
-                                    LinkedIn.
-                                </p>
-                                <p>
-                                    To get your cookies, you can follow
-                                    <a
-                                        class="underline text-primary"
-                                        href="https://youtu.be/YuKp9BlVgNM"
-                                    >
-                                        this tutorial.</a
-                                    >
-                                </p>
-                                <ol class="list-decimal list-inside">
-                                    <li>
-                                        Install <a
-                                            class="underline
-                                        text-primary"
-                                            href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm"
-                                            >Cookie-Editor</a
-                                        > chrome extension
-                                    </li>
-                                    <li>Login to your Linkedin account</li>
-                                    <li>
-                                        Click on the extension and export the
-                                        Linkedin cookies
-                                    </li>
-                                    <li>Paste the copied contents here</li>
-                                    <li>
-                                        Click the save cookies button to the
-                                        right. This way, you can skip this step
-                                        next time.
-                                    </li>
-                                </ol>
-                            </div>
-                        </TooltipContent>
-                    </Tooltip.Root>
+                        <Tooltip.Root openDelay={0}>
+                            <Tooltip.Trigger>
+                                <QuestionMark
+                                    size={20}
+                                    weight="bold"
+                                    class="rounded-full bg-neutral border-2 border-base-300"
+                                />
+                            </Tooltip.Trigger>
+                            <TooltipContent
+                                side="bottom"
+                                sideOffset={10}
+                                transitionConfig={{ duration: 100, y: -5 }}
+                            >
+                                <div
+                                    class="prose prose-sm prose-a:text-primary
+                                    prose-a:font-bold"
+                                >
+                                    <p>
+                                        Cookies are used to authorize the actor
+                                        with Linkedin. Without them, we cannot
+                                        scrape LinkedIn.
+                                    </p>
+                                    <p>
+                                        To get your cookies, you can follow
+                                        <a href="https://youtu.be/YuKp9BlVgNM">
+                                            this tutorial.</a
+                                        >
+                                    </p>
+                                    <ol class="list-decimal list-inside">
+                                        <li>
+                                            Install the <a
+                                                href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm"
+                                                >Cookie-Editor</a
+                                            > chrome extension
+                                        </li>
+                                        <li>Login to your Linkedin account</li>
+                                        <li>
+                                            Click on the extension and export
+                                            the Linkedin cookies
+                                        </li>
+                                        <li>Paste the copied contents here</li>
+                                        <li>
+                                            Click the save cookies button to the
+                                            right. This way, you can skip this
+                                            step next time.
+                                        </li>
+                                    </ol>
+                                </div>
+                            </TooltipContent>
+                        </Tooltip.Root>
+                    </div>
                     {#if !$linkedInCookies}
                         <button
                             class="btn btn-primary rounded-full btn-xs"
