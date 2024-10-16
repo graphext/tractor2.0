@@ -318,9 +318,7 @@
     </div>
 </form>
 
-{#if csvBlob && filename}
-    <DownloadButton csvBlob filename datasetSize loading />
-{/if}
+<DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
 
 <CronEditor
     {numTweets}
@@ -348,13 +346,13 @@
                 {/if}
 
                 {#if error}
-                    <Error error userId runId />
+                    <Error {error} {userId} {runId} />
                 {:else}
                     <p class="opacity-0">error</p>
                 {/if}
 
                 {#if status}
-                    <Status status outputProgress />
+                    <Status {status} {outputProgress} />
                 {/if}
             </div>
             <LiveTable {headers} {rows} />

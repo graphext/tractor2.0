@@ -14,7 +14,7 @@
     import ResetApiButton from "$lib/components/ResetApiButton.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { MetaTags } from "svelte-meta-tags";
-    import { InstagramLogo, GoogleLogo } from "phosphor-svelte";
+    import { LinkedinLogo, InstagramLogo, GoogleLogo } from "phosphor-svelte";
 
     $: pageUrl = $page.route.id;
 
@@ -23,6 +23,7 @@
         { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
         { id: "/google", icon: GoogleLogo, title: "Google" },
         { id: "/news", icon: NewspaperClipping, title: "Google News" },
+        { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
     ];
 
     $: apikeyPresent = $apifyKey != "";

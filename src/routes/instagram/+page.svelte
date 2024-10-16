@@ -14,7 +14,7 @@
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
-    import type { InstagramComment, InstagramPost } from "$lib/types";
+    import type { InstagramPost } from "$lib/types";
     import {
         checkTaskStatus,
         jsonToCsv,
@@ -137,12 +137,13 @@
         submitTask({
             apifyClient,
             inputData,
-            onTaskCreated: (createdRunId) => {
+            onTaskCreated: (createdRunId: string) => {
                 runId = createdRunId;
 
                 toast.info("Fetching data. This may take a while...");
 
                 loading = true;
+
                 checkInstagramTaskStatus({ apifyClient, maxItems, runId });
             },
 
@@ -230,6 +231,7 @@
                         "id",
                     ],
                 });
+
                 csvBlob = await jsonToCsv<InstagramPost>({
                     url: datasetLink,
                     dedupKey: "id",
@@ -432,9 +434,7 @@
         </div>
     </form>
 
-    {#if csvBlob && filename}
-        <DownloadButton csvBlob filename datasetSize loading />
-    {/if}
+    <DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
 
     {#if error || status}
         <div>
@@ -456,13 +456,13 @@
                     {/if}
 
                     {#if error}
-                        <Error error userId runId />
+                        <Error {error} {userId} {runId} />
                     {:else}
                         <p class="opacity-0">error</p>
                     {/if}
 
                     {#if status}
-                        <Status status outputProgress />
+                        <Status bind:status bind:outputProgress />
                     {/if}
                 </div>
 

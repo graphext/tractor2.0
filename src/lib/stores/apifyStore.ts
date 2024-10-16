@@ -5,6 +5,7 @@ import { browser } from "$app/environment";
 const storedKey = browser ? localStorage.getItem("apifyKey") : null;
 export const apifyKey = writable<string>(storedKey || "");
 
+
 // Subscribe to changes and update localStorage
 if (browser) {
 	apifyKey.subscribe((value) => {

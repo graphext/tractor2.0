@@ -43,6 +43,11 @@ export type Task = {
 
 export type InstagramPost = {
 	inputUrl: string;
+	timestamp: string;
+	type: string;
+	likesCount: number;
+	commentsCount: number;
+	caption: string;
 	id: string;
 	username: string;
 	url: string;
@@ -283,6 +288,91 @@ export type SearchGoogleResult = {
 };
 
 
+export type LinkedInResult = {
+	urn: string;
+	text: string;
+	url: string;
+	postedAtTimestamp: number;
+	postedAtISO: string;
+	timeSincePosted: string;
+	numLikes: number;
+	numShares: number;
+	numComments: number;
+	isRepost: boolean;
+	authorType: string;
+	authorProfileUrl: string;
+	authorProfileId: string;
+	authorHeadline: string;
+	authorFullName: string;
+	image: string;
+	type: string;
+	images: string[];
+	author: {
+		firstName: string;
+		lastName: string;
+		occupation: string;
+		id: string;
+		publicId: string;
+		trackingId: string;
+		profileId: string;
+		picture?: string;
+		backgroundImage?: string;
+	};
+	authorName: string;
+	authorTitle: string;
+	attributes: {
+		start: number;
+		length: number;
+		type: string;
+		profile: {
+			firstName: string;
+			lastName: string;
+			occupation: string;
+			id: string;
+			publicId: string;
+			trackingId: string;
+			profileId: string;
+			picture?: string;
+			backgroundImage?: string;
+		};
+	}[];
+	comments: {
+		time: number;
+		link: string;
+		text: string;
+		entities: any[];
+		pinned: boolean;
+		originalLanguage: string;
+		author: {
+			firstName: string;
+			lastName: string;
+			occupation: string;
+			id: string;
+			publicId: string;
+			trackingId: string;
+			profileId: string;
+			picture?: string;
+			backgroundImage?: string;
+			distance: string;
+		};
+	}[];
+	reactions: {
+		type: string;
+		profile: {
+			firstName: string;
+			lastName: string;
+			occupation: string;
+			id: string;
+			publicId: string;
+			trackingId: string;
+			profileId: string;
+			picture?: string;
+			backgroundImage?: string;
+		};
+	}[];
+};
+
+
 
 // typescript masturbation to make LSP work with types from apify
 
@@ -308,7 +398,7 @@ export interface TypedUnwindTarget<T, K extends ArrayKeys<T>> {
 export interface TypedJsonToCsvOptions<T> {
 	url: string;
 	dedupKey?: keyof T | null;
-	customColumnOrder?: string[];
+	customColumnOrder?: (keyof T)[];
 	unwind?: {
 		[K in ArrayKeys<T>]: TypedUnwindTarget<T, K>;
 	}[ArrayKeys<T>][];
