@@ -20,7 +20,7 @@
         submitTask,
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
-    import { QuestionMark } from "phosphor-svelte";
+    import { QuestionMark, WarningCircle } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
@@ -78,7 +78,7 @@
             cookie: JSON.parse($linkedInCookies),
             deepScrape: true,
             limitPerSource: maxItems,
-            maxDelay: 5,
+            maxDelay: 10,
             minDelay: 2,
             proxy: {
                 useApifyProxy: true,
@@ -309,6 +309,68 @@
                                             step next time.
                                         </li>
                                     </ol>
+                                </div>
+                            </TooltipContent>
+                        </Tooltip.Root>
+
+                        <Tooltip.Root openDelay={0}>
+                            <Tooltip.Trigger class="w-min">
+                                <WarningCircle
+                                    size={20}
+                                    weight="bold"
+                                    class="fill-error hover:fill-error-content
+                                    hover:bg-error rounded-full transition-all"
+                                />
+                            </Tooltip.Trigger>
+                            <TooltipContent
+                                side="right"
+                                sideOffset={10}
+                                transitionConfig={{ duration: 100, y: -5 }}
+                            >
+                                <div
+                                    class="prose prose-sm prose-a:text-primary
+                                    prose-a:font-bold"
+                                >
+                                    <p>
+                                        Scraping too much content can lead to
+                                        temporal or permanent bans on your
+                                        account.
+                                    </p>
+                                    <p>
+                                        Neither Tractor nor Graphext are
+                                        responsible for any consecuences it may
+                                        bring.
+                                    </p>
+                                    <p>
+                                        To ensure uninterrupted scraping and
+                                        avoid any problems with LinkedIn, here
+                                        are a few tips:
+                                    </p>
+                                    <ul>
+                                        <li>
+                                            Leave sufficient time in between
+                                            each run: a minimum of 5 minutes is
+                                            enough
+                                        </li>
+                                        <li>
+                                            Do not use LinkedIn on your browser
+                                            while you are scraping, as it would
+                                            seem like you are using it from two
+                                            computers at the same time
+                                        </li>
+                                        <li>
+                                            Creating new <i>fake</i> accounts usually
+                                            does not work. These accounts get banned
+                                            and deleted easily.
+                                        </li>
+                                    </ul>
+
+                                    <p>
+                                        On top of that, Tractor configures this
+                                        LinkedIn actor to perform a random delay
+                                        in between each piece of data it gets,
+                                        to simulate a more organic use.
+                                    </p>
                                 </div>
                             </TooltipContent>
                         </Tooltip.Root>
