@@ -21,10 +21,29 @@
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
     import { QuestionMark, ExclamationMark } from "phosphor-svelte";
-    import type { Message } from "postcss";
+    import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
-    import { cubicInOut } from "svelte/easing";
+    import { cubicInOut, quartInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
+
+    let mounted = false;
+
+    onMount(() => {
+        mounted = true;
+    });
+
+    function wiggle(node, { duration = 600, angle = 10, scaleAmount = 1.3 }) {
+        return {
+            duration,
+            css: (t: number) => {
+                const shake = Math.sin(t * Math.PI * 4) * angle * (1 - t);
+                const scale = 1 + Math.sin(t * Math.PI) * (scaleAmount - 1);
+                return `transform: scale(${scale}) rotate(${shake}deg);
+        `;
+            },
+            easing: quartInOut,
+        };
+    }
 
     let apifyClient = new ApifyClient(LINKEDIN_ACTOR_ID);
 
@@ -328,13 +347,23 @@
 
                         <Tooltip.Root openDelay={0}>
                             <Tooltip.Trigger class="w-min">
-                                <ExclamationMark
-                                    size={20}
-                                    weight="bold"
-                                    class="rounded-full bg-warning/5 border-2
+                                {#if mounted}
+                                    <div
+                                        in:wiggle={{
+                                            duration: 800,
+                                            angle: 50,
+                                            scaleAmount: 1.5,
+                                        }}
+                                    >
+                                        <ExclamationMark
+                                            size={20}
+                                            weight="bold"
+                                            class="rounded-full bg-warning/5 border-2
                                     border-warning/15 fill-orange-400
                                     hover:fill-warning-content hover:bg-warning transition-all"
-                                />
+                                        />
+                                    </div>
+                                {/if}
                             </Tooltip.Trigger>
                             <TooltipContent
                                 side="right"
