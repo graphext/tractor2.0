@@ -36,7 +36,7 @@
         return {
             duration,
             css: (t: number) => {
-                const shake = Math.sin(t * Math.PI * 4) * angle * (1 - t);
+                const shake = Math.sin(t * Math.PI * 4) * angle;
                 const scale = 1 + Math.sin(t * Math.PI) * (scaleAmount - 1);
                 return `transform: scale(${scale}) rotate(${shake}deg);
         `;
@@ -351,8 +351,10 @@
                                     <div
                                         in:wiggle={{
                                             duration: 800,
-                                            angle: 50,
-                                            scaleAmount: 1.5,
+                                            angle: $linkedInCookies ? 0 : 40,
+                                            scaleAmount: $linkedInCookies
+                                                ? 1
+                                                : 1.9,
                                         }}
                                     >
                                         <ExclamationMark
