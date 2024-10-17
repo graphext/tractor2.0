@@ -21,7 +21,6 @@
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
     import { QuestionMark } from "phosphor-svelte";
-    import { onMount } from "svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
@@ -29,9 +28,16 @@
     let apifyClient = new ApifyClient(LINKEDIN_ACTOR_ID);
 
     let urls: string,
-        cookies: string,
         loading = false,
         maxItems = 100;
+
+    let urlsSplit: string[] = [];
+    $: if (urls) {
+        urlsSplit = urls
+            .split("\n")
+            .map((u) => u.trim())
+            .filter((u) => u != "" && u.length > 0);
+    }
 
     $: buttonText = loading ? "Getting results" : "Get LinkedIn posts";
 
@@ -59,19 +65,17 @@
     let filename: string;
     let datasetSize: number;
 
+    let cookieTextAreaValue: string;
+
     async function handleLinkedinSubmit() {
         datasetLink = "";
         filename = "";
         outputProgress = 0;
         status = "STARTING";
-
-        let urlsSplit = urls
-            .split("\n")
-            .map((u) => u.trim())
-            .filter((u) => u != "" && u.length > 0);
+        loading = true;
 
         let inputData = {
-            cookie: JSON.parse(cookies),
+            cookie: JSON.parse($linkedInCookies),
             deepScrape: true,
             limitPerSource: maxItems,
             maxDelay: 5,
@@ -101,8 +105,6 @@
                 runId = createdRunId;
 
                 toast.info("Fetching data. This may take a couple minutes...");
-
-                loading = true;
 
                 checkLinkedinStatus({ apifyClient, maxItems, runId });
             },
@@ -239,24 +241,11 @@
     }
 
     function saveCookies() {
-        $linkedInCookies = cookies;
+        $linkedInCookies = cookieTextAreaValue;
     }
     function resetCookies() {
         $linkedInCookies = "";
-        cookies = "";
     }
-
-    onMount(() => {
-        if (
-            $linkedInCookies != "" &&
-            $linkedInCookies != undefined &&
-            $linkedInCookies != null
-        ) {
-            cookies = $linkedInCookies!;
-            console.log("onmount cookies", cookies);
-        }
-    });
-    $: console.log("cookies", cookies);
 </script>
 
 <Section>
@@ -327,14 +316,18 @@
                     {#if !$linkedInCookies}
                         <button
                             class="btn btn-primary rounded-full btn-xs"
-                            disabled={!cookies}
+                            disabled={!cookieTextAreaValue}
                             on:click={saveCookies}>Save cookies</button
                         >
                     {:else}
-                        <button
+                        <div
                             class="btn opacity-40 hover:opacity-100 btn-outline hover:btn-error rounded-full btn-xs"
-                            on:click={resetCookies}>Reset cookies</button
+                            tabindex="-1"
+                            role="button"
+                            on:click={resetCookies}
                         >
+                            Reset cookies
+                        </div>
                     {/if}
                 </div>
                 <div>
@@ -347,7 +340,7 @@
                     {:else}
                         <CleanPasteInput
                             rows={2}
-                            bind:value={cookies}
+                            bind:value={cookieTextAreaValue}
                             placeholder={`[ { "domain": ".linkedin.com", "expirationDate":XXXXXX.XXXXX, "hostOnly": false, "httpOnly": false, ... }, ...]`}
                         />
                     {/if}
@@ -363,6 +356,7 @@ https://www.linkedin.com/search/results...
 https://www.linkedin.com/search/results...
 `}
                     bind:value={urls}
+                    disabled={loading}
                 />
             </div>
         </div>
@@ -395,14 +389,15 @@ https://www.linkedin.com/search/results...
             {#if loading}
                 <progress
                     class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
-                    max={maxItems}
+                    max={maxItems * urlsSplit.length}
                     value={$springProgress}
                 ></progress>
             {/if}
             <button
                 class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
-                disabled={!apifyKey || !urls || !cookies}
-                class:disabled={!apifyKey || !urls || !cookies}
+                disabled={!$apifyKey || !urls || !$linkedInCookies}
+                type="submit"
+                class:disabled={!$apifyKey || !urls || !$linkedInCookies}
             >
                 {#if loading}
                     <span class="loading loading-ring"></span>
@@ -449,3 +444,42 @@ https://www.linkedin.com/search/results...
         </div>
     {/if}
 </Section>
+
+<style>
+    progress {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+    }
+
+    /* For Chrome and Safari */
+    progress::-webkit-progress-bar {
+        background-color: transparent;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: white;
+    }
+
+    /* For Firefox */
+    progress::-moz-progress-bar {
+        background-color: white;
+    }
+
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+    .disabled {
+        @apply btn-disabled shadow-none;
+    }
+</style>

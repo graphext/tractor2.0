@@ -14,7 +14,7 @@
 
 <Select.Root
     preventScroll={false}
-    selected={options.find((e) => e.value === $frequencyStore)}
+    selected={options[0]}
     onSelectedChange={(e) => {
         if (e) {
             $frequencyStore = e.label;
