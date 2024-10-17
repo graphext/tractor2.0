@@ -331,8 +331,9 @@
                                 <ExclamationMark
                                     size={20}
                                     weight="bold"
-                                    class="rounded-full bg-neutral border-2
-                                    border-error/15 fill-error hover:fill-error-content hover:bg-error transition-all"
+                                    class="rounded-full bg-warning/5 border-2
+                                    border-warning/15 fill-orange-400
+                                    hover:fill-warning-content hover:bg-warning transition-all"
                                 />
                             </Tooltip.Trigger>
                             <TooltipContent
