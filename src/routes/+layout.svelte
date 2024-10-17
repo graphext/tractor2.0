@@ -14,7 +14,12 @@
     import ResetApiButton from "$lib/components/ResetApiButton.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { MetaTags } from "svelte-meta-tags";
-    import { LinkedinLogo, InstagramLogo, GoogleLogo } from "phosphor-svelte";
+    import {
+        LinkedinLogo,
+        InstagramLogo,
+        GoogleLogo,
+        YoutubeLogo,
+    } from "phosphor-svelte";
 
     $: pageUrl = $page.route.id;
 
@@ -24,6 +29,7 @@
         { id: "/google", icon: GoogleLogo, title: "Google" },
         { id: "/news", icon: NewspaperClipping, title: "Google News" },
         { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
+        { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
     ];
 
     $: apikeyPresent = $apifyKey != "";
@@ -76,7 +82,7 @@
 />
 
 <main
-    class="w-[95%] subpixel-antialiased max-w-6xl mx-auto my-10 selection:bg-primary selection:text-primary-content"
+    class="w-[95%] subpixel-antialiased max-w-7xl mx-auto my-10 selection:bg-primary selection:text-primary-content"
 >
     <Header />
 
