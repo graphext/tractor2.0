@@ -21,6 +21,7 @@
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
     import { QuestionMark, WarningCircle } from "phosphor-svelte";
+    import type { Message } from "postcss";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
@@ -74,29 +75,41 @@
         status = "STARTING";
         loading = true;
 
-        let inputData = {
-            cookie: JSON.parse($linkedInCookies),
-            deepScrape: true,
-            limitPerSource: maxItems,
-            maxDelay: 10,
-            minDelay: 2,
-            proxy: {
-                useApifyProxy: true,
-                apifyProxyGroups: [],
-                apifyProxyCountry: "US",
-            },
-            rawData: false,
-            urls: urlsSplit,
-        };
-
+        let inputData;
+        try {
+            inputData = {
+                cookie: JSON.parse($linkedInCookies),
+                deepScrape: true,
+                limitPerSource: maxItems,
+                maxDelay: 10,
+                minDelay: 2,
+                proxy: {
+                    useApifyProxy: true,
+                    apifyProxyGroups: [],
+                    apifyProxyCountry: "US",
+                },
+                rawData: false,
+                urls: urlsSplit,
+            };
+        } catch (e: any) {
+            error = e.mesage;
+            console.error(e);
+            if (e.message.includes("JSON.parse:"))
+                toast.error(
+                    "There was a problem with your cookies. Please, reset them and try again",
+                    { duration: 10000 },
+                );
+            $linkedInCookies = "";
+            loading = false;
+            status = "";
+            return;
+        }
         sendEventData({
             event: "tractor-download",
             tr_social_media: "linkedin",
             tr_urls: urlsSplit,
             tr_num_items_retrieved: maxItems,
         });
-
-        console.log("submitting");
 
         submitTask({
             apifyClient,
@@ -375,13 +388,7 @@
                             </TooltipContent>
                         </Tooltip.Root>
                     </div>
-                    {#if !$linkedInCookies}
-                        <button
-                            class="btn btn-primary rounded-full btn-xs"
-                            disabled={!cookieTextAreaValue}
-                            on:click={saveCookies}>Save cookies</button
-                        >
-                    {:else}
+                    {#if !$linkedInCookies}{:else}
                         <div
                             class="btn opacity-40 hover:opacity-100 btn-outline hover:btn-error rounded-full btn-xs"
                             tabindex="-1"
@@ -408,6 +415,17 @@
                     {/if}
                 </div>
             </div>
+
+            {#if !$linkedInCookies}
+                <button
+                    class="btn btn-primary rounded-full"
+                    disabled={!cookieTextAreaValue}
+                    on:click={saveCookies}
+                >
+                    Save cookies
+                </button>
+            {/if}
+
             <div class="flex flex-col gap-2 w-full">
                 <label for="keywords" class="text-sm text-base-content/60"
                     >LinkedIn URLs:</label
