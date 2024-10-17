@@ -20,7 +20,7 @@
         submitTask,
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
-    import { QuestionMark, WarningCircle } from "phosphor-svelte";
+    import { QuestionMark, ExclamationMark } from "phosphor-svelte";
     import type { Message } from "postcss";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
@@ -328,11 +328,11 @@
 
                         <Tooltip.Root openDelay={0}>
                             <Tooltip.Trigger class="w-min">
-                                <WarningCircle
+                                <ExclamationMark
                                     size={20}
                                     weight="bold"
-                                    class="fill-error hover:fill-error-content
-                                    hover:bg-error rounded-full transition-all"
+                                    class="rounded-full bg-neutral border-2
+                                    border-error/15 fill-error hover:fill-error-content hover:bg-error transition-all"
                                 />
                             </Tooltip.Trigger>
                             <TooltipContent
@@ -361,20 +361,26 @@
                                     </p>
                                     <ul>
                                         <li>
-                                            Leave sufficient time in between
-                                            each run: a minimum of 5 minutes is
-                                            enough
+                                            Leave <b
+                                                >sufficient time in between runs</b
+                                            >: a minimum of 5 minutes is enough
                                         </li>
                                         <li>
-                                            Do not use LinkedIn on your browser
-                                            while you are scraping, as it would
-                                            seem like you are using it from two
-                                            computers at the same time
+                                            <b
+                                                >Do not use LinkedIn on your
+                                                browser while you are scraping</b
+                                            >, as it would seem like you are
+                                            using it from two computers at the
+                                            same time
                                         </li>
                                         <li>
-                                            Creating new <i>fake</i> accounts usually
-                                            does not work. These accounts get banned
-                                            and deleted easily.
+                                            Creating new <span class="italic"
+                                                >fake</span
+                                            >
+                                            accounts usually does not work. These
+                                            accounts
+                                            <b>get banned and deleted easily</b
+                                            >.
                                         </li>
                                     </ul>
 
