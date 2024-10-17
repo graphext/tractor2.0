@@ -27,7 +27,7 @@
         { id: "/", icon: TwitterLogo, title: "Twitter" },
         { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
         { id: "/google", icon: GoogleLogo, title: "Google" },
-        { id: "/news", icon: NewspaperClipping, title: "Google News" },
+        { id: "/news", icon: NewspaperClipping, title: "Google News" },
         { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
         { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
     ];
@@ -88,35 +88,45 @@
 
     <ApifyKeyInput />
 
-    <div class="flex items-baseline justify-between mt-10">
-        <div class="flex gap-6 items-center my-5">
-            {#each actors as actor}
-                <a href={actor.id} class="group">
-                    <div
-                        class={`hover-underline-animation flex gap-2 pb-2 items-center`}
-                    >
-                        <svelte:component
-                            this={actor.icon}
-                            size={24}
-                            weight={pageUrl == actor.id ? "fill" : "regular"}
-                            class="fill-primary group-hover:-rotate-12 transition-all"
-                        />
-                        <h2
-                            class={`transition-opacity ${
-                                pageUrl == actor.id
-                                    ? "font-bold opacity-100"
-                                    : "font-normal opacity-50 hover:opacity-80"
-                            }`}
+    <div class="flex items-baseline gap-10 justify-between mt-10">
+        <div class="flex w-[90%] relative">
+            <div
+                class="flex gap-6 items-center my-5 overflow-x-scroll no-scroll relative"
+            >
+                {#each actors as actor}
+                    <a href={actor.id} class="group">
+                        <div
+                            class={`hover-underline-animation flex gap-2 pb-2 items-center`}
                         >
-                            {actor.title}
-                        </h2>
-                    </div>
-                </a>
-            {/each}
+                            <svelte:component
+                                this={actor.icon}
+                                size={24}
+                                weight={pageUrl == actor.id
+                                    ? "fill"
+                                    : "regular"}
+                                class="fill-primary group-hover:-rotate-12 transition-all"
+                            />
+                            <h2
+                                class={`transition-opacity ${
+                                    pageUrl == actor.id
+                                        ? "font-bold opacity-100"
+                                        : "font-normal opacity-50 hover:opacity-80"
+                                }`}
+                            >
+                                {actor.title}
+                            </h2>
+                        </div>
+                    </a>
+                {/each}
+            </div>
+            <div
+                class="absolute right-0 h-full w-20 bg-gradient-to-r
+                from-transparent to-base-100"
+            ></div>
         </div>
 
         {#if apikeyPresent}
-            <div class="w-32">
+            <div class="w-32 shrink-0">
                 <ResetApiButton {apikeyPresent} />
             </div>
         {/if}
@@ -147,5 +157,12 @@
     .hover-underline-animation:hover::after {
         transform: scaleX(1);
         transform-origin: bottom left;
+    }
+    .no-scroll {
+        -ms-overflow-style: none; /* Internet Explorer 10+ */
+        scrollbar-width: none; /* Firefox */
+    }
+    .no-scroll::-webkit-scrollbar {
+        display: none;
     }
 </style>
