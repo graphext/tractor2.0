@@ -174,6 +174,7 @@
 
                 status = currentStatus;
                 outputProgress = dataLength;
+                springProgress.set(outputProgress);
 
                 headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
                 rows =
