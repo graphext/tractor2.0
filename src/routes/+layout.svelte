@@ -91,7 +91,7 @@
     <div class="flex items-baseline gap-1 justify-between mt-10">
         <div class="flex flex-grow relative overflow-hidden">
             <div
-                class="flex gap-6 items-center my-5 overflow-x-scroll no-scroll relative"
+                class="flex gap-1 text-sm lg:text-base lg:gap-5 items-center my-5 overflow-x-scroll no-scroll relative"
             >
                 {#each actors as actor}
                     <a href={actor.id} class="group anchor-tray">
