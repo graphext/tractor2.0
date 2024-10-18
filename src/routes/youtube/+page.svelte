@@ -130,6 +130,7 @@
         filename = "";
         outputProgress = 0;
         status = "STARTING";
+        confirmChoice = false;
         loading = true;
 
         let inputData = processInputData(query, searchMode);
@@ -186,6 +187,7 @@
 
                 status = currentStatus;
                 outputProgress = dataLength;
+                springProgress.set(outputProgress);
 
                 headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
                 rows =
