@@ -88,13 +88,13 @@
 
     <ApifyKeyInput />
 
-    <div class="flex items-baseline gap-10 justify-between mt-10">
+    <div class="flex items-baseline gap-1 justify-between mt-10">
         <div class="flex flex-grow relative overflow-hidden">
             <div
                 class="flex gap-6 items-center my-5 overflow-x-scroll no-scroll relative"
             >
                 {#each actors as actor}
-                    <a href={actor.id} class="group">
+                    <a href={actor.id} class="group anchor-tray">
                         <div
                             class={`hover-underline-animation flex gap-2 pb-2 items-center`}
                         >
@@ -120,7 +120,7 @@
                 {/each}
             </div>
             <div
-                class="absolute right-0 h-full w-20 bg-gradient-to-r
+                class="absolute right-0 h-full w-5 bg-gradient-to-r
             from-transparent to-base-100"
             ></div>
         </div>
@@ -164,5 +164,8 @@
     }
     .no-scroll::-webkit-scrollbar {
         display: none;
+    }
+    .anchor-tray > :last-child {
+        margin-right: 1em;
     }
 </style>

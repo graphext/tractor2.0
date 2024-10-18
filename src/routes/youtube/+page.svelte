@@ -323,7 +323,7 @@
                     type="text"
                     class="input input-sm text-sm bg-neutral w-full rounded-full
                     join-item"
-                    placeholder="Search for Youtube videos or paste Youtube links"
+                    placeholder="Search for Youtube videos or paste one or more Youtube links, separated by commas"
                     disabled={loading}
                     bind:value={query}
                 />
