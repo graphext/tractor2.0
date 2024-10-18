@@ -89,7 +89,7 @@
     <ApifyKeyInput />
 
     <div class="flex items-baseline gap-10 justify-between mt-10">
-        <div class="flex w-[90%] relative">
+        <div class="flex flex-grow relative overflow-hidden">
             <div
                 class="flex gap-6 items-center my-5 overflow-x-scroll no-scroll relative"
             >
@@ -121,7 +121,7 @@
             </div>
             <div
                 class="absolute right-0 h-full w-20 bg-gradient-to-r
-                from-transparent to-base-100"
+            from-transparent to-base-100"
             ></div>
         </div>
 
