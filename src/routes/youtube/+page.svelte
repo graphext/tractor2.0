@@ -37,6 +37,23 @@
 
     let maxItems = 100;
 
+    $: maxItemsUrls =
+        searchMode == "url" ? startUrls.length * maxItems : maxItems;
+
+    $: startUrls =
+        searchMode == "url" &&
+        query
+            .split(",")
+            .map((a) => a.trim())
+            .map((url) => {
+                return {
+                    url: url,
+                    method: "GET",
+                };
+            });
+
+    $: console.log(maxItemsUrls);
+
     let loading: boolean = false;
 
     $: buttonText = loading ? `Loading video data` : `Get video data`;
@@ -101,7 +118,6 @@
                     };
                 });
 
-            console.log(startUrls);
             output = {
                 downloadSubtitles: true,
                 hasCC: false,
@@ -381,7 +397,7 @@
                     {buttonText}
                 </button>
             {:else}
-                <WarningCost unitPrice={5 / 1000} {maxItems} />
+                <WarningCost unitPrice={5 / 1000} maxItems={maxItemsUrls} />
                 <button
                     class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                     disabled={!$apifyKey || !query}
