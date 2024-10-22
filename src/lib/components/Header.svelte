@@ -5,7 +5,7 @@
     import HeaderNavItem from "./HeaderNavItem.svelte";
 </script>
 
-<div class="flex justify-between items-center">
+<div class="flex justify-between items-center mb-5">
     <div class="flex flex-col">
         <div class="flex gap-3 w-1/3">
             <img src="/tractor_icon.svg" width="24" alt="" />
