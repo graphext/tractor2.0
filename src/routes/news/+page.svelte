@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import Input from "$lib/components/Input.svelte";
     import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
     import { apifyKey } from "$lib/stores/apifyStore";
@@ -26,46 +28,38 @@
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Section from "$lib/components/Section.svelte";
 
-    let keywords: string;
-    let maxItems: number = 500;
-    let languageSelected = languages[0];
+    let keywords: string = $state();
+    let maxItems: number = $state(500);
+    let languageSelected = $state(languages[0]);
 
     let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID);
 
-    let selectedRange: DateRange;
-    let timeSteps: Date[];
+    let selectedRange: DateRange = $state();
+    let timeSteps: Date[] = $state();
 
-    let resuming: boolean = false;
+    let resuming: boolean = $state(false);
 
-    $: if (resuming) {
-        loading = true;
 
-        setTimeout(() => {
-            checkNewsTaskStatus({ apifyClient, maxItems, runId });
-        }, 500);
-    }
-
-    let error: string;
-    let status: string;
+    let error: string = $state();
+    let status: string = $state();
 
     let datasetLink: string;
     let datasetData: any;
-    let filename: string;
-    let datasetSize: number;
+    let filename: string = $state();
+    let datasetSize: number = $state();
 
-    let loading: boolean = false;
+    let loading: boolean = $state(false);
 
-    let headers: string[], rows: Array<string[]>;
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let runId: string;
+    let runId: string = $state();
     let userId: string;
 
-    let csvBlob: Blob;
+    let csvBlob: Blob = $state();
 
-    $: buttonText = loading ? "Loading news..." : "Get News";
 
     async function handleNewsSubmit() {
         loading = true;
@@ -189,12 +183,22 @@
             },
         });
     }
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkNewsTaskStatus({ apifyClient, maxItems, runId });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading ? "Loading news..." : "Get News");
 </script>
 
 <Section>
     <form
         class="flex flex-col gap-5"
-        on:submit|preventDefault={handleNewsSubmit}
+        onsubmit={preventDefault(handleNewsSubmit)}
     >
         <div class="flex flex-col gap-2">
             <label for="keywords" class="text-sm text-base-content/60"
@@ -273,7 +277,7 @@
 
     {#if error || status}
         <div>
-            <div class="divider mt-3 mb-3" />
+            <div class="divider mt-3 mb-3"></div>
 
             <div class="flex flex-col gap-5">
                 <div class="flex justify-between items-baseline">

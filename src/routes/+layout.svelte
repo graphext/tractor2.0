@@ -20,8 +20,13 @@
         GoogleLogo,
         YoutubeLogo,
     } from "phosphor-svelte";
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
 
-    $: pageUrl = $page.route.id;
+    let { children }: Props = $props();
+
+    let pageUrl = $derived($page.route.id);
 
     let actors = [
         { id: "/", icon: TwitterLogo, title: "Twitter" },
@@ -32,7 +37,7 @@
         { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
     ];
 
-    $: apikeyPresent = $apifyKey != "";
+    let apikeyPresent = $derived($apifyKey != "");
 
     inject({ mode: dev ? "development" : "production" });
 </script>
@@ -98,8 +103,7 @@
                         <div
                             class={`hover-underline-animation flex gap-2 pb-2 items-center`}
                         >
-                            <svelte:component
-                                this={actor.icon}
+                            <actor.icon
                                 size={24}
                                 weight={pageUrl == actor.id
                                     ? "fill"
@@ -132,7 +136,7 @@
         {/if}
     </div>
 
-    <slot />
+    {@render children?.()}
     <Footer />
 </main>
 

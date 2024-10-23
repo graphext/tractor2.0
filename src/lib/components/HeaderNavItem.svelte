@@ -2,21 +2,26 @@
     import { Tooltip } from "bits-ui";
     import TooltipContent from "./TooltipContent.svelte";
 
-    export let icon;
-    export let url: string;
-    export let tooltipContent: string;
+    interface Props {
+        icon: any;
+        url: string;
+        tooltipContent: string;
+    }
+
+    let { icon, url, tooltipContent }: Props = $props();
 </script>
 
 <div class="mx-1">
     <Tooltip.Root openDelay={30}>
         <Tooltip.Trigger>
+            {@const SvelteComponent = icon}
             <a
                 target={url.startsWith("/") ? "_self" : "_blank"}
                 class="btn btn-circle btn-ghost border border-base-content/10 shadow-sm text-base-content/60 hover:text-base-content/80"
                 href={url}
             >
-                <svelte:component this={icon} size={24} weight="bold"
-                ></svelte:component>
+                <SvelteComponent size={24} weight="bold"
+                ></SvelteComponent>
             </a>
         </Tooltip.Trigger>
 

@@ -4,12 +4,12 @@
 
     import { backOut } from "svelte/easing";
 
-    export let apikeyPresent;
+    let { apikeyPresent } = $props();
 
-    let timeout: number;
-    let interval: number;
-    let cancelConfirmationProgress: number = 0;
-    let confirmDelete = false;
+    let timeout: number = $state();
+    let interval: number = $state();
+    let cancelConfirmationProgress: number = $state(0);
+    let confirmDelete = $state(false);
 
     function resetKey(event: Event) {
         event.preventDefault();
@@ -31,7 +31,7 @@
             class="btn grow no-animation opacity-40 shadow-md absolute bottom-0 right-0 hover:opacity-100 w-fit hover:btn-error btn-sm btn-outline self-end"
             out:fly={{ duration: 100 }}
             in:fly={{ duration: 650, y: -10, easing: backOut }}
-            on:click={() => {
+            onclick={() => {
                 let time = 2000;
                 confirmDelete = true;
 
@@ -52,7 +52,7 @@
         <button
             out:fly={{ duration: 650, y: 10, easing: backOut }}
             class="btn no-animation hover:opacity-100 absolute right-0 w-fit md:w-fit btn-sm btn-error self-end bottom-0"
-            on:click={resetKey}
+            onclick={resetKey}
         >
             Are you sure?
 

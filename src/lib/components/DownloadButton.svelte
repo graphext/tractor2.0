@@ -1,5 +1,10 @@
 <script>
-    export let csvBlob, filename, datasetSize, loading;
+    let {
+        csvBlob,
+        filename,
+        datasetSize,
+        loading
+    } = $props();
 </script>
 
 {#if csvBlob && filename}

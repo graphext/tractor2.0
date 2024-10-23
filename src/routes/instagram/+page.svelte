@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import DatePicker from "$lib/components/DatePicker.svelte";
@@ -35,43 +37,32 @@
 
     let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID);
 
-    let keywords = "";
-    $: urlsLength = processInstagramInput(keywords).length;
-    let loading: boolean = false;
-    let maxItems = 500;
-    let confirmChoice = false;
+    let keywords = $state("");
+    let loading: boolean = $state(false);
+    let maxItems = $state(500);
+    let confirmChoice = $state(false);
 
-    $: buttonText = loading
-        ? `Loading ${selectedResultType.label}`
-        : `Get ${selectedResultType.label}`;
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let datasetLink;
-    let runId: string;
+    let runId: string = $state();
 
-    let resuming: boolean;
+    let resuming: boolean = $state();
 
-    $: if (resuming) {
-        loading = true;
 
-        setTimeout(() => {
-            checkInstagramTaskStatus({ apifyClient, maxItems, runId });
-        }, 500);
-    }
+    let status: string = $state();
+    let error: string = $state();
 
-    let status: string;
-    let error: string;
-
-    let csvBlob: Blob;
-    let headers: string[], rows: Array<string[]>;
-    let userId: string;
+    let csvBlob: Blob = $state();
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let userId: string = $state();
     let datasetData: any;
-    let filename: string;
-    let datasetSize: number;
+    let filename: string = $state();
+    let datasetSize: number = $state();
 
-    let selectedDate: DateValue;
+    let selectedDate: DateValue = $state();
 
     let options: Selected<string>[] = [
         { label: "Posts", value: "posts" },
@@ -80,7 +71,7 @@
         { label: "Mentions", value: "mentions" },
         { label: "Reels", value: "stories" },
     ];
-    let selectedResultType = options[0];
+    let selectedResultType = $state(options[0]);
 
     function processInstagramInput(keywords: string) {
         const urls = keywords.split(",").map((u) => {
@@ -295,12 +286,25 @@
             },
         });
     }
+    let urlsLength = $derived(processInstagramInput(keywords).length);
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkInstagramTaskStatus({ apifyClient, maxItems, runId });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading
+        ? `Loading ${selectedResultType.label}`
+        : `Get ${selectedResultType.label}`);
 </script>
 
 <Section>
     <form
         class="flex flex-col gap-5"
-        on:submit|preventDefault={handleInstagramSubmit}
+        onsubmit={preventDefault(handleInstagramSubmit)}
     >
         <div>
             <div class="flex items-center mb-2 gap-1">
@@ -413,7 +417,7 @@
             {/if}
             {#if !confirmChoice}
                 <button
-                    on:click={() => (confirmChoice = true)}
+                    onclick={() => (confirmChoice = true)}
                     class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                     disabled={!$apifyKey || !keywords}
                     class:disabled={!$apifyKey || !keywords}
@@ -439,7 +443,7 @@
 
     {#if error || status}
         <div>
-            <div class="divider mt-3 mb-3" />
+            <div class="divider mt-3 mb-3"></div>
 
             <div class="flex flex-col gap-5">
                 <div class="flex justify-between items-baseline">
