@@ -1,6 +1,12 @@
 <script>
-    export let index = 1;
-    export let color;
+    /**
+     * @typedef {Object} Props
+     * @property {number} [index]
+     * @property {any} color
+     */
+
+    /** @type {Props} */
+    let { index = 1, color } = $props();
 
     const textColor = color.split("/")[0];
 </script>

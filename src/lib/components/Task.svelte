@@ -4,14 +4,18 @@
     import { onMount } from "svelte";
     import User from "./User.svelte";
 
-    export let task: Task;
+    interface Props {
+        task: Task;
+    }
+
+    let { task }: Props = $props();
 
     async function getRun() {
         const data = await getRunsForTask(task.id);
         return data.data;
     }
 
-    let userId: string | undefined;
+    let userId: string | undefined = $state();
 
     onMount(async () => {
         const data = await getPrivateUserData();

@@ -4,8 +4,7 @@
     import { toast } from "svelte-sonner";
     import { fly, slide } from "svelte/transition";
 
-    export let headers;
-    export let rows;
+    let { headers, rows } = $props();
 </script>
 
 {#if headers && rows && headers.length > 0 && rows.length > 0}
@@ -32,7 +31,7 @@
                         <td class="opacity-20 text-right">{rows.length - i}</td>
                         {#each row as cell}
                             <td
-                                on:click={() => {
+                                onclick={() => {
                                     toast.success(
                                         "Copied cell value to clipboard",
                                     );

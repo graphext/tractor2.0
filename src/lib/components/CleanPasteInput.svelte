@@ -2,8 +2,13 @@
     import { createEventDispatcher } from "svelte";
     import { cleanText } from "$lib/utils";
 
-    export let placeholder = "";
-    export let value = "";
+    interface Props {
+        placeholder?: string;
+        value?: string;
+        [key: string]: any
+    }
+
+    let { placeholder = "", value = $bindable(""), ...rest }: Props = $props();
 
     const dispatch = createEventDispatcher();
 
@@ -23,7 +28,7 @@
         dispatch("input", value);
     }
 
-    let textarea: HTMLTextAreaElement;
+    let textarea: HTMLTextAreaElement = $state();
 </script>
 
 <textarea
@@ -32,7 +37,7 @@
     bind:this={textarea}
     class="textarea bg-neutral w-full font-mono h-full overflow-x-scroll shadow-sm"
     rows="6"
-    {...$$restProps}
+    {...rest}
 ></textarea>
 
 <!-- lol, from https://bugzilla.mozilla.org/show_bug.cgi?id=1137650 -->

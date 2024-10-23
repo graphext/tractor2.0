@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { composeCronExpression, identifyCronExpression } from "$lib/utils";
     import { Select, type Selected } from "bits-ui";
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
@@ -13,12 +15,22 @@
         selectedLists,
     } from "$lib/stores/store";
 
-    export let queries: string;
-    export let queriesSpreadOverTime: string;
-    export let numTweets: number;
-    export let scheduleNumTweets: number = 100;
 
-    export let actorId: string;
+    interface Props {
+        queries: string;
+        queriesSpreadOverTime: string;
+        numTweets: number;
+        scheduleNumTweets?: number;
+        actorId: string;
+    }
+
+    let {
+        queries,
+        queriesSpreadOverTime,
+        numTweets,
+        scheduleNumTweets = $bindable(100),
+        actorId
+    }: Props = $props();
 
     let options = [
         { label: "minutes", value: "minute" },
@@ -28,54 +40,56 @@
         { label: "years", value: "year" },
     ];
 
-    let selectedInterval: Selected<string> = options[2];
-    let intervalNumber: number = 1;
+    let selectedInterval: Selected<string> = $state(options[2]);
+    let intervalNumber: number = $state(1);
 
-    let withinTimeParameter: string = `within_time:${intervalNumber}d`;
-    $: switch (selectedInterval.value) {
-        case "minute":
-            withinTimeParameter = `within_time:${intervalNumber}m`;
-            break;
+    let withinTimeParameter: string = $state(`within_time:${intervalNumber}d`);
+    run(() => {
+        switch (selectedInterval.value) {
+            case "minute":
+                withinTimeParameter = `within_time:${intervalNumber}m`;
+                break;
 
-        case "hour":
-            withinTimeParameter = `within_time:${intervalNumber}h`;
-            break;
+            case "hour":
+                withinTimeParameter = `within_time:${intervalNumber}h`;
+                break;
 
-        case "days":
-            withinTimeParameter = `within_time:${intervalNumber}d`;
-            break;
+            case "days":
+                withinTimeParameter = `within_time:${intervalNumber}d`;
+                break;
 
-        case "month":
-            withinTimeParameter = `within_time:${intervalNumber * 30}d`;
-            break;
+            case "month":
+                withinTimeParameter = `within_time:${intervalNumber * 30}d`;
+                break;
 
-        case "year":
-            withinTimeParameter = `within_time:${intervalNumber * 365}d`;
-            break;
-    }
+            case "year":
+                withinTimeParameter = `within_time:${intervalNumber * 365}d`;
+                break;
+        }
+    });
 
     let hour = new Date().getHours();
     let minute = new Date().getMinutes();
 
-    $: time = { hour: hour, minute: minute };
+    let time = $derived({ hour: hour, minute: minute });
 
-    let cronExpression: string = composeCronExpression(
+    let cronExpression: string = $state(composeCronExpression(
         intervalNumber,
         selectedInterval.value,
         time,
-    );
+    ));
 
-    let loading: boolean = false,
+    let loading: boolean = $state(false),
         error;
-    let description: string | undefined;
-    let schedule: Object | undefined;
-    let datasetId: string;
+    let description: string | undefined = $state();
+    let schedule: Object | undefined = $state();
+    let datasetId: string = $state();
 
     const apifyClient = new ApifyClient(actorId); // Twitter Actor ID
     const apifyScheduler = new ApifyScheduler(apifyClient);
 
-    $: prompt = `${queries}
-${cronExpression}`;
+    let prompt = $derived(`${queries}
+${cronExpression}`);
 
     async function generateDescription() {
         error = "";
@@ -213,14 +227,14 @@ ${cronExpression}`;
                 type="number"
                 min="1"
                 max="59"
-                on:keyup={(v) => {
+                onkeyup={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
                         selectedInterval.value,
                         time,
                     );
                 }}
-                on:change={(v) => {
+                onchange={(v) => {
                     cronExpression = composeCronExpression(
                         v.target.value,
                         selectedInterval.value,
@@ -285,7 +299,7 @@ ${cronExpression}`;
             <p class="text-base-content/60">items per schedule</p>
             <button
                 disabled={!$apifyKey || !queries}
-                on:click={handleSchedule}
+                onclick={handleSchedule}
                 class="btn btn-primary btn-sm rounded-full btn-outline"
                 >Schedule</button
             >
@@ -300,7 +314,7 @@ ${cronExpression}`;
             >
             <button
                 class="btn btn-warning grow rounded-full"
-                on:click={() => {
+                onclick={() => {
                     navigator.clipboard.writeText(
                         `https://api.apify.com/v2/datasets/${datasetId}/items?clean=true&format=json`,
                     );

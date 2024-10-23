@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
@@ -27,36 +29,28 @@
 
     let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
 
-    let keywords: string,
-        loading = false,
-        maxPages = 5;
+    let keywords: string = $state(),
+        loading = $state(false),
+        maxPages = $state(5);
 
-    $: buttonText = loading ? "Getting results" : "Get pages";
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let resuming: boolean;
+    let resuming: boolean = $state();
 
-    $: if (resuming) {
-        loading = true;
-
-        setTimeout(() => {
-            checkGoogleTaskStatus({ apifyClient, runId, maxPages });
-        }, 500);
-    }
 
     let datasetLink: string;
     let datasetData;
-    let runId: string;
-    let status: string;
-    let error: string;
-    let csvBlob: Blob;
-    let headers: string[], rows: Array<string[]>;
+    let runId: string = $state();
+    let status: string = $state();
+    let error: string = $state();
+    let csvBlob: Blob = $state();
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
     let userId: string;
-    let filename: string;
-    let datasetSize: number;
-    let confirmChoice: boolean = false;
+    let filename: string = $state();
+    let datasetSize: number = $state();
+    let confirmChoice: boolean = $state(false);
 
     async function handleGoogleSubmit() {
         datasetLink = "";
@@ -208,12 +202,22 @@
             },
         });
     };
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkGoogleTaskStatus({ apifyClient, runId, maxPages });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading ? "Getting results" : "Get pages");
 </script>
 
 <Section>
     <form
         class="flex flex-col gap-5"
-        on:submit|preventDefault={handleGoogleSubmit}
+        onsubmit={preventDefault(handleGoogleSubmit)}
     >
         <div>
             <div class="flex w-full justify-between gap-3 items-center">
@@ -286,7 +290,7 @@
             {/if}
             {#if !confirmChoice}
                 <button
-                    on:click={() => (confirmChoice = true)}
+                    onclick={() => (confirmChoice = true)}
                     class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                     disabled={!$apifyKey || !keywords}
                     class:disabled={!$apifyKey || !keywords}
@@ -312,7 +316,7 @@
 
     {#if error || status}
         <div>
-            <div class="divider mt-3 mb-3" />
+            <div class="divider mt-3 mb-3"></div>
 
             <div class="flex flex-col gap-5">
                 <div class="flex justify-between items-baseline">

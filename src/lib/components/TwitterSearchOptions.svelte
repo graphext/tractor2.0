@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { today, getLocalTimeZone } from "@internationalized/date";
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
@@ -10,9 +12,7 @@
     import SelectLists from "./SelectLists.svelte";
     import CaretRight from "phosphor-svelte/lib/CaretRight";
 
-    export let queries = "";
-    export let enrichedQueries = "";
-    let lists: Selected<string>[];
+    let lists: Selected<string>[] = $state();
 
     const placeholderIdeas = [
         "tweets about chocolate with at least 10 likes",
@@ -23,23 +23,31 @@
     ];
 
     let index = 0;
-    let placeholder = placeholderIdeas[index];
+    let placeholder = $state(placeholderIdeas[index]);
 
-    let userPrompt = "";
-    let error = "";
-    let loading = false;
+    let userPrompt = $state("");
+    let error = $state("");
+    let loading = $state(false);
 
-    export let selectedRange: DateRange;
-    let timeSteps: Date[];
+    interface Props {
+        queries?: string;
+        enrichedQueries?: string;
+        selectedRange: DateRange;
+    }
 
-    $: enrichedQueries = enrichQueries(
-        queries,
-        timeSteps,
-        selectedRange,
-        lists,
-    ); // final result
+    let { queries = $bindable(""), enrichedQueries = $bindable(""), selectedRange = $bindable() }: Props = $props();
+    let timeSteps: Date[] = $state();
 
-    $: options = getSelectionOptions(selectedRange);
+    run(() => {
+        enrichedQueries = enrichQueries(
+            queries,
+            timeSteps,
+            selectedRange,
+            lists,
+        );
+    }); // final result
+
+    let options = $derived(getSelectionOptions(selectedRange));
 
     let interval: Timeout;
     interval = setInterval(() => {
@@ -111,11 +119,11 @@
                     type="text"
                     class="input input-sm text-sm bg-neutral w-full join-item md:rounded-l-full"
                     bind:value={userPrompt}
-                    on:change={() => ($userQuery = userPrompt)}
+                    onchange={() => ($userQuery = userPrompt)}
                     {placeholder}
                 />
                 <button
-                    on:click={generateResponse}
+                    onclick={generateResponse}
                     class="btn btn-primary font-normal btn-sm join-item md:rounded-r-full"
                     disabled={loading}
                 >

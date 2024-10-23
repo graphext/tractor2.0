@@ -1,5 +1,5 @@
 <script>
-    export let error, userId, runId;
+    let { error, userId, runId } = $props();
 </script>
 
 <div class="flex flex-col gap-3">
