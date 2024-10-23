@@ -1,26 +1,27 @@
 <!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import { Select, Tooltip, type Selected } from "bits-ui";
     import { fly } from "svelte/transition";
     import Check from "phosphor-svelte/lib/Check";
     import { MagnifyingGlass } from "phosphor-svelte";
-    import { Placeholder } from "phosphor-svelte";
     import TooltipContent from "./TooltipContent.svelte";
 
-    export let selected: Selected<string>;
+    interface Props {
+        selected: Selected<string>;
+        options: Selected<string>[];
+        label: string;
+        tooltipContent: string | null;
+    }
 
-    export let options;
+    let { selected, options, label, tooltipContent, ...others }: Props =
+        $props();
 
-    export let label = "Select an option";
-    export let tooltipContent: string | null = null;
+    let disabled = others.disabled;
+    let placeholder = others.placeholder;
 </script>
 
-<Select.Root
-    disabled={$$props["disabled"]}
-    preventScroll={false}
-    bind:selected
-    items={options}
->
+<Select.Root {disabled} preventScroll={false} bind:selected items={options}>
     <div class="flex flex-col gap-1">
         {#if tooltipContent}
             <Tooltip.Root openDelay={100}>
@@ -49,9 +50,7 @@
             <MagnifyingGlass />
             <Select.Value
                 class="text-sm p-1.5 ml-1"
-                placeholder={$$props["placeholder"]
-                    ? $$props["placeholder"]
-                    : label}
+                placeholder={placeholder ? placeholder : label}
             />
         </Select.Trigger>
     </div>

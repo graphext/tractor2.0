@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import type { DateRange } from "bits-ui";
     import {
@@ -22,12 +21,20 @@
     import CaretRight from "phosphor-svelte/lib/CaretRight";
     import CalendarDots from "phosphor-svelte/lib/CalendarDots";
 
-    export let selectedRange: DateRange = {
-        start: today(getLocalTimeZone()).subtract({ months: 1, days: 1 }),
-        end: today(getLocalTimeZone()),
-    };
-
-    export let timeSteps: Date[];
+    interface Props {
+        selectedRange: DateRange;
+        timeSteps: Date[];
+        disabled: boolean;
+    }
+    let {
+        selectedRange = {
+            start: today(getLocalTimeZone()).subtract({ months: 1, days: 1 }),
+            end: today(getLocalTimeZone()),
+        },
+        timeSteps,
+        disabled,
+        ...others
+    }: Props = $props();
 
     const presets = [
         {
@@ -110,7 +117,7 @@
     };
 
     function debounce(func: Function, delay: number) {
-        let timeoutId;
+        let timeoutId: NodeJS.Timeout;
         return (...args) => {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => func(...args), delay);
@@ -140,9 +147,7 @@
 
     const debouncedDateRange = debounce(recalculateDateRange, 600);
 
-    $: {
-        debouncedDateRange(selectedRange, $frequencyStore);
-    }
+    $effect(() => debouncedDateRange(selectedRange, $frequencyStore));
 
     onMount(() => {
         if ($frequencyStore == "Anually") {
@@ -155,9 +160,9 @@
     const minValue: DateValue = new CalendarDate(2006, 3, 21);
 </script>
 
-<div class="flex flex-col gap-1" class:disabled={$$props["disabled"]}>
+<div class="flex flex-col gap-1" class:disabled>
     <DateRangePicker.Root
-        {...$$props}
+        {...others}
         bind:value={selectedRange}
         weekdayFormat="short"
         pagedNavigation={true}
@@ -193,7 +198,7 @@
                     {/if}
                 </div>
             {/each}
-            <div aria-hidden class="px-3">—</div>
+            <div class="px-3">—</div>
             {#each segments.end as { part, value }}
                 <div class="inline-block select-none">
                     {#if part === "literal"}
@@ -279,7 +284,7 @@
                                                 >
                                                     <div
                                                         class="absolute top-[5px] hidden size-1 font-semibold rounded-full bg-foreground transition-all group-data-[today]:block group-data-[selected]:bg-background"
-                                                    />
+                                                    ></div>
                                                     {date.day}
                                                 </DateRangePicker.Day>
                                             </DateRangePicker.Cell>
@@ -303,7 +308,7 @@
                                         presets.length /
                                         2.0}"
                                 class="btn btn-sm btn-primary font-normal w-full"
-                                on:click={p.func}>{p.label}</button
+                                onclick={p.func}>{p.label}</button
                             >
                         </li>
                     {/each}

@@ -1,12 +1,21 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import { Combobox } from "bits-ui";
 
-    export let options: { value: string; label: string }[] = [];
-    export let selected: { value: string; label: string };
-    export let placeholder: string = "Search...";
+    interface Props {
+        options: { value: string; label: string }[];
+        selected: { value: string; label: string };
+        placeholder: string;
+        disabled: boolean;
+    }
 
-    let searchQuery = "";
+    let {
+        options = [],
+        selected,
+        placeholder = "Search...",
+        disabled,
+    }: Props = $props();
+
+    let searchQuery = $state("");
 
     function handleSelect(option: { value: string; label: string }) {
         selected = option;
@@ -17,12 +26,14 @@
         searchQuery = selected.label;
     }
 
-    $: filteredOptions = options.filter((option) =>
-        option.label.toLowerCase().includes(searchQuery.toLowerCase()),
+    let filteredOptions = $derived(
+        options.filter((option) =>
+            option.label.toLowerCase().includes(searchQuery.toLowerCase()),
+        ),
     );
 </script>
 
-<div class:disabled={$$props["disabled"]}>
+<div class:disabled>
     <Combobox.Root
         preventScroll={false}
         {selected}
@@ -32,7 +43,7 @@
     >
         <Combobox.Input
             class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm  placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
-            placeholder={$$props["placeholder"]}
+            {placeholder}
             on:click={() => (searchQuery = "")}
             aria-label={placeholder}
         />

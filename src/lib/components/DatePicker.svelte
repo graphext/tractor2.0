@@ -1,4 +1,3 @@
-<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import { DatePicker } from "bits-ui";
 
@@ -7,19 +6,30 @@
 
     import { type DateValue } from "@internationalized/date";
 
-    export let selectedDate: DateValue;
-    export let label = "Select a date";
+    interface Props {
+        selectedDate: DateValue;
+        label: string;
+        disabled: boolean;
+        isDateDisabled: boolean;
+    }
+
+    let {
+        selectedDate,
+        label = "Select a date",
+        disabled,
+        isDateDisabled,
+    }: Props = $props();
 </script>
 
-<div class:disabled={$$props["disabled"]}>
+<div class:disabled>
     <DatePicker.Root
-        disabled={$$props["disabled"]}
+        {disabled}
         bind:value={selectedDate}
         numberOfMonths={2}
         weekStartsOn={1}
         locale="en-UK"
         pagedNavigation={true}
-        isDateDisabled={$$props["isDateDisabled"]}
+        {isDateDisabled}
     >
         <DatePicker.Label class="text-sm text-base-content/60"
             >{label}</DatePicker.Label
