@@ -1,6 +1,7 @@
 <script lang="ts">
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
+    import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
@@ -28,8 +29,11 @@
     let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
 
     let keywords: string,
+        domains: string,
         loading = false,
         maxPages = 5;
+
+    let validateDomains;
 
     $: buttonText = loading ? "Getting results" : "Get pages";
 
@@ -67,15 +71,39 @@
 
         let queries = keywords
             .split(",")
-            .map((k) => k.trim())
-            .join("\n");
+            .filter((e) => !/^\s*$/g.test(e))
+            .map((k) => k.trim());
+        let inputQueries: string = "";
+
+        if (domains && domains != "") {
+            // if there's domains, craft queries in "keyword site:domain" format
+            let domainsSplit = domains
+                .split(",")
+                .filter((e) => !/^\s*$/g.test(e))
+                .map((k) => k.trim());
+
+            let domainScopedKeywords = [];
+            for (const q of queries) {
+                for (const d of domainsSplit) {
+                    const qDomain = `${q} site:${d}`;
+                    domainScopedKeywords.push(qDomain);
+                }
+            }
+
+            inputQueries = domainScopedKeywords.join("\n");
+        } else {
+            // put queries in line-by-line format
+            inputQueries = queries.join("\n");
+        }
+
+        console.log(inputQueries);
 
         let inputData = {
             includeIcons: false,
             includeUnfilteredResults: false,
             maxPagesPerQuery: 5,
             mobileResults: false,
-            queries: queries,
+            queries: inputQueries,
             resultsPerPage: 100,
             saveHtml: false,
             saveHtmlToKeyValueStore: false,
@@ -137,6 +165,7 @@
 
                 status = currentStatus;
                 outputProgress = dataLength;
+                springProgress.set(outputProgress);
 
                 headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
                 rows =
@@ -276,6 +305,18 @@
             </div>
         </div>
 
+        <div class="flex flex-col gap-2">
+            <label for="domains" class="text-sm text-base-content/60"
+                >Domains (optional):</label
+            >
+            <Input
+                bind:value={domains}
+                id="domains"
+                placeholder="Search on these domains. Separate them by commas. For example: graphext.com, google.com, youtube.com"
+                disabled={loading}
+            />
+        </div>
+
         <div class="w-full relative">
             {#if loading}
                 <progress
@@ -312,7 +353,7 @@
 
     {#if error || status}
         <div>
-            <div class="divider mt-3 mb-3" />
+            <div class="divider mt-3 mb-3"></div>
 
             <div class="flex flex-col gap-5">
                 <div class="flex justify-between items-baseline">
