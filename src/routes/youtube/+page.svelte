@@ -1,4 +1,4 @@
-<script lang="ts">
+<script laing="ts">
     import { YOUTUBE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import Section from "$lib/components/Section.svelte";
@@ -30,6 +30,7 @@
     import DownloadButton from "$lib/components/DownloadButton.svelte";
 
     let apifyClient = new ApifyClient(YOUTUBE_ACTOR_ID);
+    const socialMedia = "youtube";
 
     let query: string;
     $: searchMode = query?.includes("youtube.com") ? "url" : "search";
@@ -152,7 +153,7 @@
         let inputData = processInputData(query, searchMode);
 
         sendEventData({
-            event: "tractor-download",
+            event: "tractor-fetch-data",
             tr_social_media: "youtube",
             tr_queries: query,
             tr_num_items_retrieved: maxItems,
@@ -408,7 +409,13 @@
         </div>
     </form>
 
-    <DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
+    <DownloadButton
+        {csvBlob}
+        {filename}
+        {datasetSize}
+        {loading}
+        {socialMedia}
+    />
 
     {#if error || status}
         <div>

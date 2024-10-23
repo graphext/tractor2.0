@@ -15,8 +15,6 @@
         submitTask,
     } from "$lib/utils";
     import CronEditor from "./CronEditor.svelte";
-    import Gauge from "phosphor-svelte/lib/Gauge";
-    import Book from "phosphor-svelte/lib/Book";
     import { ApifyClient, getPrivateUserData } from "../apifyEndpoints";
 
     import { TWITTER_ACT_ID } from "$lib/actors";
@@ -77,6 +75,7 @@
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     const apifyClient = new ApifyClient(TWITTER_ACT_ID); // Twitter Actor ID
+    const socialMedia = "Twitter";
 
     async function handleTwitterSubmit() {
         confirmChoice = false;
@@ -104,7 +103,7 @@
         };
 
         sendEventData({
-            event: "tractor-download",
+            event: "tractor-fetch-data",
             tr_social_media: "twitter",
             tr_gpt_query: $userQuery,
             tr_user_queries: queryList,
@@ -318,7 +317,7 @@
     </div>
 </form>
 
-<DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
+<DownloadButton {csvBlob} {filename} {datasetSize} {loading} {socialMedia} />
 
 <CronEditor
     {numTweets}

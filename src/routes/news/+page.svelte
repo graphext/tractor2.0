@@ -31,6 +31,7 @@
     let languageSelected = languages[0];
 
     let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID);
+    const socialMedia = "google-news";
 
     let selectedRange: DateRange;
     let timeSteps: Date[];
@@ -75,7 +76,7 @@
         status = "STARTING";
 
         sendEventData({
-            event: "tractor-download",
+            event: "tractor-fetch-data",
             tr_social_media: "google-news",
             tr_user_queries: keywords.split(",").map((kw) => kw.trim()),
             tr_date_range_start: selectedRange.start?.toString(),
@@ -269,7 +270,13 @@
         </div>
     </form>
 
-    <DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
+    <DownloadButton
+        {csvBlob}
+        {filename}
+        {datasetSize}
+        {loading}
+        {socialMedia}
+    />
 
     {#if error || status}
         <div>

@@ -28,6 +28,8 @@
 
     let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
 
+    const socialMedia = "google-search";
+
     let keywords: string,
         domains: string,
         loading = false,
@@ -109,7 +111,7 @@
         };
 
         sendEventData({
-            event: "tractor-download",
+            event: "tractor-fetch-data",
             tr_social_media: "google",
             tr_keywords: keywords.split(",").map((k) => k.trim()),
             tr_num_items_retrieved: maxPages,
@@ -344,7 +346,13 @@
         </div>
     </form>
 
-    <DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
+    <DownloadButton
+        {csvBlob}
+        {filename}
+        {datasetSize}
+        {loading}
+        {socialMedia}
+    />
 
     {#if error || status}
         <div>

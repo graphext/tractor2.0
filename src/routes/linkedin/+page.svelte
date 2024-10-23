@@ -47,6 +47,8 @@
 
     let apifyClient = new ApifyClient(LINKEDIN_ACTOR_ID);
 
+    const socialMedia = "linkedin";
+
     let urls: string,
         loading = false,
         maxItems = 100;
@@ -124,7 +126,7 @@
             return;
         }
         sendEventData({
-            event: "tractor-download",
+            event: "tractor-fetch-data",
             tr_social_media: "linkedin",
             tr_urls: urlsSplit,
             tr_num_items_retrieved: maxItems,
@@ -526,7 +528,13 @@ https://www.linkedin.com/search/results...
         </div>
     </form>
 
-    <DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
+    <DownloadButton
+        {csvBlob}
+        {filename}
+        {datasetSize}
+        {loading}
+        {socialMedia}
+    />
 
     {#if error || status}
         <div>

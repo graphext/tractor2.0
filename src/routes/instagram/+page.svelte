@@ -34,6 +34,7 @@
     import { tweened } from "svelte/motion";
 
     let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID);
+    const socialMedia = "instagram";
 
     let keywords = "";
     $: urlsLength = processInstagramInput(keywords).length;
@@ -110,7 +111,7 @@
         let urls = processInstagramInput(keywords);
 
         sendEventData({
-            event: "tractor-download",
+            event: "tractor-fetch-data",
             tr_social_media: "instagram",
             tr_url_keywords: urls,
             tr_posts_newer_than: selectedDate ? selectedDate.toString() : "",
@@ -433,7 +434,13 @@
         </div>
     </form>
 
-    <DownloadButton {csvBlob} {filename} {datasetSize} {loading} />
+    <DownloadButton
+        {csvBlob}
+        {filename}
+        {datasetSize}
+        {loading}
+        {socialMedia}
+    />
 
     {#if error || status}
         <div>
