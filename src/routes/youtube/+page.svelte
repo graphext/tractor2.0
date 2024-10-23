@@ -1,4 +1,4 @@
-<script laing="ts">
+<script lang="ts">
     import { YOUTUBE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import Section from "$lib/components/Section.svelte";
