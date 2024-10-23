@@ -287,6 +287,31 @@ export type SearchGoogleResult = {
 	}
 };
 
+export type OrganicGoogleResult = {
+	searchQuery: {
+		term: string;
+		url: string;
+		device: string;
+		page: number;
+		type: string;
+		domain: string;
+		countryCode: string;
+		languageCode: string | null;
+		locationUule: string | null;
+		resultsPerPage: string;
+	};
+	resultsTotal: number;
+	title: string;
+	url: string;
+	displayedUrl: string;
+	description: string;
+	emphasizedKeywords: string[];
+	siteLinks: string[];
+	productInfo: Record<string, unknown>;
+	type: string;
+	position: number;
+};
+
 
 export type LinkedInResult = {
 	urn: string;

@@ -13,7 +13,7 @@
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
-    import type { SearchGoogleResult } from "$lib/types";
+    import type { OrganicGoogleResult, SearchGoogleResult } from "$lib/types";
     import {
         checkTaskStatus,
         jsonToCsv,
@@ -32,8 +32,6 @@
         domains: string,
         loading = false,
         maxPages = 5;
-
-    let validateDomains;
 
     $: buttonText = loading ? "Getting results" : "Get pages";
 
@@ -201,25 +199,22 @@
                     format: "json",
                 });
 
-                csvBlob = await jsonToCsv<SearchGoogleResult>({
+                // google actor specifically
+                datasetLink += "&view=organic_results";
+
+                csvBlob = await jsonToCsv<OrganicGoogleResult>({
                     url: datasetLink,
                     unwind: [
                         {
-                            targetCol: "organicResults",
-                            take: "max",
+                            targetCol: "searchQuery",
                             fields: [
                                 {
-                                    field: "title",
+                                    field: "term",
                                 },
                                 {
                                     field: "url",
                                 },
                             ],
-                        },
-                        {
-                            targetCol: "relatedQueries",
-                            take: 4,
-                            fields: [{ field: "title" }, { field: "url" }],
                         },
                     ],
                 });
