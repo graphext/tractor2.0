@@ -8,6 +8,8 @@
     import Warning from "phosphor-svelte/lib/Warning";
     import Section from "./Section.svelte";
     import { page } from "$app/stores";
+    import { queryParam } from "sveltekit-search-params";
+    import { get } from "svelte/store";
 
     $: pageUrl = $page.route.id;
 
@@ -47,6 +49,15 @@
     let placeholder: string;
 
     onMount(() => {
+        const apifyKeyParam = get(queryParam("apifyKey"));
+
+        if (apifyKeyParam != "" && apifyKeyParam != undefined) {
+            console.log("yeah");
+            $apifyKey = apifyKeyParam;
+        } else {
+            console.log("fuck");
+        }
+
         apikeyPresent = $apifyKey != "";
         placeholder = apikeyPresent
             ? "Key already set. Good to go!"
