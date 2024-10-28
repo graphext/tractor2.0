@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
     import { PaneGroup, Pane, PaneResizer } from "paneforge";
@@ -17,8 +15,6 @@
         submitTask,
     } from "$lib/utils";
     import CronEditor from "./CronEditor.svelte";
-    import Gauge from "phosphor-svelte/lib/Gauge";
-    import Book from "phosphor-svelte/lib/Book";
     import { ApifyClient, getPrivateUserData } from "../apifyEndpoints";
 
     import { TWITTER_ACT_ID } from "$lib/actors";
@@ -31,7 +27,6 @@
 
     import { frequencyStore, selectedLists } from "$lib/stores/store";
     import Error from "./Error.svelte";
-    import User from "./User.svelte";
     import Status from "./Status.svelte";
     import DownloadButton from "./DownloadButton.svelte";
 
@@ -41,12 +36,14 @@
         queriesSpreadOverTime?: string;
     }
 
-    let { queries = $bindable(""), selectedRange, queriesSpreadOverTime = $bindable("") }: Props = $props();
-
+    let {
+        queries = $bindable(""),
+        queriesSpreadOverTime = $bindable(""),
+        selectedRange = $bindable(),
+    }: Props = $props();
 
     let loading = $state(false);
     let resuming = $state(false);
-
 
     let confirmChoice = $state(false);
 
@@ -59,7 +56,8 @@
 
     let numTweets = $state(5000);
 
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
 
     let datasetLink: string | null = null;
     let datasetData;
@@ -69,7 +67,6 @@
     let datasetSize: number | null = $state(null);
 
     let error: string | null = $state(null);
-
 
     const apifyClient = new ApifyClient(TWITTER_ACT_ID); // Twitter Actor ID
 
@@ -223,10 +220,12 @@
             },
         });
     }
-    let numQueries = $derived(queriesSpreadOverTime
-        ? queriesSpreadOverTime.trim().split("\n").length
-        : 0);
-    run(() => {
+    let numQueries = $derived(
+        queriesSpreadOverTime
+            ? queriesSpreadOverTime.trim().split("\n").length
+            : 0,
+    );
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -238,10 +237,7 @@
     let buttonText = $derived(loading ? "Loading tweets..." : "Get Tweets");
 </script>
 
-<form
-    onsubmit={preventDefault(handleTwitterSubmit)}
-    class="flex flex-col gap-3"
->
+<form onsubmit={handleTwitterSubmit} class="flex flex-col gap-3">
     <PaneGroup direction="horizontal" class="items-center gap-1 mb-4 ">
         <Pane defaultSize={30} class="p-1">
             <div

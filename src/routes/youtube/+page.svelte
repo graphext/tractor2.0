@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { YOUTUBE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import Section from "$lib/components/Section.svelte";
@@ -38,9 +36,6 @@
 
     let maxItems = $state(100);
 
-
-
-
     let loading: boolean = $state(false);
 
     let confirmChoice = $state(false);
@@ -56,7 +51,8 @@
     let datasetLink;
     let runId: string = $state();
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string = $state();
     let datasetData: any;
     let filename: string = $state();
@@ -250,24 +246,28 @@
             },
         });
     }
-    let searchMode = $derived(query?.includes("youtube.com") ? "url" : "search");
-    let startUrls =
-        $derived(searchMode == "url" &&
-        query
-            .split(",")
-            .map((a) => a.trim())
-            .map((url) => {
-                return {
-                    url: url,
-                    method: "GET",
-                };
-            }));
-    let maxItemsUrls =
-        $derived(searchMode == "url" ? startUrls.length * maxItems : maxItems);
-    run(() => {
+    let searchMode = $derived(
+        query?.includes("youtube.com") ? "url" : "search",
+    );
+    let startUrls = $derived(
+        searchMode == "url" &&
+            query
+                .split(",")
+                .map((a) => a.trim())
+                .map((url) => {
+                    return {
+                        url: url,
+                        method: "GET",
+                    };
+                }),
+    );
+    let maxItemsUrls = $derived(
+        searchMode == "url" ? startUrls.length * maxItems : maxItems,
+    );
+    $effect(() => {
         console.log(maxItemsUrls);
     });
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -276,14 +276,13 @@
             }, 500);
         }
     });
-    let buttonText = $derived(loading ? `Loading video data` : `Get video data`);
+    let buttonText = $derived(
+        loading ? `Loading video data` : `Get video data`,
+    );
 </script>
 
 <Section>
-    <form
-        onsubmit={preventDefault(handleYoutubeSubmit)}
-        class="flex flex-col gap-5"
-    >
+    <form onsubmit={handleYoutubeSubmit} class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
             <label for="search" class="text-sm text-base-content/60"
                 >Search YouTube:</label

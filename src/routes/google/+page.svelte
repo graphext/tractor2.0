@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
@@ -33,12 +31,10 @@
         loading = $state(false),
         maxPages = $state(5);
 
-
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let resuming: boolean = $state();
-
 
     let datasetLink: string;
     let datasetData;
@@ -46,7 +42,8 @@
     let status: string = $state();
     let error: string = $state();
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string;
     let filename: string = $state();
     let datasetSize: number = $state();
@@ -202,7 +199,7 @@
             },
         });
     };
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -215,10 +212,7 @@
 </script>
 
 <Section>
-    <form
-        class="flex flex-col gap-5"
-        onsubmit={preventDefault(handleGoogleSubmit)}
-    >
+    <form class="flex flex-col gap-5" onsubmit={handleGoogleSubmit}>
         <div>
             <div class="flex w-full justify-between gap-3 items-center">
                 <div class="flex flex-col gap-2 w-full">

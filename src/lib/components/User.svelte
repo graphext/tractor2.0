@@ -1,24 +1,21 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
+    import { fly } from "svelte/transition";
+    import { ApifyClient } from "$lib/apifyEndpoints";
+    import { apifyKey } from "$lib/stores/apifyStore";
 
-    import { fly } from 'svelte/transition'
-    import { ApifyClient } from '$lib/apifyEndpoints'
-    import { apifyKey } from '$lib/stores/apifyStore'
-
-    let name: string = $state()
-    let apifyClient: ApifyClient | null = $state(null)
-
+    let name: string = $state();
+    let apifyClient: ApifyClient | null = $state(null);
 
     async function getUserName() {
         if (apifyClient) {
-            let data = await apifyClient.getPrivateUserData()
-            name = data.data.profile.name
+            let data = await apifyClient.getPrivateUserData();
+            name = data.data.profile.name;
         }
     }
-    run(() => {
+    $effect(() => {
         if ($apifyKey) {
-            apifyClient = new ApifyClient('61RPP7dywgiy0JPD0') // Twitter Actor ID
-            getUserName()
+            apifyClient = new ApifyClient("61RPP7dywgiy0JPD0"); // Twitter Actor ID
+            getUserName();
         }
     });
 </script>

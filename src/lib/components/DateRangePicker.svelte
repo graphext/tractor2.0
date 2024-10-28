@@ -27,11 +27,11 @@
         disabled: boolean;
     }
     let {
-        selectedRange = {
+        selectedRange = $bindable({
             start: today(getLocalTimeZone()).subtract({ months: 1, days: 1 }),
             end: today(getLocalTimeZone()),
-        },
-        timeSteps,
+        }),
+        timeSteps = $bindable(),
         disabled,
         ...others
     }: Props = $props();

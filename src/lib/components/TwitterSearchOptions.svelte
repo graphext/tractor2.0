@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { today, getLocalTimeZone } from "@internationalized/date";
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
@@ -30,15 +28,23 @@
     let loading = $state(false);
 
     interface Props {
-        queries?: string;
-        enrichedQueries?: string;
+        queries: string;
+        enrichedQueries: string;
         selectedRange: DateRange;
     }
 
-    let { queries = $bindable(""), enrichedQueries = $bindable(""), selectedRange = $bindable() }: Props = $props();
+    let {
+        queries = $bindable(""),
+        enrichedQueries = $bindable(""),
+        selectedRange = $bindable({
+            start: today(getLocalTimeZone()).subtract({ months: -1 }),
+            end: today(getLocalTimeZone()),
+        }),
+    }: Props = $props();
+
     let timeSteps: Date[] = $state();
 
-    run(() => {
+    $effect(() => {
         enrichedQueries = enrichQueries(
             queries,
             timeSteps,

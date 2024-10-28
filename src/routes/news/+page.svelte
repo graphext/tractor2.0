@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import Input from "$lib/components/Input.svelte";
     import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
     import { apifyKey } from "$lib/stores/apifyStore";
@@ -39,7 +37,6 @@
 
     let resuming: boolean = $state(false);
 
-
     let error: string = $state();
     let status: string = $state();
 
@@ -50,7 +47,8 @@
 
     let loading: boolean = $state(false);
 
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
 
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
@@ -59,7 +57,6 @@
     let userId: string;
 
     let csvBlob: Blob = $state();
-
 
     async function handleNewsSubmit() {
         loading = true;
@@ -183,7 +180,7 @@
             },
         });
     }
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -196,10 +193,7 @@
 </script>
 
 <Section>
-    <form
-        class="flex flex-col gap-5"
-        onsubmit={preventDefault(handleNewsSubmit)}
-    >
+    <form class="flex flex-col gap-5" onsubmit={handleNewsSubmit}>
         <div class="flex flex-col gap-2">
             <label for="keywords" class="text-sm text-base-content/60"
                 >Keywords:</label

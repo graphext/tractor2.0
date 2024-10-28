@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { LINKEDIN_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import CleanPasteInput from "$lib/components/CleanPasteInput.svelte";
@@ -55,12 +53,10 @@
 
     let urlsSplit: string[] = $state([]);
 
-
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let resuming: boolean = $state();
-
 
     let datasetLink: string;
     let datasetData;
@@ -68,7 +64,8 @@
     let status: string = $state();
     let error: string = $state();
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string = $state();
     let filename: string = $state();
     let datasetSize: number = $state();
@@ -267,7 +264,7 @@
     function resetCookies() {
         $linkedInCookies = "";
     }
-    run(() => {
+    $effect(() => {
         if (urls) {
             urlsSplit = urls
                 .split("\n")
@@ -275,7 +272,7 @@
                 .filter((u) => u != "" && u.length > 0);
         }
     });
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -284,14 +281,13 @@
             }, 500);
         }
     });
-    let buttonText = $derived(loading ? "Getting results" : "Get LinkedIn posts");
+    let buttonText = $derived(
+        loading ? "Getting results" : "Get LinkedIn posts",
+    );
 </script>
 
 <Section>
-    <form
-        class="flex flex-col gap-5"
-        onsubmit={preventDefault(handleLinkedinSubmit)}
-    >
+    <form class="flex flex-col gap-5" onsubmit={handleLinkedinSubmit}>
         <div class="flex flex-col gap-5">
             <div class="flex flex-col gap-2 w-full">
                 <div class="flex justify-between">

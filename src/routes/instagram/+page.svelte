@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import DatePicker from "$lib/components/DatePicker.svelte";
@@ -42,7 +40,6 @@
     let maxItems = $state(500);
     let confirmChoice = $state(false);
 
-
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
@@ -51,12 +48,12 @@
 
     let resuming: boolean = $state();
 
-
     let status: string = $state();
     let error: string = $state();
 
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string = $state();
     let datasetData: any;
     let filename: string = $state();
@@ -287,7 +284,7 @@
         });
     }
     let urlsLength = $derived(processInstagramInput(keywords).length);
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -296,16 +293,15 @@
             }, 500);
         }
     });
-    let buttonText = $derived(loading
-        ? `Loading ${selectedResultType.label}`
-        : `Get ${selectedResultType.label}`);
+    let buttonText = $derived(
+        loading
+            ? `Loading ${selectedResultType.label}`
+            : `Get ${selectedResultType.label}`,
+    );
 </script>
 
 <Section>
-    <form
-        class="flex flex-col gap-5"
-        onsubmit={preventDefault(handleInstagramSubmit)}
-    >
+    <form class="flex flex-col gap-5" onsubmit={handleInstagramSubmit}>
         <div>
             <div class="flex items-center mb-2 gap-1">
                 <label for="keywords" class="text-sm text-base-content/60"

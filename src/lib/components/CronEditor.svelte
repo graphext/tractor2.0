@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { composeCronExpression, identifyCronExpression } from "$lib/utils";
     import { Select, type Selected } from "bits-ui";
     import ClockClockwise from "phosphor-svelte/lib/ClockClockwise";
@@ -15,7 +13,6 @@
         selectedLists,
     } from "$lib/stores/store";
 
-
     interface Props {
         queries: string;
         queriesSpreadOverTime: string;
@@ -29,7 +26,7 @@
         queriesSpreadOverTime,
         numTweets,
         scheduleNumTweets = $bindable(100),
-        actorId
+        actorId,
     }: Props = $props();
 
     let options = [
@@ -44,7 +41,7 @@
     let intervalNumber: number = $state(1);
 
     let withinTimeParameter: string = $state(`within_time:${intervalNumber}d`);
-    run(() => {
+    $effect(() => {
         switch (selectedInterval.value) {
             case "minute":
                 withinTimeParameter = `within_time:${intervalNumber}m`;
@@ -73,11 +70,9 @@
 
     let time = $derived({ hour: hour, minute: minute });
 
-    let cronExpression: string = $state(composeCronExpression(
-        intervalNumber,
-        selectedInterval.value,
-        time,
-    ));
+    let cronExpression: string = $state(
+        composeCronExpression(intervalNumber, selectedInterval.value, time),
+    );
 
     let loading: boolean = $state(false),
         error;

@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { value = "", ...other } = $props();
+    let { value = $bindable(""), ...other } = $props();
 </script>
 
 <input
