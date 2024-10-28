@@ -28,6 +28,7 @@
     import ResumeButton from "$lib/components/ResumeButton.svelte";
     import StopButton from "$lib/components/StopButton.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
+    import { QuestionMark } from "phosphor-svelte";
 
     let apifyClient = new ApifyClient(YOUTUBE_ACTOR_ID);
     const socialMedia = "youtube";
@@ -280,9 +281,59 @@
         class="flex flex-col gap-5"
     >
         <div class="flex flex-col gap-2">
-            <label for="search" class="text-sm text-base-content/60"
-                >Search YouTube:</label
-            >
+            <div class="flex items-center mb-2 gap-1">
+                <label for="search" class="text-sm text-base-content/60"
+                    >Search YouTube:</label
+                >
+
+                <Tooltip.Root openDelay={0}>
+                    <Tooltip.Trigger class="w-fit">
+                        <QuestionMark
+                            size={20}
+                            weight="bold"
+                            class="rounded-full bg-neutral border-2 border-base-300"
+                        />
+                    </Tooltip.Trigger>
+                    <TooltipContent
+                        side="right"
+                        sideOffset={30}
+                        transitionConfig={{ duration: 100, x: -5 }}
+                    >
+                        <div class="prose prose-sm">
+                            <h3>Search Mode</h3>
+                            <p>
+                                Search in the same way as in the youtube search
+                                bar.
+                            </p>
+
+                            <p>
+                                To enter <b>url mode</b>, simply paste a youtube
+                                link to a video, channel, playlist, or results
+                                page.
+                            </p>
+
+                            <p>
+                                Date filtering is only enabled when in <b
+                                    >url mode</b
+                                >.
+                            </p>
+
+                            <h3>Url Mode</h3>
+                            <p>
+                                Search for specific video, channel, playlist or
+                                results page URL.
+                            </p>
+
+                            <p>This mode enables date range filtering.</p>
+
+                            <p>
+                                You can input several links, just separate them
+                                by commas.
+                            </p>
+                        </div>
+                    </TooltipContent>
+                </Tooltip.Root>
+            </div>
 
             <div class="join">
                 <Tooltip.Root openDelay={0}>
