@@ -19,6 +19,7 @@
         InstagramLogo,
         GoogleLogo,
         YoutubeLogo,
+        TiktokLogo,
     } from "phosphor-svelte";
 
     $: pageUrl = $page.route.id;
@@ -26,10 +27,12 @@
     let actors = [
         { id: "/", icon: TwitterLogo, title: "Twitter" },
         { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
-        { id: "/google", icon: GoogleLogo, title: "Google" },
-        { id: "/news", icon: NewspaperClipping, title: "Google News" },
         { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
         { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
+        { id: "/tiktok", icon: TiktokLogo, title: "TikTok" },
+
+        { id: "/google", icon: GoogleLogo, title: "Google" },
+        { id: "/news", icon: NewspaperClipping, title: "Google News" },
     ];
 
     $: apikeyPresent = $apifyKey != "";
