@@ -398,6 +398,70 @@ export type LinkedInResult = {
 };
 
 
+export type TikTokPost = {
+	id: string;
+	text: string;
+	createTime: number;
+	createTimeISO: string;
+	authorMeta: {
+		id: string;
+		name: string;
+		profileUrl: string;
+		nickName: string;
+		verified: boolean;
+		signature: string;
+		bioLink: string | null;
+		avatar: string;
+		commerceUserInfo: {
+			commerceUser: boolean;
+		};
+		privateAccount: boolean;
+		region: string;
+		roomId: string;
+		ttSeller: boolean;
+		following: number;
+		friends: number;
+		fans: number;
+		heart: number;
+		video: number;
+		digg: number;
+	};
+	musicMeta: {
+		musicName: string;
+		musicAuthor: string;
+		musicOriginal: boolean;
+		playUrl: string;
+		coverMediumUrl: string;
+		musicId: string;
+		musicAlbum?: string; // Optional field, since not all examples have it
+	};
+	webVideoUrl: string;
+	mediaUrls: string[];
+	videoMeta: {
+		height: number;
+		width: number;
+		duration: number;
+		coverUrl: string;
+		originalCoverUrl: string;
+		definition: string;
+		format: string;
+	};
+	diggCount: number;
+	shareCount: number;
+	playCount: number;
+	collectCount: number;
+	commentCount: number;
+	mentions: string[];
+	hashtags: {
+		name: string;
+	}[];
+	effectStickers: string[];
+	isSlideshow: boolean;
+	isPinned: boolean;
+	isSponsored: boolean;
+	input: string;
+};
+
 
 // typescript masturbation to make LSP work with types from apify
 

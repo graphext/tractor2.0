@@ -2,7 +2,7 @@
     import Section from "$lib/components/Section.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import { Tooltip } from "bits-ui";
-    import { ApifyClient } from "$lib/apifyEndpoints";
+    import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import { TIKTOK_ACTOR_ID } from "$lib/actors";
     import {
         type DateValue,
@@ -21,17 +21,49 @@
     import { apifyKey } from "$lib/stores/apifyStore";
     import DatePicker from "$lib/components/DatePicker.svelte";
     import { Hash, MagnifyingGlass, QuestionMark, User } from "phosphor-svelte";
-    import Input from "$lib/components/Input.svelte";
+    import {
+        checkTaskStatus,
+        jsonToCsv,
+        sendEventData,
+        submitTask,
+    } from "$lib/utils";
+    import { toast } from "svelte-sonner";
+    import type { TikTokPost } from "$lib/types";
 
     let apifyClient = new ApifyClient(TIKTOK_ACTOR_ID);
     const socialMedia = "youtube";
 
     let maxItems = 100;
-    $: maxItemsWarning = maxItems;
+    let maxItemsWarning: number;
 
-    let query = "";
+    $: hashtagArray = hashtagInput
+        ? hashtagInput
+              .split(",")
+              .filter((e) => !/^\s*$/g.test(e))
+              .map((e) => e.trim().toLowerCase())
+        : [];
 
-    $: buttonText = loading ? `Loading Tiktoks...` : `Get Tiktok data`;
+    $: profileArray = profileInput
+        ? profileInput
+              .split(",")
+              .filter((e) => !/^\s*$/g.test(e))
+              .map((e) => e.trim().toLowerCase())
+        : [];
+
+    $: keywordArray = keywordInput
+        ? keywordInput
+              .split(",")
+              .filter((e) => !/^\s*$/g.test(e))
+              .map((e) => e.trim().toLowerCase())
+        : [];
+
+    $: maxItemsWarning =
+        (hashtagArray?.length + profileArray?.length + keywordArray?.length) *
+        maxItems;
+
+    let hashtagInput: string, profileInput: string, keywordInput: string;
+
+    $: buttonText = loading ? `Fetching Tiktok data...` : `Get Tiktok data`;
 
     let outputProgress: number = 0;
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
@@ -71,8 +103,179 @@
         apifyClient: ApifyClient;
         maxItems: number;
         runId: string;
-    }) {}
-    async function handleTikTokSubmit() {}
+    }) {
+        checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults: maxItemsWarning,
+
+            onStatusUpdate: ({
+                status: currentStatus,
+                dataLength,
+                liveData,
+            }: {
+                status: string;
+                dataLength: number;
+                liveData: any;
+            }) => {
+                if (resuming && status == "RUNNING") resuming = false;
+
+                status = currentStatus;
+                outputProgress = dataLength;
+                springProgress.set(outputProgress);
+
+                headers = dataLength > 0 ? Object.keys(liveData[0]) : [];
+                rows =
+                    dataLength > 0
+                        ? liveData
+                              .reverse()
+                              .filter((d, i) => i < 100) //return 100 last items
+                              .map((d) => Object.values(d))
+                        : [];
+            },
+            onComplete: async ({
+                runId,
+                status: completedStatus,
+            }: {
+                runId: string;
+                status: string;
+            }) => {
+                status = completedStatus;
+
+                datasetLink = await apifyClient.getDatasetLink({
+                    runId: runId,
+                    format: "json",
+                });
+
+                csvBlob = await jsonToCsv<TikTokPost>({
+                    url: datasetLink,
+                    dedupKey: "id",
+                    customColumnOrder: [
+                        "createTimeISO",
+                        "text",
+                        "webVideoUrl",
+                        "playCount",
+                        "shareCount",
+                        "diggCount",
+                        "authorMeta.name",
+                        "authorMeta.nickName",
+                        "authorMeta.signature",
+                    ],
+                    unwind: [
+                        {
+                            targetCol: "authorMeta",
+                            fields: [
+                                { field: "name" },
+                                { field: "nickName" },
+                                { field: "signature" },
+                            ],
+                        },
+                        {
+                            targetCol: "videoMeta",
+                            fields: [{ field: "coverUrl" }],
+                        },
+                        {
+                            targetCol: "hashtags",
+                            take: 5,
+                            fields: [
+                                {
+                                    field: "name",
+                                    alias: "top_5_hashtags",
+                                },
+                            ],
+                        },
+                    ],
+                });
+
+                datasetData = await apifyClient.getDatasetInfo(runId);
+
+                const fileKeyWord = "tiktok_search";
+
+                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+
+                datasetSize = datasetData.data.itemCount;
+
+                toast.success("🎉 Dataset created. Ready to download!");
+                loading = false;
+            },
+            onError: async (err: Error) => {
+                error = err.message;
+                userId = (await getPrivateUserData()).data.id;
+                toast.error(err.message, {
+                    duration: 10000,
+                });
+                loading = false;
+            },
+        });
+    }
+    async function handleTikTokSubmit() {
+        loading = true;
+        datasetLink = "";
+        filename = "";
+        outputProgress = 0;
+        confirmChoice = false;
+        status = "STARTING";
+        error = "";
+
+        hashtagArray = hashtagInput
+            .split(",")
+            .map((e) => e.trim().toLowerCase());
+
+        profileArray = profileInput
+            .split(",")
+            .map((e) => e.trim().toLowerCase());
+
+        keywordArray = keywordInput
+            .split(",")
+            .map((e) => e.trim().toLowerCase());
+
+        console.log(maxItemsWarning);
+
+        sendEventData({
+            event: "tractor-fetch-data",
+            tr_social_media: "tiktok",
+            tr_keywords: keywordArray,
+            tr_profiles: profileArray,
+            tr_hashtags: hashtagArray,
+            tr_posts_newer_than: selectedDate ? selectedDate.toString() : "",
+            tr_num_items_retrieved: maxItems,
+        });
+
+        const inputData = {
+            excludePinnedPosts: false,
+            hashtags: hashtagArray,
+            profiles: profileArray,
+            resultsPerPage: maxItems,
+            searchQueries: keywordArray,
+            shouldDownloadCovers: false,
+            shouldDownloadSlideshowImages: false,
+            shouldDownloadSubtitles: false,
+            shouldDownloadVideos: false,
+        };
+
+        if (selectedDate) {
+            inputData["oldestPostDate"] = selectedDate.toString();
+        }
+
+        submitTask({
+            apifyClient,
+            inputData,
+            onTaskCreated: (createdRunId: string) => {
+                runId = createdRunId;
+
+                toast.info("Fetching data. This may take a while...");
+
+                loading = true;
+
+                checkTikTokStatus({ apifyClient, maxItems, runId });
+            },
+            onError: (err: Error) => {
+                console.log("error");
+                error = err.message;
+                loading = false;
+            },
+        });
+    }
 </script>
 
 <Section>
@@ -98,33 +301,39 @@
                         sideOffset={30}
                         transitionConfig={{ duration: 100, x: -5 }}
                     >
-                        <ul class="list-disc list-inside flex flex-col gap-2">
-                            <li>
-                                Use <span class="text-primary font-bold">@</span
-                                ><span class="opacity-70">username</span> to search
-                                posts from a profile
-                            </li>
+                        <div class="prose prose-sm">
+                            <h4>You can search Tiktok in 3 ways:</h4>
+                            <ul class="flex flex-col gap-2">
+                                <li>
+                                    <b># Hashtags</b>: collect data about videos
+                                    containing this hashtag: likes, users,
+                                    followers and more.
+                                </li>
+                                <li>
+                                    <b>Usernames</b>: get info about specific
+                                    profiles and their videos
+                                </li>
+                                <li>
+                                    <b>Keywords</b>: you can search for
+                                    particular keywords. We will search for
+                                    videos and profiles containing the keyword.
+                                </li>
+                            </ul>
 
-                            <li>
-                                You can include a link to a profile: <span
-                                    class="font-bold"
-                                    >https://instagram.com</span
-                                ><span class="opacity-70">/username</span>
-                            </li>
-
-                            <li>
-                                You can also include a link to a specific post: <span
-                                    class="font-bold"
-                                    >https://instagram.com</span
-                                ><span class="opacity-70">/p/postID</span>, to
-                                search for comments, for example.
-                            </li>
-                        </ul>
+                            <p>
+                                You can search for multiple hashtags, usernames,
+                                or keywords simultaneously. Separate each item
+                                by commas. For example:
+                            </p>
+                            <p><b>#</b>: fyp, unboxing</p>
+                            <p><b>Usernames</b>: johnseed, acmecorp</p>
+                            <p><b>Keywords</b>: music, guitar</p>
+                        </div>
                     </TooltipContent>
                 </Tooltip.Root>
             </div>
 
-            <div class="join w-full">
+            <div class="join w-full rounded-full">
                 <label
                     class="input input-sm bg-neutral input-bordered flex w-full join-item items-center gap-2"
                 >
@@ -132,7 +341,8 @@
                     <input
                         type="text"
                         class="grow"
-                        placeholder="Search Hashtags"
+                        bind:value={hashtagInput}
+                        placeholder="Search Hashtags: fyp, music, unboxing"
                     />
                 </label>
 
@@ -144,6 +354,7 @@
                     <input
                         type="text"
                         class="grow"
+                        bind:value={profileInput}
                         placeholder="Search Profiles"
                     />
                 </label>
@@ -155,7 +366,8 @@
                     <input
                         type="text"
                         class="grow"
-                        placeholder="Search Keywords"
+                        bind:value={keywordInput}
+                        placeholder="Search Keywords: music, guitar, producer"
                     />
                 </label>
             </div>
@@ -201,8 +413,10 @@
                 <button
                     on:click={() => (confirmChoice = true)}
                     class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
-                    disabled={!$apifyKey || !query}
-                    class:disabled={!$apifyKey || !query}
+                    disabled={!$apifyKey ||
+                        (!profileInput && !hashtagInput && !keywordInput)}
+                    class:disabled={!$apifyKey ||
+                        (!profileInput && !hashtagInput && !keywordInput)}
                 >
                     {#if loading}
                         <span class="loading loading-ring"></span>
@@ -210,10 +424,11 @@
                     {buttonText}
                 </button>
             {:else}
-                <WarningCost unitPrice={5 / 1000} maxItems={maxItemsWarning} />
+                <WarningCost unitPrice={4 / 1000} maxItems={maxItemsWarning} />
                 <button
                     class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
-                    disabled={!$apifyKey || !query}
+                    disabled={!$apifyKey ||
+                        (!profileInput && !hashtagInput && !keywordInput)}
                 >
                     Sure. Let's go.
                 </button>
@@ -264,3 +479,30 @@
         </div>
     {/if}
 </Section>
+
+<style>
+    progress {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: transparent;
+    }
+
+    /* For Chrome and Safari */
+    progress::-webkit-progress-bar {
+        background-color: transparent;
+    }
+
+    progress::-webkit-progress-value {
+        background-color: white;
+    }
+
+    /* For Firefox */
+    progress::-moz-progress-bar {
+        background-color: white;
+    }
+
+    .disabled {
+        @apply btn-disabled shadow-none;
+    }
+</style>

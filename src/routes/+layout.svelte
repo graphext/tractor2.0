@@ -28,9 +28,8 @@
         { id: "/", icon: TwitterLogo, title: "Twitter" },
         { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
         { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
-        { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
         { id: "/tiktok", icon: TiktokLogo, title: "TikTok" },
-
+        { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
         { id: "/google", icon: GoogleLogo, title: "Google" },
         { id: "/news", icon: NewspaperClipping, title: "Google News" },
     ];
