@@ -361,7 +361,7 @@
                         type="text"
                         class="grow"
                         bind:value={profileInput}
-                        placeholder="Search Profiles"
+                        placeholder="Search user profiles"
                     />
                 </label>
 
