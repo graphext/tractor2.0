@@ -36,6 +36,10 @@
     let maxItems = 100;
     let maxItemsWarning: number;
 
+    let hashtagInput: string = "",
+        profileInput: string = "",
+        keywordInput: string = "";
+
     $: hashtagArray = hashtagInput
         ? hashtagInput
               .split(",")
@@ -60,8 +64,6 @@
     $: maxItemsWarning =
         (hashtagArray?.length + profileArray?.length + keywordArray?.length) *
         maxItems;
-
-    let hashtagInput: string, profileInput: string, keywordInput: string;
 
     $: buttonText = loading ? `Fetching Tiktok data...` : `Get Tiktok data`;
 
@@ -157,6 +159,7 @@
                         "playCount",
                         "shareCount",
                         "diggCount",
+                        "videoMeta.coverUrl",
                         "authorMeta.name",
                         "authorMeta.nickName",
                         "authorMeta.signature",
@@ -405,7 +408,7 @@
             {#if loading}
                 <progress
                     class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
-                    max={maxItems}
+                    max={maxItemsWarning}
                     value={$springProgress}
                 ></progress>
             {/if}
