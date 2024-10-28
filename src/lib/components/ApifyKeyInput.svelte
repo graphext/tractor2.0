@@ -43,8 +43,6 @@
         }
     }
 
-    let timeout: number;
-    let interval: number;
     let apikeyPresent: boolean;
     let placeholder: string;
 
@@ -52,12 +50,8 @@
         const apifyKeyParam = get(queryParam("apifyKey"));
 
         if (apifyKeyParam != "" && apifyKeyParam != undefined) {
-            console.log("yeah");
             $apifyKey = apifyKeyParam;
-        } else {
-            console.log("fuck");
         }
-
         apikeyPresent = $apifyKey != "";
         placeholder = apikeyPresent
             ? "Key already set. Good to go!"
