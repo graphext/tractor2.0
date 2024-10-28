@@ -336,7 +336,10 @@
                 </Tooltip.Root>
             </div>
 
-            <div class="join w-full rounded-full">
+            <div
+                class="join w-full rounded-full"
+                class:disabled={!$apifyKey || loading}
+            >
                 <label
                     class="input input-sm bg-neutral input-bordered flex w-full join-item items-center gap-2"
                 >
