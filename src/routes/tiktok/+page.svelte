@@ -162,7 +162,7 @@
                         "videoMeta.coverUrl",
                         "top_5_hashtags",
                         "collectCount",
-                        "commentCount"
+                        "commentCount",
                         "authorMeta.name",
                         "authorMeta.nickName",
                         "authorMeta.signature",
