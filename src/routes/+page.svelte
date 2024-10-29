@@ -2,12 +2,17 @@
     import type { DateRange } from "bits-ui";
     import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
     import TwitterSearchOptions from "$lib/components/TwitterSearchOptions.svelte";
+    import { today, getLocalTimeZone } from "@internationalized/date";
 
     import Section from "$lib/components/Section.svelte";
 
     let queries: string = $state("");
     let enrichedQueries: string = $state("");
-    let selectedRange: DateRange = $state();
+    let selectedRange: DateRange = $state({
+        start: today(getLocalTimeZone()).subtract({ months: -1 }),
+        end: today(getLocalTimeZone()),
+    });
+
     let frequency: DateRange;
 </script>
 

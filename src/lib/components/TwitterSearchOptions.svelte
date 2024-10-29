@@ -36,10 +36,7 @@
     let {
         queries = $bindable(""),
         enrichedQueries = $bindable(""),
-        selectedRange = $bindable({
-            start: today(getLocalTimeZone()).subtract({ months: -1 }),
-            end: today(getLocalTimeZone()),
-        }),
+        selectedRange = $bindable(),
     }: Props = $props();
 
     let timeSteps: Date[] = $state();

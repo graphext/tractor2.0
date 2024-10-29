@@ -11,7 +11,7 @@
         lists?: Selected<string>[];
     }
 
-    let { lists = $bindable([]) }: Props = $props();
+    let { lists = $bindable() }: Props = $props();
 </script>
 
 <Select.Root
