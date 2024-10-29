@@ -160,9 +160,19 @@
                         "shareCount",
                         "diggCount",
                         "videoMeta.coverUrl",
+                        "top_5_hashtags",
+                        "collectCount",
+                        "commentCount"
                         "authorMeta.name",
                         "authorMeta.nickName",
                         "authorMeta.signature",
+                        "authorMeta.avatar",
+                        "authorMeta.profileUrl",
+                        "authorMeta.following",
+                        "authorMeta.heart",
+                        "authorMeta.video",
+                        "authorMeta.digg",
+                        "hashtags",
                     ],
                     unwind: [
                         {
