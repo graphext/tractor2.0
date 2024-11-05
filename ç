@@ -12,6 +12,10 @@
     let loading = false;
     let csvBlob: Blob | null = null;
 
+    const rtf = new Intl.RelativeTimeFormat("en", {
+        numeric: "auto",
+    });
+
     const actorToLinkMap = {
         "tweet-scraper": {
             format: "json",
@@ -217,31 +221,6 @@
         },
     };
 
-    const rtf = new Intl.RelativeTimeFormat("en", {
-        numeric: "auto",
-    });
-
-    function getRelativeTime(date: Date) {
-        const now = new Date();
-        const seconds = Math.floor((now - date) / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        let relativeTime;
-        if (seconds < 60) {
-            relativeTime = rtf.format(-seconds, "second");
-        } else if (minutes < 60) {
-            relativeTime = rtf.format(-minutes, "minute");
-        } else if (hours < 24) {
-            relativeTime = rtf.format(-hours, "hour");
-        } else {
-            relativeTime = rtf.format(-days, "day");
-        }
-
-        return relativeTime;
-    }
-
     async function getRun() {
         const data = await getRunsForTask(task.id);
         return data.data;
@@ -327,14 +306,8 @@
             {task.actName}
         </div>
 
-        <div class="">
-            <span class="opacity-70"
-                >{getRelativeTime(new Date(task.createdAt))}</span
-            >
-            ·
-            <span class="opacity-50"
-                >{new Date(task.createdAt).toLocaleString("en-UK")}</span
-            >
+        <div class="opacity-60">
+            {new Date(task.createdAt).toLocaleString("en-UK")}
         </div>
     </div>
 
@@ -342,10 +315,10 @@
         <div>loading...</div>
     {:then runs}
         {#if runs.items.length > 0}
-            <div class="flex gap-5 overflow-x-scroll">
+            <div class="flex gap-5">
                 {#each runs.items as run, i}
                     <div
-                        class="border border-base-content/20 rounded-md p-2 bg-neutral/50 flex flex-col gap-3 w-fit"
+                        class="border rounded-md p-2 bg-neutral/50 flex flex-col gap-3 w-fit"
                     >
                         <div class="flex gap-3">
                             <div>Run {i + 1}</div>
@@ -353,13 +326,13 @@
 
                         <div class="flex gap-3 justify-between">
                             <button
-                                class="btn border-base-content/10 btn-square"
+                                class="btn btn-sm font-normal border grow border-base-300 shadow-sm h-fit flex flex-col items-start p-3"
                                 on:click={() =>
                                     downloadRunDataset(task.actName, run.id)}
                             >
                                 {#if loading}
                                     <span
-                                        class="loading size-[20px] loading-xs loading-spinner"
+                                        class="loading loading-xs loading-spinner"
                                     ></span>
                                 {:else}
                                     <Download
@@ -370,7 +343,7 @@
                                 {/if}
                             </button>
                             <a
-                                class="btn btn-square border-base-content/10"
+                                class="btn font-normal btn-sm grow border border-base-300 shadow-sm h-fit flex flex-col items-start p-3"
                                 target="_blank"
                                 href={`https://console.apify.com/organization/${userId}/actors/tasks/${task.id}/runs/${run.id}#output`}
                             >
