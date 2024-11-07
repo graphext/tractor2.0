@@ -201,9 +201,6 @@
                     format: "json",
                 });
 
-                // google actor specifically
-                datasetLink += "&view=organic_results";
-
                 csvBlob = await jsonToCsv<OrganicGoogleResult>({
                     url: datasetLink,
                     unwind: [
@@ -223,6 +220,7 @@
                         column: "organicResults",
                         pivot: ["title", "url"],
                     },
+                    customColumnOrder: ["title", "url"],
                 });
 
                 datasetSize = datasetData.data.itemCount;
