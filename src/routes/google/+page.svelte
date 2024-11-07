@@ -219,6 +219,10 @@
                             ],
                         },
                     ],
+                    pivot: {
+                        column: "organicResults",
+                        pivot: ["title", "url"],
+                    },
                 });
 
                 datasetSize = datasetData.data.itemCount;

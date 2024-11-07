@@ -379,11 +379,41 @@ function flattenObjectWithUnwind<T>(
   }, {});
 }
 
+
+export function pivotJson<T>(
+  json: T,
+  pivotColumn: string,
+  fieldsToUnpivot: string[],
+): Record<string, any> {
+  const pivotValues = getNestedValue(json, pivotColumn);
+  console.log(json, pivotValues);
+  if (!Array.isArray(pivotValues)) {
+    throw new Error(`pivotColumn ${pivotColumn} is not an array`);
+  }
+
+  const pivotValuesLength = pivotValues.length;
+  const fieldsToUnpivotLength = fieldsToUnpivot.length;
+
+  const output = Array(pivotValuesLength);
+  for (let i = 0; i < pivotValuesLength; i++) {
+    const pivotValue = pivotValues[i];
+    const row = flattenObjectWithUnwind(json, null, pivotColumn);
+    output[i] = { ...row };
+    for (let j = 0; j < fieldsToUnpivotLength; j++) {
+      const field = fieldsToUnpivot[j];
+      output[i][`${pivotColumn}.${field}`] = getNestedValue(pivotValue, field);
+    }
+  }
+
+  return { data: output };
+}
+
 export async function jsonToCsv<T>({
   url,
   dedupKey = null,
   customColumnOrder,
   unwind,
+  pivot = null
 }: TypedJsonToCsvOptions<T>): Promise<Blob> {
   try {
     // Fetch JSON data from the provided URL
@@ -405,6 +435,11 @@ export async function jsonToCsv<T>({
 
     if (jsonData.every((o) => o.hasOwnProperty("noResults"))) {
       throw emptyError;
+    }
+
+    if (pivot != null) {
+      console.log("pivoting", pivot);
+      jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot);
     }
 
     if (dedupKey && dedupKey !== "") {
@@ -452,7 +487,7 @@ export async function jsonToCsv<T>({
       }),
     );
 
-    let csvString = [headers, ...rows].map((row) => row.join(",")).join("\n");
+    const csvString = [headers, ...rows].map((row) => row.join(",")).join("\n");
 
     return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
   } catch (error) {
