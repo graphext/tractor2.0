@@ -379,33 +379,30 @@ function flattenObjectWithUnwind<T>(
   }, {});
 }
 
-
 export function pivotJson<T>(
-  json: T,
+  json: T[],
   pivotColumn: string,
   fieldsToUnpivot: string[],
 ): Record<string, any> {
-  const pivotValues = getNestedValue(json, pivotColumn);
-  console.log(json, pivotValues);
-  if (!Array.isArray(pivotValues)) {
-    throw new Error(`pivotColumn ${pivotColumn} is not an array`);
-  }
+  const output = [];
 
-  const pivotValuesLength = pivotValues.length;
-  const fieldsToUnpivotLength = fieldsToUnpivot.length;
-
-  const output = Array(pivotValuesLength);
-  for (let i = 0; i < pivotValuesLength; i++) {
-    const pivotValue = pivotValues[i];
-    const row = flattenObjectWithUnwind(json, null, pivotColumn);
-    output[i] = { ...row };
-    for (let j = 0; j < fieldsToUnpivotLength; j++) {
-      const field = fieldsToUnpivot[j];
-      output[i][`${pivotColumn}.${field}`] = getNestedValue(pivotValue, field);
+  json.forEach((obj) => {
+    const pivotValues = getNestedValue(obj, pivotColumn);
+    if (Array.isArray(pivotValues)) {
+      pivotValues.forEach((pivotValue) => {
+        const newRow = { ...obj };
+        fieldsToUnpivot.forEach((field) => {
+          const nestedValue = getNestedValue(pivotValue, field);
+          if (nestedValue !== undefined) {
+            newRow[field] = nestedValue;
+          }
+        });
+        output.push(newRow);
+      });
     }
-  }
+  });
 
-  return { data: output };
+  return output;
 }
 
 export async function jsonToCsv<T>({
@@ -421,7 +418,7 @@ export async function jsonToCsv<T>({
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    let jsonData: any[] = await response.json();
+    let jsonData: T[] = await response.json();
 
     const emptyError = new Error("Apify returned an empty table. This could mean your search is too narrow. Try searching for broader topics or dates.");
 
@@ -438,8 +435,8 @@ export async function jsonToCsv<T>({
     }
 
     if (pivot != null) {
-      console.log("pivoting", pivot);
       jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot);
+      console.log(jsonData);
     }
 
     if (dedupKey && dedupKey !== "") {
