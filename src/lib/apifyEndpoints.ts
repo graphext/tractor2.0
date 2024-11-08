@@ -42,6 +42,12 @@ export async function getActors() {
   return data;
 }
 
+export async function getLimits() {
+  const endpoint = "/users/me/limits";
+  const data = await apifyFetch(endpoint);
+  return data;
+}
+
 /**
  * @param {string} actId - The ID of the actor.
  * @param {Object} options - An object with the following properties:

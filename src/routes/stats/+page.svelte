@@ -4,52 +4,65 @@
   import { onMount } from "svelte";
 
   let actors: string[] = [];
+  let runs: Record<string, number> = {};
   let totalRuns = 0;
+  let loading = false;
   let mostUsedActor = { name: "", count: 0 };
   let totalMoneySpent = 0;
+  let runsData: Record<string, Array<any>> = {};
+  let actorCosts: Record<string, number> = {};
+
+  $: {
+    totalRuns = 0;
+    totalMoneySpent = 0;
+
+    for (const actor in runsData) {
+      const items = runsData[actor];
+      totalRuns += items.length;
+      actorCosts[actor] = items
+        .map((e) => e.usageTotalUsd)
+        .reduce((acc, curr) => acc + curr, 0);
+      totalMoneySpent += actorCosts[actor];
+    }
+  }
 
   onMount(async () => {
-    let actResponse: ActorResponse = await getActors();
+    loading = true;
 
+    let actResponse: ActorResponse = await getActors();
     let userActors = actResponse.data;
 
-    for (const actor of userActors.items) {
-      actors.push(actor.name);
+    await Promise.all(
+      userActors.items.map(async (actor) => {
+        const runData = await getRuns(actor.id);
+        if (runData.data.items.length > 0) {
+          runsData[actor.name] = runData.data.items;
+        }
+      })
+    );
 
-      const response: RunResponse = await getRuns(actor.id);
-      const runsData = response.data;
+    console.log("-----------");
+    console.log(runsData);
 
-      for (const run of runsData.items) {
-        totalMoneySpent += run.usageTotalUsd;
-        totalRuns++;
-      }
-
-      //   await new Promise((resolve) => setTimeout(resolve, 300));
-    }
+    loading = false;
   });
 </script>
 
-<div class="stats-block">
-  <div class="stats-item">
-    <h2 class="text-lg">Total money spent</h2>
-    <p>${totalMoneySpent.toFixed(2)}</p>
-    <p>{totalRuns}</p>
-  </div>
-  <div class="stats-item">
-    <h2 class="text-lg">Most used actor</h2>
-    <p>{mostUsedActor.name} - {mostUsedActor.count} times</p>
-  </div>
+<div>
+  <h1>Stats</h1>
+  <h2>Total runs: {totalRuns}</h2>
+  <h2>Total money spent: ${totalMoneySpent.toFixed(2)}</h2>
+  {#each Object.entries(runsData) as [actor, items]}
+    <h2>{actor}: {items.length}</h2>
+    <h2>${actorCosts[actor].toFixed(2)}</h2>
+    <div class="divider"></div>
+  {/each}
 </div>
 
-<style>
-  .stats-block {
-    @apply flex flex-col gap-5 p-5;
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-  }
-
-  .stats-item {
-    @apply flex flex-col gap-2 p-3 border rounded-lg;
-  }
-</style>
+<div>
+  Apify deletes your data <a
+    class="text-primary underline"
+    href="https://docs.apify.com/platform/storage/usage#data-retention"
+    >after 7 days by default.</a
+  >
+</div>
