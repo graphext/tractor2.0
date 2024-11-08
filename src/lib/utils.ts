@@ -405,11 +405,25 @@ export function pivotJson<T>(
   return output;
 }
 
+  /**
+   * Downloads a JSON file from the provided URL, flattens nested objects,
+   * optionally deduplicates the data based on a key, and then converts
+   * the data to a CSV format.
+   *
+   * @param {string} url The URL of the JSON file to download
+   * @param {string} [dedupKey=null] The key to use for deduplicating the data
+   * @param {string[]} [customColumnOrder=[]] The order of columns in the output CSV
+   * @param {object[]} [unwind=[]] Fields to unwind from objects to arrays
+   * @param {string[]} [removeColumns=[]] Columns to remove from the output CSV after having used them.
+   * @param {object} [pivot=null] Options for pivoting the data
+   * @returns {Promise<Blob>} A promise that resolves with a CSV blob
+   */
 export async function jsonToCsv<T>({
   url,
   dedupKey = null,
   customColumnOrder,
   unwind,
+  removeColumns,
   pivot = null
 }: TypedJsonToCsvOptions<T>): Promise<Blob> {
   try {
@@ -455,9 +469,9 @@ export async function jsonToCsv<T>({
 
     let headers: string[];
     if (customColumnOrder) {
-      const missingHeaders = allHeaders.filter(
-        (h) => !customColumnOrder.includes(h),
-      );
+      const missingHeaders = allHeaders
+        .filter((h) => !customColumnOrder.includes(h))
+        .filter((h) => !removeColumns?.includes(h));
       headers = [...customColumnOrder, ...missingHeaders];
     } else {
       headers = allHeaders;

@@ -488,6 +488,7 @@ export interface TypedJsonToCsvOptions<T> {
 	url: string;
 	dedupKey?: keyof T | null;
 	customColumnOrder?: (keyof T)[];
+    removeColumns?: (keyof T)[];
 	unwind?: {
 		[K in ArrayKeys<T>]: TypedUnwindTarget<T, K>;
 	}[ArrayKeys<T>][];
