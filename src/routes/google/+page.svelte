@@ -199,9 +199,20 @@
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
+                    omitColumns: [
+                        "relatedQueries",
+                        "peopleAlsoAsk",
+                        "paidResults",
+                        "serpProviderCode",
+                        "suggestedResults",
+                        "hasNextPage",
+                        "customData",
+                        "paidProducts",
+                        "Rec",
+                    ],
                 });
 
-                csvBlob = await jsonToCsv<OrganicGoogleResult>({
+                csvBlob = await jsonToCsv<SearchGoogleResult>({
                     url: datasetLink,
                     unwind: [
                         {
@@ -218,9 +229,29 @@
                     ],
                     pivot: {
                         column: "organicResults",
-                        pivot: ["title", "url"],
+                        pivot: [
+                            "title",
+                            "url",
+                            "description",
+                            "emphasizedKeywords",
+                        ],
                     },
-                    customColumnOrder: ["title", "url"],
+                    removeColumns: [
+                        "organicResults",
+                        "searchQuery.url",
+                        "searchQuery.device",
+                        "searchQuery.type",
+                        "searchQuery.countryCode",
+                        "searchQuery.languageCode",
+                        "searchQuery.locationUule",
+                        "searchQuery.resultsPerPage",
+                    ],
+                    customColumnOrder: [
+                        "title",
+                        "url",
+                        "description",
+                        "emphasizedKeywords",
+                    ],
                 });
 
                 datasetSize = datasetData.data.itemCount;

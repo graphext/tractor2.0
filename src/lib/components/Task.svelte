@@ -37,6 +37,17 @@
         },
         "google-search-scraper": {
             format: "json",
+            omitColumns: [
+                "relatedQueries",
+                "peopleAlsoAsk",
+                "paidResults",
+                "serpProviderCode",
+                "suggestedResults",
+                "hasNextPage",
+                "customData",
+                "paidProducts",
+                "Rec",
+            ],
         },
         "instagram-scraper": {
             format: "json",
@@ -172,6 +183,26 @@
                         },
                     ],
                 },
+            ],
+            pivot: {
+                column: "organicResults",
+                pivot: ["title", "url", "description", "emphasizedKeywords"],
+            },
+            removeColumns: [
+                "organicResults",
+                "searchQuery.url",
+                "searchQuery.device",
+                "searchQuery.type",
+                "searchQuery.countryCode",
+                "searchQuery.languageCode",
+                "searchQuery.locationUule",
+                "searchQuery.resultsPerPage",
+            ],
+            customColumnOrder: [
+                "title",
+                "url",
+                "description",
+                "emphasizedKeywords",
             ],
         },
         "instagram-scraper": {
