@@ -505,43 +505,6 @@
 </Section>
 
 <style>
-    progress {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background-color: transparent;
-    }
-
-    /* For Chrome and Safari */
-    progress::-webkit-progress-bar {
-        background-color: transparent;
-    }
-
-    progress::-webkit-progress-value {
-        background-color: white;
-    }
-
-    /* For Firefox */
-    progress::-moz-progress-bar {
-        background-color: white;
-    }
-
-    /* Chrome, Safari, Edge, Opera */
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    /* Firefox */
-    input[type="number"] {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-    .disabled {
-        @apply btn-disabled shadow-none;
-    }
-
     .searchMode {
         @apply btn-primary;
     }

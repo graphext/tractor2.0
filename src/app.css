@@ -1,15 +1,15 @@
 @font-face {
-  font-family: "Lato";
-  src: local("Lato-Regular"), url("/fonts/Lato-Regular.woff2");
-  font-weight: 400;
-  font-style: normal;
+    font-family: "Lato";
+    src: local("Lato-Regular"), url("/fonts/Lato-Regular.woff2");
+    font-weight: 400;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Lato";
-  src: local("Lato-Bold"), url("/fonts/Lato-Bold.woff2");
-  font-weight: 700;
-  font-style: normal;
+    font-family: "Lato";
+    src: local("Lato-Bold"), url("/fonts/Lato-Bold.woff2");
+    font-weight: 700;
+    font-style: normal;
 }
 
 @tailwind base;
@@ -17,5 +17,42 @@
 @tailwind utilities;
 
 html {
-  scrollbar-gutter: stable;
+    scrollbar-gutter: stable;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+progress {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+}
+
+/* For Chrome and Safari */
+progress::-webkit-progress-bar {
+    background-color: transparent;
+}
+
+progress::-webkit-progress-value {
+    background-color: white;
+}
+
+/* For Firefox */
+progress::-moz-progress-bar {
+    background-color: white;
+}
+
+.disabled {
+    @apply btn-disabled shadow-none;
 }

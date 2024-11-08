@@ -495,30 +495,3 @@
         </div>
     {/if}
 </Section>
-
-<style>
-    progress {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        background-color: transparent;
-    }
-
-    /* For Chrome and Safari */
-    progress::-webkit-progress-bar {
-        background-color: transparent;
-    }
-
-    progress::-webkit-progress-value {
-        background-color: white;
-    }
-
-    /* For Firefox */
-    progress::-moz-progress-bar {
-        background-color: white;
-    }
-
-    .disabled {
-        @apply btn-disabled shadow-none;
-    }
-</style>
