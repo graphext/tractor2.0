@@ -234,6 +234,7 @@
                             "url",
                             "description",
                             "emphasizedKeywords",
+                            "position",
                         ],
                     },
                     removeColumns: [
@@ -247,6 +248,7 @@
                         "searchQuery.resultsPerPage",
                     ],
                     customColumnOrder: [
+                        "position",
                         "title",
                         "url",
                         "description",

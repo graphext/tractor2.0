@@ -9,6 +9,7 @@
   import type { DateRange } from "bits-ui";
   import TooltipContent from "./TooltipContent.svelte";
   import { Tooltip } from "bits-ui";
+  import { apifyKey } from "$lib/stores/apifyStore";
 
   let currentSpent = 0;
   let maxLimitUsd = 0;
@@ -18,10 +19,10 @@
     currentSpent = data.data.current.monthlyUsageUsd;
     maxLimitUsd = data.data.limits.maxMonthlyUsageUsd;
     monthCycle.start = new Date(
-      data.data.monthlyUsageCycle.startAt
+      data.data.monthlyUsageCycle.startAt,
     ).toLocaleDateString();
     monthCycle.end = new Date(
-      data.data.monthlyUsageCycle.endAt
+      data.data.monthlyUsageCycle.endAt,
     ).toLocaleDateString();
   });
 </script>
@@ -33,43 +34,44 @@
       <h1 class="text-3xl md:text-left tracking-tight font-bold">Tractor</h1>
     </div>
 
-    <div class="flex flex-col gap-1">
-      <User />
-      <div class="flex items-center">
-        <progress
-          class="progress progress-sm h-[5px] hover:h-[10px] transition-all shrink"
-          min="0"
-          value={currentSpent}
-          max={maxLimitUsd}
-        ></progress>
-        <Tooltip.Root openDelay={200}>
-          <Tooltip.Trigger class="w-1/2">
-            <div class="text-[10px] text-right">
-              ${currentSpent.toFixed(2)} /
-              <span class="opacity-60">${maxLimitUsd.toFixed(2)}</span>
-            </div>
-          </Tooltip.Trigger>
-          <TooltipContent
-            side="bottom"
-            sideOffset={8}
-            transitionConfig={{ duration: 100, y: -5 }}
-          >
-            <div class="block">
-              <span class="opacity-70">Current monthly usage:</span>
-              <strong>${currentSpent.toFixed(2)}</strong>
-              <span class="opacity-70">out of</span>
-              <strong>${maxLimitUsd.toFixed(2)}</strong>.
-              <br />
-              <br />
-              <span class="opacity-70">Your billing cycle starts on</span>
-              <strong>{monthCycle.start}</strong>
-              <span class="opacity-70">and ends on</span>
-              <strong>{monthCycle.end}</strong>.
-            </div>
-          </TooltipContent>
-        </Tooltip.Root>
+    {#if $apifyKey}
+      <div class="flex flex-col gap-1">
+        <User />
+        <div class="flex items-center gap-2">
+          <progress
+            class="progress progress-sm h-[5px] hover:h-[10px] transition-all shrink"
+            value={currentSpent}
+            max={maxLimitUsd}
+          ></progress>
+          <Tooltip.Root openDelay={200}>
+            <Tooltip.Trigger class="w-1/2">
+              <div class="text-[10px] text-right">
+                ${currentSpent.toFixed(2)} /
+                <span class="opacity-60">${maxLimitUsd.toFixed(2)}</span>
+              </div>
+            </Tooltip.Trigger>
+            <TooltipContent
+              side="bottom"
+              sideOffset={8}
+              transitionConfig={{ duration: 100, y: -5 }}
+            >
+              <div class="block">
+                <span class="opacity-70">Current monthly usage:</span>
+                <strong>${currentSpent.toFixed(2)}</strong>
+                <span class="opacity-70">out of</span>
+                <strong>${maxLimitUsd.toFixed(2)}</strong>.
+                <br />
+                <br />
+                <span class="opacity-70">Your billing cycle starts on</span>
+                <strong>{monthCycle.start}</strong>
+                <span class="opacity-70">and ends on</span>
+                <strong>{monthCycle.end}</strong>.
+              </div>
+            </TooltipContent>
+          </Tooltip.Root>
+        </div>
       </div>
-    </div>
+    {/if}
   </div>
 
   <div class="flex gap-5 items-center">
