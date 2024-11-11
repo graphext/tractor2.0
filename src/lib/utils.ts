@@ -270,8 +270,8 @@ export function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
       new Date(
         selectedRange.end?.year,
         selectedRange.end?.month - 1,
-        selectedRange.end?.day,
-      ),
+        selectedRange.end?.day
+      )
     ),
   });
 
@@ -326,7 +326,7 @@ function getNestedValue(obj: any, path: string): any {
 function flattenObjectWithUnwind<T>(
   obj: any,
   unwindTargets: TypedUnwindTarget<T>[] | null = null,
-  prefix: string = "",
+  prefix: string = ""
 ): Record<string, any> {
   return Object.keys(obj).reduce((acc: Record<string, any>, key: string) => {
     const pre = prefix.length ? `${prefix}.` : "";
@@ -334,7 +334,7 @@ function flattenObjectWithUnwind<T>(
 
     // Check if this key is one of our unwind targets
     const unwindTarget = unwindTargets?.find(
-      (target) => target.targetCol === key,
+      (target) => target.targetCol === key
     );
 
     if (unwindTarget && Array.isArray(value)) {
@@ -344,7 +344,7 @@ function flattenObjectWithUnwind<T>(
         const fieldPath = fieldDef.field;
 
         if (take != "max") {
-          value.slice(0, take)
+          value.slice(0, take);
         }
 
         // Extract values from the array
@@ -369,7 +369,7 @@ function flattenObjectWithUnwind<T>(
     ) {
       Object.assign(
         acc,
-        flattenObjectWithUnwind(value, unwindTargets, pre + key),
+        flattenObjectWithUnwind(value, unwindTargets, pre + key)
       );
     } else {
       acc[pre + key] = value;
@@ -382,7 +382,7 @@ function flattenObjectWithUnwind<T>(
 export function pivotJson<T>(
   json: T[],
   pivotColumn: string,
-  fieldsToUnpivot: string[],
+  fieldsToUnpivot: string[]
 ): Record<string, any> {
   const output = [];
 
@@ -405,26 +405,27 @@ export function pivotJson<T>(
   return output;
 }
 
-  /**
-   * Downloads a JSON file from the provided URL, flattens nested objects,
-   * optionally deduplicates the data based on a key, and then converts
-   * the data to a CSV format.
-   *
-   * @param {string} url The URL of the JSON file to download
-   * @param {string} [dedupKey=null] The key to use for deduplicating the data
-   * @param {string[]} [customColumnOrder=[]] The order of columns in the output CSV
-   * @param {object[]} [unwind=[]] Fields to unwind from objects to arrays
-   * @param {string[]} [removeColumns=[]] Columns to remove from the output CSV after having used them.
-   * @param {object} [pivot=null] Options for pivoting the data
-   * @returns {Promise<Blob>} A promise that resolves with a CSV blob
-   */
+/**
+ * Downloads a JSON file from the provided URL, flattens nested objects,
+ * optionally deduplicates the data based on a key, and then converts
+ * the data to a CSV format.
+ *
+ * @param {string} url The URL of the JSON file to download
+ * @param {string} [dedupKey=null] The key to use for deduplicating the data
+ * @param {string[]} [customColumnOrder=[]] The order of columns in the output CSV
+ * @param {object[]} [unwind=[]] Fields to unwind from objects to arrays
+ * @param {string[]} [removeColumns=[]] Columns to remove from the output CSV after having used them.
+ * @param {object} [pivot=null] Options for pivoting the data
+ * @returns {Promise<Blob>} A promise that resolves with a CSV blob
+ */
 export async function jsonToCsv<T>({
   url,
   dedupKey = null,
   customColumnOrder,
   unwind,
   removeColumns,
-  pivot = null
+  pivot = null,
+  columnMappings,
 }: TypedJsonToCsvOptions<T>): Promise<Blob> {
   try {
     // Fetch JSON data from the provided URL
@@ -434,7 +435,9 @@ export async function jsonToCsv<T>({
     }
     let jsonData: T[] = await response.json();
 
-    const emptyError = new Error("Apify returned an empty table. This could mean your search is too narrow. Try searching for broader topics or dates.");
+    const emptyError = new Error(
+      "Apify returned an empty table. This could mean your search is too narrow. Try searching for broader topics or dates."
+    );
 
     if (
       !Array.isArray(jsonData) ||
@@ -460,7 +463,7 @@ export async function jsonToCsv<T>({
     }
 
     const flattenedData = jsonData.map((item) =>
-      flattenObjectWithUnwind<T>(item, unwind),
+      flattenObjectWithUnwind<T>(item, unwind)
     );
 
     const allHeaders = [
@@ -495,10 +498,25 @@ export async function jsonToCsv<T>({
           return `"${stringValue.replace(/"/g, '""')}"`;
         }
         return stringValue;
-      }),
+      })
     );
 
-    const csvString = [headers, ...rows].map((row) => row.join(",")).join("\n");
+    const mappings = columnMappings.getAllMappings();
+
+    // rewrite the column names with the added type information
+    const rewrittenHeaders = headers.map((header) => {
+      const type = mappings[header];
+      if (type) {
+        return `${header}<gx:${type}>`;
+      }
+      return header;
+    });
+
+    // generate the CSV string
+    const csvString =
+      rewrittenHeaders.join(",") +
+      "\n" +
+      rows.map((row) => row.join(",")).join("\n");
 
     return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
   } catch (error) {
@@ -511,14 +529,14 @@ export function enrichQueries(
   queries: string,
   timeSteps: Date[],
   selectedRange: DateRange,
-  lists: Selected<string>[],
+  lists: Selected<string>[]
 ) {
   if (queries == "" || !queries) return "";
 
   const queriesOverTime = spreadQueriesOverTime(
     queries,
     timeSteps,
-    selectedRange,
+    selectedRange
   );
 
   const queriesWithLists = addListsToQueries(queriesOverTime, lists);
@@ -529,7 +547,7 @@ export function enrichQueries(
 export function spreadQueriesOverTime(
   queries: string,
   timeSteps: Date[],
-  selectedRange: DateRange,
+  selectedRange: DateRange
 ) {
   if (queries == "" || !queries) return "";
   if (!timeSteps || !selectedRange) return queries;
@@ -580,7 +598,7 @@ yearly: 0 0 1 */n * -> maybe substitute initial 0's for minute and hour
 export function composeCronExpression(
   intervalNumber: number,
   frequency: string,
-  time?: { hour: number; minute: number },
+  time?: { hour: number; minute: number }
 ) {
   if (intervalNumber === null || intervalNumber === undefined) {
     intervalNumber = 1;
@@ -620,7 +638,7 @@ export function composeCronExpression(
 
 export function identifyCronExpression(
   cronExpression: string,
-  intervalNumber: number,
+  intervalNumber: number
 ) {
   if (intervalNumber === null || intervalNumber === undefined) {
     intervalNumber = 1;
@@ -630,7 +648,7 @@ export function identifyCronExpression(
   const dRegex = /\d \d \*\/\d \* \*/;
 
   const MRegex = new RegExp(
-    String.raw`\d \d \d */${intervalNumber.toString()} *`,
+    String.raw`\d \d \d */${intervalNumber.toString()} *`
   );
   const yRegex = /\d \d \d \*\/\d \*/;
 
@@ -652,7 +670,6 @@ export function identifyCronExpression(
   }
 }
 
-
 export async function generateDatasetName(queries: string) {
   try {
     const res = await fetch("/api/ids", {
@@ -665,9 +682,7 @@ export async function generateDatasetName(queries: string) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(
-        errorData.error || `HTTP error! status: ${res.status}`,
-      );
+      throw new Error(errorData.error || `HTTP error! status: ${res.status}`);
     }
 
     return res.text();
@@ -677,22 +692,19 @@ export async function generateDatasetName(queries: string) {
   }
 }
 
-
-export async function submitTask(
-  {
-    apifyClient,
-    inputData,
-    onTaskCreated,
-    onError,
-    onStatusCheckStart,
-  }:
-    {
-      apifyClient: ApifyClient,
-      inputData: any,
-      onTaskCreated: Function,
-      onError: Function,
-      onStatusCheckStart?: Function,
-    }) {
+export async function submitTask({
+  apifyClient,
+  inputData,
+  onTaskCreated,
+  onError,
+  onStatusCheckStart,
+}: {
+  apifyClient: ApifyClient;
+  inputData: any;
+  onTaskCreated: Function;
+  onError: Function;
+  onStatusCheckStart?: Function;
+}) {
   let runId;
 
   try {
@@ -701,13 +713,11 @@ export async function submitTask(
 
     onTaskCreated(runId);
 
-    if (onStatusCheckStart)
-      setTimeout(onStatusCheckStart, 1500);
+    if (onStatusCheckStart) setTimeout(onStatusCheckStart, 1500);
   } catch (err) {
     onError(err);
   }
 }
-
 
 export async function checkTaskStatus({
   apifyClient,
@@ -717,13 +727,12 @@ export async function checkTaskStatus({
   onComplete,
   onError,
 }: {
-  apifyClient: ApifyClient,
-  runId: string | null,
-  maxResults: number,
-  onStatusUpdate: Function,
-  onComplete: Function,
-  onError: Function,
-
+  apifyClient: ApifyClient;
+  runId: string | null;
+  maxResults: number;
+  onStatusUpdate: Function;
+  onComplete: Function;
+  onError: Function;
 }) {
   let status;
 
@@ -731,16 +740,15 @@ export async function checkTaskStatus({
     const runData = await apifyClient.getRunStatus(runId!);
     status = runData.data.status;
 
-    const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId!);
+    const { data: liveData, length: dataLength } =
+      await apifyClient.getDatasetContent(runId!);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
-
       try {
         await onComplete({
           runId,
-          status
+          status,
         });
-
       } catch (e) {
         onError(e);
       }
@@ -749,22 +757,31 @@ export async function checkTaskStatus({
     }
 
     if (status !== "FAILED" && status !== "TIMED-OUT") {
-      setTimeout(() => checkTaskStatus({ apifyClient, runId, maxResults, onStatusUpdate, onComplete, onError }), 1000);
+      setTimeout(
+        () =>
+          checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults,
+            onStatusUpdate,
+            onComplete,
+            onError,
+          }),
+        1000
+      );
     } else {
       throw new Error("Run failed or timed-out.");
     }
 
     onStatusUpdate({ status, dataLength, liveData });
-
   } catch (err) {
     onError(err);
     throw err;
   }
-
 }
 
 export function sendEventData(eventData: any) {
   if (window.dataLayer) {
-    window.dataLayer.push(eventData)
+    window.dataLayer.push(eventData);
   }
 }
