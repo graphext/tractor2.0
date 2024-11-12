@@ -323,7 +323,7 @@
 
 <main class="flex flex-col gap-5">
     <Section>
-        <h2 class="uppercase opacity-70 mb-2">Query Generation</h2>
+        <h2 class="uppercase opacity-70 mb-4">Query Generation</h2>
         <form class="join w-full">
             <input
                 class="join-item w-full bg-neutral input input-sm rounded-full"
@@ -336,7 +336,7 @@
                 class="join-item btn btn-primary btn-sm rounded-full"
                 on:click={generateQueries}
             >
-                <CaretRight weight="bold" />
+                <CaretRight weight="bold" size={20} />
             </button>
         </form>
     </Section>
