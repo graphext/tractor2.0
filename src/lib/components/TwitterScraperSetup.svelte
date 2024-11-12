@@ -14,7 +14,6 @@
         sendEventData,
         submitTask,
     } from "$lib/utils";
-    import CronEditor from "./CronEditor.svelte";
     import { ApifyClient, getPrivateUserData } from "../apifyEndpoints";
 
     import { TWITTER_ACT_ID } from "$lib/actors";
@@ -333,13 +332,6 @@
 </form>
 
 <DownloadButton {csvBlob} {filename} {datasetSize} {loading} {socialMedia} />
-
-<CronEditor
-    {numTweets}
-    {queries}
-    {queriesSpreadOverTime}
-    actorId={TWITTER_ACT_ID}
-/>
 
 {#if error || status}
     <div class="divider mt-3 mb-3" />
