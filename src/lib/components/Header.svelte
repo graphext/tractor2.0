@@ -37,14 +37,14 @@
     {#if $apifyKey}
       <div class="flex flex-col gap-1">
         <User />
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
           <progress
-            class="progress progress-sm h-[5px] hover:h-[10px] transition-all shrink"
+            class="progress progress-sm h-[5px] hover:h-[10px] transition-all"
             value={currentSpent}
             max={maxLimitUsd}
           ></progress>
           <Tooltip.Root openDelay={200}>
-            <Tooltip.Trigger class="w-1/2">
+            <Tooltip.Trigger class="shrink-0">
               <div class="text-[10px] text-right">
                 ${currentSpent.toFixed(2)} /
                 <span class="opacity-60">${maxLimitUsd.toFixed(2)}</span>
