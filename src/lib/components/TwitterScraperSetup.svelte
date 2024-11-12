@@ -321,7 +321,7 @@
                 {buttonText}
             </button>
         {:else}
-            <WarningCost unitPrice={0.3 / 1000} maxItems={numTweets} />
+            <WarningCost unitPrice={0.4 / 1000} maxItems={numTweets} />
             <button
                 class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                 disabled={!$apifyKey || !queries}
