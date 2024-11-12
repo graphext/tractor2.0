@@ -1,13 +1,12 @@
+
 import { json } from "@sveltejs/kit";
+import { seoPrompt } from "./seoPrompt";
 import { getOpenAIResponse } from "../openai";
-import type { RequestHandler } from "./$types";
-import { systemPrompt } from "./prompt";
 
-
-export const POST: RequestHandler = async ({ fetch, request }) => {
+export const POST = async ({ fetch, request }) => {
 	try {
 		const { prompt } = await request.json();
-		const response = await getOpenAIResponse(prompt, systemPrompt);
+		const response = await getOpenAIResponse(prompt, seoPrompt);
 		return response;
 	} catch (error) {
 		console.error("Error in API route:", error);

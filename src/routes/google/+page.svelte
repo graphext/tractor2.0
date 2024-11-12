@@ -2,6 +2,7 @@
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
+    import CleanPasteInput from "$lib/components/CleanPasteInput.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
@@ -21,7 +22,12 @@
         submitTask,
     } from "$lib/utils";
     import { Tooltip } from "bits-ui";
-    import { QuestionMark } from "phosphor-svelte";
+    import {
+        ArrowRight,
+        CaretRight,
+        QuestionMark,
+        TagChevron,
+    } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
@@ -269,158 +275,233 @@
             },
         });
     };
+
+    let seoQueries: string;
+    let userPromptCompanies: string;
+    async function generateQueries() {
+        loading = true;
+        error = "";
+        keywords = "";
+
+        try {
+            const res = await fetch("/api/seo", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ prompt: userPromptCompanies }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
+            }
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                keywords += chunk;
+            }
+        } catch (err) {
+            console.error("Error:", err);
+            error =
+                err instanceof Error
+                    ? err.message
+                    : "An unknown error occurred";
+            toast.error(error);
+        } finally {
+            loading = false;
+        }
+    }
 </script>
 
-<Section>
-    <form
-        class="flex flex-col gap-5"
-        on:submit|preventDefault={handleGoogleSubmit}
-    >
-        <div>
-            <div class="flex w-full justify-between gap-3 items-center">
-                <div class="flex flex-col gap-2 w-full">
-                    <label for="keywords" class="text-sm text-base-content/60"
-                        >Keywords:</label
-                    >
-                    <Input
-                        bind:value={keywords}
-                        id="keywords"
-                        placeholder="Enter keywords separated by commas"
-                        disabled={loading}
-                    />
-                </div>
-
-                <div class="flex flex-col gap-2 justify-between w-full">
-                    <div class="flex gap-1">
-                        <label
-                            for="maxItems"
-                            class="text-sm text-base-content/60"
-                            >Pages to search for:</label
-                        >
-                        <Tooltip.Root openDelay={0}>
-                            <Tooltip.Trigger class="w-fit">
-                                <QuestionMark
-                                    size={20}
-                                    weight="bold"
-                                    class="rounded-full bg-neutral border-2 border-base-300"
-                                />
-                            </Tooltip.Trigger>
-                            <TooltipContent
-                                sideOffset={10}
-                                transitionConfig={{ duration: 100, y: 10 }}
-                            >
-                                <div>
-                                    <p>
-                                        Recommended number sits around 2 to 10
-                                        pages.
-                                    </p>
-                                    <p>
-                                        Each one of those pages will return
-                                        around 100 results, which adds up to
-                                        somewhere in between 200 to 1000
-                                        results.
-                                    </p>
-                                </div>
-                            </TooltipContent>
-                        </Tooltip.Root>
-                    </div>
-                    <input
-                        class="input input-sm rounded-full tabular-nums bg-neutral"
-                        inputmode="numeric"
-                        type="number"
-                        id="maxItems"
-                        disabled={loading}
-                        bind:value={maxPages}
-                        placeholder="Enter maximum number of items"
-                    />
-                </div>
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-2">
-            <label for="domains" class="text-sm text-base-content/60"
-                >Domains (optional):</label
-            >
-            <Input
-                bind:value={domains}
-                id="domains"
-                placeholder="Search on these domains. Separate them by commas. For example: graphext.com, google.com, youtube.com"
+<main class="flex flex-col gap-5">
+    <Section>
+        <h2 class="uppercase opacity-70 mb-2">Query Generation</h2>
+        <form class="join w-full">
+            <input
+                class="join-item w-full bg-neutral input input-sm rounded-full"
+                bind:value={userPromptCompanies}
+                placeholder="Enter company names separated by commas"
                 disabled={loading}
             />
-        </div>
 
-        <div class="w-full relative">
-            {#if loading}
-                <progress
-                    class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
-                    max={maxPages}
-                    value={$springProgress}
-                ></progress>
-            {/if}
-            {#if !confirmChoice}
-                <button
-                    on:click={() => (confirmChoice = true)}
-                    class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
-                    disabled={!$apifyKey || !keywords}
-                    class:disabled={!$apifyKey || !keywords}
+            <button
+                class="join-item btn btn-primary btn-sm rounded-full"
+                on:click={generateQueries}
+            >
+                <CaretRight weight="bold" />
+            </button>
+        </form>
+    </Section>
+
+    <Section>
+        <form
+            class="flex flex-col gap-5"
+            on:submit|preventDefault={handleGoogleSubmit}
+        >
+            <div class="flex flex-col gap-2 w-full">
+                <label for="keywords" class="text-sm text-base-content/60"
+                    >Keywords:</label
                 >
-                    {#if loading}
-                        <span class="loading loading-ring"></span>
-                    {/if}
-                    {buttonText}
-                </button>
-            {:else}
-                <WarningCost unitPrice={3.5 / 1000} maxItems={maxPages} />
-                <button
-                    class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
-                    disabled={!$apifyKey || !keywords}
-                >
-                    Sure. Let's go.
-                </button>
-            {/if}
-        </div>
-    </form>
-
-    <DownloadButton
-        {csvBlob}
-        {filename}
-        {datasetSize}
-        {loading}
-        {socialMedia}
-    />
-
-    {#if error || status}
-        <div>
-            <div class="divider mt-3 mb-3"></div>
-
-            <div class="flex flex-col gap-5">
-                <div class="flex justify-between items-baseline">
-                    {#if status == "RUNNING" || status == "ABORTING"}
-                        <StopButton {apifyClient} {runId} />
-                    {/if}
-
-                    {#if status == "ABORTED" || status == "READY"}
-                        <ResumeButton
-                            {status}
-                            bind:resuming
-                            {apifyClient}
-                            {runId}
-                        />
-                    {/if}
-
-                    {#if error}
-                        <Error {error} {userId} {runId} />
-                    {:else}
-                        <p class="opacity-0">error</p>
-                    {/if}
-
-                    {#if status}
-                        <Status {status} {outputProgress} />
-                    {/if}
-                </div>
-
-                <LiveTable {headers} {rows} />
+                <textarea
+                    class="textarea bg-neutral w-full font-mono h-full overflow-x-scroll shadow-sm"
+                    rows="6"
+                    bind:value={keywords}
+                    id="keywords"
+                    placeholder="Enter keywords separated by commas"
+                    disabled={loading}
+                />
             </div>
-        </div>
-    {/if}
-</Section>
+            <div>
+                <div class="flex w-full justify-between gap-3 items-center">
+                    <div class="flex flex-col gap-2 w-full">
+                        <label
+                            for="domains"
+                            class="text-sm text-base-content/60 w-full"
+                            >Domains (optional):</label
+                        >
+                        <Input
+                            bind:value={domains}
+                            id="domains"
+                            placeholder="Search on these domains. Separate them by commas. For example: graphext.com, google.com, youtube.com"
+                            disabled={loading}
+                        />
+                    </div>
+
+                    <div class="flex flex-col gap-2 justify-between">
+                        <div class="flex gap-1 justify-end">
+                            <label
+                                for="maxItems"
+                                class="text-sm text-base-content/60 text-right"
+                                >Pages to search for:</label
+                            >
+                            <Tooltip.Root openDelay={0}>
+                                <Tooltip.Trigger class="w-fit">
+                                    <QuestionMark
+                                        size={20}
+                                        weight="bold"
+                                        class="rounded-full bg-neutral border-2 border-base-300"
+                                    />
+                                </Tooltip.Trigger>
+                                <TooltipContent
+                                    sideOffset={10}
+                                    transitionConfig={{ duration: 100, y: 10 }}
+                                >
+                                    <div>
+                                        <p>
+                                            Recommended number sits around 2 to
+                                            10 pages.
+                                        </p>
+                                        <p>
+                                            Each one of those pages will return
+                                            around 100 results, which adds up to
+                                            somewhere in between 200 to 1000
+                                            results.
+                                        </p>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip.Root>
+                        </div>
+                        <input
+                            class="input input-sm rounded-full tabular-nums
+                            bg-neutral text-right"
+                            inputmode="numeric"
+                            type="number"
+                            id="maxItems"
+                            disabled={loading}
+                            bind:value={maxPages}
+                            placeholder="Enter maximum number of items"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full relative">
+                {#if loading}
+                    <progress
+                        class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
+                        max={maxPages}
+                        value={$springProgress}
+                    ></progress>
+                {/if}
+                {#if !confirmChoice}
+                    <button
+                        on:click={() => (confirmChoice = true)}
+                        class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
+                        disabled={!$apifyKey || !keywords}
+                        class:disabled={!$apifyKey || !keywords}
+                    >
+                        {#if loading}
+                            <span class="loading loading-ring"></span>
+                        {/if}
+                        {buttonText}
+                    </button>
+                {:else}
+                    <WarningCost unitPrice={3.5 / 1000} maxItems={maxPages} />
+                    <button
+                        class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
+                        disabled={!$apifyKey || !keywords}
+                    >
+                        Sure. Let's go.
+                    </button>
+                {/if}
+            </div>
+        </form>
+
+        <DownloadButton
+            {csvBlob}
+            {filename}
+            {datasetSize}
+            {loading}
+            {socialMedia}
+        />
+
+        {#if error || status}
+            <div>
+                <div class="divider mt-3 mb-3"></div>
+
+                <div class="flex flex-col gap-5">
+                    <div class="flex justify-between items-baseline">
+                        {#if status == "RUNNING" || status == "ABORTING"}
+                            <StopButton {apifyClient} {runId} />
+                        {/if}
+
+                        {#if status == "ABORTED" || status == "READY"}
+                            <ResumeButton
+                                {status}
+                                bind:resuming
+                                {apifyClient}
+                                {runId}
+                            />
+                        {/if}
+
+                        {#if error}
+                            <Error {error} {userId} {runId} />
+                        {:else}
+                            <p class="opacity-0">error</p>
+                        {/if}
+
+                        {#if status}
+                            <Status {status} {outputProgress} />
+                        {/if}
+                    </div>
+
+                    <LiveTable {headers} {rows} />
+                </div>
+            </div>
+        {/if}
+    </Section>
+</main>
+
+<style>
+    textarea {
+        field-sizing: content;
+    }
+</style>

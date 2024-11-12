@@ -5,8 +5,6 @@ import { getOpenAIResponse } from "../openai";
 export const POST = async ({ fetch, request }) => {
   try {
     const { prompt } = await request.json();
-    console.log("Received terms and cron:", prompt);
-    console.log("Sending request to OpenAI API...");
 
     const response = await getOpenAIResponse(prompt, idPrompt);
     return response;
