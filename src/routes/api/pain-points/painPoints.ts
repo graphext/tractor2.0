@@ -5,5 +5,7 @@ Search for keywords reflecting common user pain points or frustrations, like “
 
 Generate at least 30 search queries for each company. Generate as many results as possible, but at least 30 per company mentioned.
 
+Generate the queries with no format, no clarification or explanation of what query goes with what company.
+
 No yapping, no explanation. Just a list of queries separated by commas containing the queries previously defined.
 `

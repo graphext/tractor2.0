@@ -334,35 +334,87 @@
     <Section>
         <div class="flex flex-col gap-3">
             <h2 class="uppercase opacity-70">Query Generation</h2>
-            <div class="flex join" role="radiogroup">
-                <input
-                    class="join-item btn btn-sm border border-base-content/10
-                    checked:font-bold font-normal"
-                    type="radio"
-                    checked
-                    bind:group={selectedGenerator}
-                    value="SEO"
-                    aria-label="SEO"
-                />
+            <div class="flex gap-3">
+                <div class="flex join" role="radiogroup">
+                    <input
+                        class="join-item btn btn-sm border border-base-content/10
+                        checked:font-bold font-normal"
+                        type="radio"
+                        checked
+                        bind:group={selectedGenerator}
+                        value="SEO"
+                        aria-label="SEO"
+                    />
 
-                <input
-                    class="join-item btn btn-sm border border-base-content/10
-                    checked:font-bold
-                    font-normal"
-                    type="radio"
-                    value="Competitors"
-                    bind:group={selectedGenerator}
-                    aria-label="Competitors"
-                />
+                    <input
+                        class="join-item btn btn-sm border border-base-content/10
+                        checked:font-bold
+                        font-normal"
+                        type="radio"
+                        value="Competitors"
+                        bind:group={selectedGenerator}
+                        aria-label="Competitors"
+                    />
 
-                <input
-                    class="join-item btn btn-sm border border-base-content/10
-                    font-normal checked:font-bold"
-                    type="radio"
-                    value="Pain points"
-                    bind:group={selectedGenerator}
-                    aria-label="Pain points"
-                />
+                    <input
+                        class="join-item btn btn-sm border border-base-content/10
+                        font-normal checked:font-bold"
+                        type="radio"
+                        value="Pain points"
+                        bind:group={selectedGenerator}
+                        aria-label="Pain points"
+                    />
+                </div>
+
+                <Tooltip.Root openDelay={0}>
+                    <Tooltip.Trigger class="w-fit">
+                        <QuestionMark
+                            size={24}
+                            weight="bold"
+                            class="rounded-full bg-neutral border-2 border-base-300"
+                        />
+                    </Tooltip.Trigger>
+                    <TooltipContent
+                        side="right"
+                        sideOffset={30}
+                        transitionConfig={{ duration: 100, x: -5 }}
+                    >
+                        <div class="prose prose-sm">
+                            <p>
+                                You can select between these Query Generators,
+                                or you can write (and edit) the queries
+                                yourself.
+                            </p>
+                            <p>
+                                Type in some company names to get search queries
+                                related to them.
+                            </p>
+                            <h4>SEO</h4>
+                            <p>
+                                The SEO generator generates queries in which the
+                                user may not know the company or product but
+                                said product would rank high in those searches.
+                            </p>
+                            <h4>Competitors</h4>
+                            <p>
+                                The Competitors generator generates queries in
+                                which the user is looking for alternatives or
+                                competitors, sometimes directly comparing it to
+                                another product or simply searching for
+                                alternatives.
+                            </p>
+
+                            <h4>Pain points</h4>
+                            <p>
+                                The Pain Points generator generates queries in
+                                which the user usually looks for support or has
+                                problems with a certain product or service. On
+                                well known products, this works particularly
+                                well, generating quite specific queries.
+                            </p>
+                        </div>
+                    </TooltipContent>
+                </Tooltip.Root>
             </div>
             <form class="join w-full">
                 <input
