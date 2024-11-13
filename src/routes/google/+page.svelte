@@ -196,10 +196,11 @@
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
 
-                const fileKeyWord = keywords.length
-                    ? keywords.replaceAll(",", "_")
-                    : keywords;
-
+                const fileKeyWord =
+                    `${selectedGenerator}_${userPromptCompanies}`.replaceAll(
+                        /[^a-zA-Z0-9]/g,
+                        "_",
+                    );
                 filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
 
                 datasetLink = await apifyClient.getDatasetLink({
@@ -278,13 +279,21 @@
 
     let seoQueries: string;
     let userPromptCompanies: string;
+
+    let selectedGenerator: string = "SEO";
+    let apiMap: Record<string, string> = {
+        SEO: "api/seo",
+        Competitors: "api/competitors",
+        "Pain points": "api/pain-points",
+    };
+
     async function generateQueries() {
         loading = true;
         error = "";
         keywords = "";
 
         try {
-            const res = await fetch("/api/seo", {
+            const res = await fetch(apiMap[selectedGenerator], {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -323,22 +332,54 @@
 
 <main class="flex flex-col gap-5">
     <Section>
-        <h2 class="uppercase opacity-70 mb-4">Query Generation</h2>
-        <form class="join w-full">
-            <input
-                class="join-item w-full bg-neutral input input-sm rounded-full"
-                bind:value={userPromptCompanies}
-                placeholder="Enter company names separated by commas"
-                disabled={loading}
-            />
+        <div class="flex flex-col gap-3">
+            <h2 class="uppercase opacity-70">Query Generation</h2>
+            <div class="flex join" role="radiogroup">
+                <input
+                    class="join-item btn btn-sm border border-base-content/10
+                    checked:font-bold font-normal"
+                    type="radio"
+                    checked
+                    bind:group={selectedGenerator}
+                    value="SEO"
+                    aria-label="SEO"
+                />
 
-            <button
-                class="join-item btn btn-primary btn-sm rounded-full"
-                on:click={generateQueries}
-            >
-                <CaretRight weight="bold" size={20} />
-            </button>
-        </form>
+                <input
+                    class="join-item btn btn-sm border border-base-content/10
+                    checked:font-bold
+                    font-normal"
+                    type="radio"
+                    value="Competitors"
+                    bind:group={selectedGenerator}
+                    aria-label="Competitors"
+                />
+
+                <input
+                    class="join-item btn btn-sm border border-base-content/10
+                    font-normal checked:font-bold"
+                    type="radio"
+                    value="Pain points"
+                    bind:group={selectedGenerator}
+                    aria-label="Pain points"
+                />
+            </div>
+            <form class="join w-full">
+                <input
+                    class="join-item w-full bg-neutral input input-sm rounded-full"
+                    bind:value={userPromptCompanies}
+                    placeholder="Enter company names separated by commas"
+                    disabled={loading}
+                />
+
+                <button
+                    class="join-item btn btn-primary btn-sm rounded-full"
+                    on:click={generateQueries}
+                >
+                    <CaretRight weight="bold" size={20} />
+                </button>
+            </form>
+        </div>
     </Section>
 
     <Section>
@@ -357,7 +398,8 @@
                     id="keywords"
                     placeholder="Enter keywords separated by commas"
                     disabled={loading}
-                />
+                >
+                </textarea>
             </div>
             <div>
                 <div class="flex w-full justify-between gap-3 items-center">
@@ -374,52 +416,6 @@
                             disabled={loading}
                         />
                     </div>
-
-                    <div class="flex flex-col gap-2 justify-between">
-                        <div class="flex gap-1 justify-end">
-                            <label
-                                for="maxItems"
-                                class="text-sm text-base-content/60 text-right"
-                                >Pages to search for:</label
-                            >
-                            <Tooltip.Root openDelay={0}>
-                                <Tooltip.Trigger class="w-fit">
-                                    <QuestionMark
-                                        size={20}
-                                        weight="bold"
-                                        class="rounded-full bg-neutral border-2 border-base-300"
-                                    />
-                                </Tooltip.Trigger>
-                                <TooltipContent
-                                    sideOffset={10}
-                                    transitionConfig={{ duration: 100, y: 10 }}
-                                >
-                                    <div>
-                                        <p>
-                                            Recommended number sits around 2 to
-                                            10 pages.
-                                        </p>
-                                        <p>
-                                            Each one of those pages will return
-                                            around 100 results, which adds up to
-                                            somewhere in between 200 to 1000
-                                            results.
-                                        </p>
-                                    </div>
-                                </TooltipContent>
-                            </Tooltip.Root>
-                        </div>
-                        <input
-                            class="input input-sm rounded-full tabular-nums
-                            bg-neutral text-right"
-                            inputmode="numeric"
-                            type="number"
-                            id="maxItems"
-                            disabled={loading}
-                            bind:value={maxPages}
-                            placeholder="Enter maximum number of items"
-                        />
-                    </div>
                 </div>
             </div>
 
@@ -427,7 +423,7 @@
                 {#if loading}
                     <progress
                         class="progress-overlay mix-blend-overlay progress absolute h-full rounded-full w-full opacity-40"
-                        max={maxPages}
+                        max={keywords.split(",").length * 5}
                         value={$springProgress}
                     ></progress>
                 {/if}
@@ -444,7 +440,10 @@
                         {buttonText}
                     </button>
                 {:else}
-                    <WarningCost unitPrice={3.5 / 1000} maxItems={maxPages} />
+                    <WarningCost
+                        unitPrice={3.5 / 1000}
+                        maxItems={keywords.split(",").length * 5}
+                    />
                     <button
                         class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                         disabled={!$apifyKey || !keywords}
