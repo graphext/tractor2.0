@@ -450,8 +450,7 @@
                     id="keywords"
                     placeholder="Enter keywords separated by commas"
                     disabled={loading}
-                >
-                </textarea>
+                />
             </div>
             <div>
                 <div class="flex w-full justify-between gap-3 items-center">
