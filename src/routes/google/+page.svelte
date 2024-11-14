@@ -436,7 +436,7 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                     <Slider bind:value={searchQueriesPerCompany} />
                 </div>
                 <div class="text-sm opacity-60">
-                    Queries per company — {displaySearchQueriesPerCompany[
+                    Number of queries — {displaySearchQueriesPerCompany[
                         searchQueriesPerCompany[0]
                     ]}
                 </div>
