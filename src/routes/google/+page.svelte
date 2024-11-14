@@ -8,26 +8,26 @@
     import Input from "$lib/components/Input.svelte";
     import LiveTable from "$lib/components/LiveTable.svelte";
     import ResumeButton from "$lib/components/ResumeButton.svelte";
+    import SearchableList from "$lib/components/SearchableList.svelte";
     import Section from "$lib/components/Section.svelte";
+    import Select from "$lib/components/Select.svelte";
+    import Slider from "$lib/components/Slider.svelte";
     import Status from "$lib/components/Status.svelte";
     import StopButton from "$lib/components/StopButton.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
-    import type { OrganicGoogleResult, SearchGoogleResult } from "$lib/types";
+    import type { SearchGoogleResult } from "$lib/types";
     import {
         checkTaskStatus,
+        countryCodes,
         jsonToCsv,
+        languages,
         sendEventData,
         submitTask,
     } from "$lib/utils";
-    import { Tooltip } from "bits-ui";
-    import {
-        ArrowRight,
-        CaretRight,
-        QuestionMark,
-        TagChevron,
-    } from "phosphor-svelte";
+    import { Tooltip, type Selected } from "bits-ui";
+    import { CaretRight, DevToLogo, QuestionMark } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
@@ -39,7 +39,11 @@
     let keywords: string,
         domains: string,
         loading = false,
-        maxPages = 5;
+        maxPages = 1,
+        maxResultsPerPage = 20,
+        countryCode: Selected<string> = { value: "us", label: "United States" };
+
+    $: console.log(countryCode, countryCode.value);
 
     $: buttonText = loading ? "Getting results" : "Get pages";
 
@@ -107,13 +111,13 @@
         let inputData = {
             includeIcons: false,
             includeUnfilteredResults: false,
-            maxPagesPerQuery: 5,
+            maxPagesPerQuery: maxPages,
             mobileResults: false,
             queries: inputQueries,
-            resultsPerPage: 100,
+            resultsPerPage: maxResultsPerPage,
             saveHtml: false,
             saveHtmlToKeyValueStore: false,
-            languageCode: "",
+            countryCode: countryCode.value.toLowerCase(),
         };
 
         sendEventData({
@@ -279,6 +283,12 @@
 
     let seoQueries: string;
     let userPromptCompanies: string;
+    let searchQueriesPerCompany: number[] = [1];
+    let displaySearchQueriesPerCompany: Record<number, string> = {
+        1: "Less queries: ~5-10",
+        2: "More queries: ~20-30",
+        3: "Many queries: ~50",
+    };
 
     let selectedGenerator: string = "SEO";
     let apiMap: Record<string, string> = {
@@ -298,8 +308,14 @@
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ prompt: userPromptCompanies }),
+                body: JSON.stringify({
+                    prompt: `${userPromptCompanies},
+${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
+                }),
             });
+            console.log(
+                `${userPromptCompanies}, ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
+            );
 
             if (!res.ok) {
                 const errorData = await res.json();
@@ -334,38 +350,7 @@
     <Section>
         <div class="flex flex-col gap-3">
             <h2 class="uppercase opacity-70">Query Generation</h2>
-            <div class="flex gap-3">
-                <div class="flex join" role="radiogroup">
-                    <input
-                        class="join-item btn btn-sm border border-base-content/10
-                        checked:font-bold font-normal"
-                        type="radio"
-                        checked
-                        bind:group={selectedGenerator}
-                        value="SEO"
-                        aria-label="SEO"
-                    />
-
-                    <input
-                        class="join-item btn btn-sm border border-base-content/10
-                        checked:font-bold
-                        font-normal"
-                        type="radio"
-                        value="Competitors"
-                        bind:group={selectedGenerator}
-                        aria-label="Competitors"
-                    />
-
-                    <input
-                        class="join-item btn btn-sm border border-base-content/10
-                        font-normal checked:font-bold"
-                        type="radio"
-                        value="Pain points"
-                        bind:group={selectedGenerator}
-                        aria-label="Pain points"
-                    />
-                </div>
-
+            <div class="flex gap-3 items-center">
                 <Tooltip.Root openDelay={0}>
                     <Tooltip.Trigger class="w-fit">
                         <QuestionMark
@@ -415,6 +400,45 @@
                         </div>
                     </TooltipContent>
                 </Tooltip.Root>
+                <div class="flex join" role="radiogroup">
+                    <input
+                        class="join-item btn btn-sm border border-base-content/10
+                        checked:font-bold font-normal"
+                        type="radio"
+                        checked
+                        bind:group={selectedGenerator}
+                        value="SEO"
+                        aria-label="SEO"
+                    />
+
+                    <input
+                        class="join-item btn btn-sm border border-base-content/10
+                        checked:font-bold
+                        font-normal"
+                        type="radio"
+                        value="Competitors"
+                        bind:group={selectedGenerator}
+                        aria-label="Competitors"
+                    />
+
+                    <input
+                        class="join-item btn btn-sm border border-base-content/10
+                        font-normal checked:font-bold"
+                        type="radio"
+                        value="Pain points"
+                        bind:group={selectedGenerator}
+                        aria-label="Pain points"
+                    />
+                </div>
+
+                <div class="w-32 mx-3">
+                    <Slider bind:value={searchQueriesPerCompany} />
+                </div>
+                <div class="text-sm opacity-60">
+                    Queries per company — {displaySearchQueriesPerCompany[
+                        searchQueriesPerCompany[0]
+                    ]}
+                </div>
             </div>
             <form class="join w-full">
                 <input
@@ -467,6 +491,49 @@
                             disabled={loading}
                         />
                     </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="flex flex-col gap-1">
+                    <label for="maxPages" class="text-sm opacity-60"
+                        >Pages to search for</label
+                    >
+                    <input
+                        class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
+                        inputmode="numeric"
+                        type="number"
+                        id="maxPages"
+                        disabled={loading}
+                        bind:value={maxPages}
+                        placeholder="Enter maximum number of items"
+                    />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label for="maxPages" class="text-sm opacity-60"
+                        >Results per page</label
+                    >
+                    <input
+                        class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
+                        inputmode="numeric"
+                        type="number"
+                        id="maxPages"
+                        disabled={loading}
+                        bind:value={maxResultsPerPage}
+                        placeholder="Enter maximum number of items"
+                    />
+                </div>
+
+                <div class="w-1/3">
+                    <div class="text-sm opacity-60">Country</div>
+                    <SearchableList
+                        bind:selected={countryCode}
+                        disabled={loading}
+                        options={countryCodes.map((e) => {
+                            return { value: e.code, label: e.name };
+                        })}
+                    ></SearchableList>
                 </div>
             </div>
 

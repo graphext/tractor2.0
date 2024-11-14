@@ -53,7 +53,8 @@
     </Select.Trigger>
   </div>
   <Select.Content
-    class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md  border border-base-content/10 px-1 py-1 outline-none"
+    class="w-full backdrop-blur bg-base-200 rounded-xl shadow-md  border
+    border-base-content/10 px-1 py-1 outline-none max-h-40 overflow-y-scroll"
     transition={fly}
     transitionConfig={{ duration: 100, y: -20 }}
     sideOffset={8}

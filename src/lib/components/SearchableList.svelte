@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { Combobox } from "bits-ui";
+    import { Combobox, type Selected } from "bits-ui";
+    import { fly } from "svelte/transition";
 
-    export let options: { value: string; label: string }[] = [];
-    export let selected: { value: string; label: string };
+    export let options: Selected<string>[] = [];
+    export let selected: Selected<string>;
     export let placeholder: string = "Search...";
 
     let searchQuery = "";
@@ -24,6 +25,9 @@
 <div class:disabled={$$props["disabled"]}>
     <Combobox.Root
         preventScroll={false}
+        onSelectedChange={(e) => {
+            if (e) selected = e;
+        }}
         {selected}
         items={filteredOptions}
         bind:inputValue={searchQuery}
@@ -36,6 +40,9 @@
             aria-label={placeholder}
         />
         <Combobox.Content
+            side="top"
+            transition={fly}
+            transitionConfig={{ y: 10, duration: 300 }}
             class="w-full combo-content bg-base-200 p-1 shadow-md border border-base-content/10 overflow-y-scroll max-h-[250px] rounded-xl"
         >
             {#each filteredOptions as option (option.value)}
