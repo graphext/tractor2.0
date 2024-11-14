@@ -290,9 +290,9 @@
         3: "Many queries: ~50",
     };
 
-    let selectedGenerator: string = "SEO";
+    let selectedGenerator: string = "Related Queries";
     let apiMap: Record<string, string> = {
-        SEO: "api/seo",
+        "Related Queries": "api/seo",
         Competitors: "api/competitors",
         "Pain points": "api/pain-points",
     };
@@ -374,11 +374,12 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                                 Type in some company names to get search queries
                                 related to them.
                             </p>
-                            <h4>SEO</h4>
+                            <h4>Related Queries</h4>
                             <p>
-                                The SEO generator generates queries in which the
-                                user may not know the company or product but
-                                said product would rank high in those searches.
+                                The Related Queries generator generates queries
+                                in which the user may not know the company or
+                                product but said product would rank high in
+                                those searches.
                             </p>
                             <h4>Competitors</h4>
                             <p>
@@ -407,8 +408,8 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                         type="radio"
                         checked
                         bind:group={selectedGenerator}
-                        value="SEO"
-                        aria-label="SEO"
+                        value="Related Queries"
+                        aria-label="Related Queries"
                     />
 
                     <input
