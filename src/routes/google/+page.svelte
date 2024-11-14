@@ -22,7 +22,6 @@
         checkTaskStatus,
         countryCodes,
         jsonToCsv,
-        languages,
         sendEventData,
         submitTask,
     } from "$lib/utils";
@@ -41,9 +40,10 @@
         loading = false,
         maxPages = 1,
         maxResultsPerPage = 20,
-        countryCode: Selected<string> = { value: "us", label: "United States" };
-
-    $: console.log(countryCode, countryCode.value);
+        countryCode: Selected<string> = {
+            value: "us",
+            label: "🇺🇸 United States",
+        };
 
     $: buttonText = loading ? "Getting results" : "Get pages";
 
@@ -287,7 +287,7 @@
     let displaySearchQueriesPerCompany: Record<number, string> = {
         1: "Less queries: ~5-10",
         2: "More queries: ~20-30",
-        3: "Many queries: ~50",
+        3: "Tons of queries: ~50",
     };
 
     let selectedGenerator: string = "Related Queries";
