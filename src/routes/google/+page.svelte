@@ -314,7 +314,7 @@
                     prompt: `${userPromptCompanies},
 ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]},
 ${queryLanguage?.value},
-${mention ? "Include queries where you mention the companies explicitly wherever possible." : "Don't mention companies explicitly, or at all."}`,
+${mention ? "Include queries where you mention the companies explicitly wherever possible." : "Don't mention companies explicitly, or at all. Try to avoid mentioning the companies as hard as possible."}`,
                 }),
             });
             console.log(
