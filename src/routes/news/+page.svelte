@@ -7,10 +7,12 @@
     import {
         checkTaskStatus,
         jsonToCsv,
-        languages,
         sendEventData,
         submitTask,
     } from "$lib/utils";
+
+    import { languages } from "$lib/options";
+
     import DateRangePicker from "$lib/components/DateRangePicker.svelte";
     import { today, getLocalTimeZone } from "@internationalized/date";
     import type { DateRange } from "bits-ui";

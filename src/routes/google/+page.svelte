@@ -1,8 +1,6 @@
 <script lang="ts">
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
-    import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
-    import CleanPasteInput from "$lib/components/CleanPasteInput.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
@@ -10,7 +8,6 @@
     import ResumeButton from "$lib/components/ResumeButton.svelte";
     import SearchableList from "$lib/components/SearchableList.svelte";
     import Section from "$lib/components/Section.svelte";
-    import Select from "$lib/components/Select.svelte";
     import Slider from "$lib/components/Slider.svelte";
     import Status from "$lib/components/Status.svelte";
     import StopButton from "$lib/components/StopButton.svelte";
@@ -20,11 +17,13 @@
     import type { SearchGoogleResult } from "$lib/types";
     import {
         checkTaskStatus,
-        countryCodes,
         jsonToCsv,
         sendEventData,
         submitTask,
     } from "$lib/utils";
+
+    import { countryCodes } from "$lib/options";
+
     import { Tooltip, type Selected } from "bits-ui";
     import { CaretRight, DevToLogo, QuestionMark } from "phosphor-svelte";
     import { toast } from "svelte-sonner";

@@ -3,7 +3,7 @@
     import { fly } from "svelte/transition";
     import Check from "phosphor-svelte/lib/Check";
     import { selectedLists } from "$lib/stores/store";
-    import { listOptions } from "$lib/utils";
+    import { listOptions } from "$lib/options";
     import Scroll from "phosphor-svelte/lib/Scroll";
     import TooltipContent from "./TooltipContent.svelte";
 
