@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { painPointsPrompt } from "./painPoints";
+import { painPointsPrompt } from "./painPointsPrompt";
 import { getOpenAIResponse } from "../openai";
 
 export const POST = async ({ fetch, request }) => {
