@@ -22,10 +22,10 @@
         submitTask,
     } from "$lib/utils";
 
-    import { countryCodes } from "$lib/options";
+    import { countryCodes, languageCodes } from "$lib/options";
 
     import { Tooltip, type Selected } from "bits-ui";
-    import { CaretRight, DevToLogo, QuestionMark } from "phosphor-svelte";
+    import { CaretRight, QuestionMark } from "phosphor-svelte";
     import { toast } from "svelte-sonner";
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
@@ -44,6 +44,7 @@
             label: "🇺🇸 United States",
         };
 
+    let queryLanguage: Selected<string>;
     $: buttonText = loading ? "Getting results" : "Get pages";
 
     let outputProgress: number = 0;
@@ -282,7 +283,7 @@
 
     let seoQueries: string;
     let userPromptCompanies: string;
-    let searchQueriesPerCompany: number[] = [1];
+    let searchQueriesPerCompany: number[] = [2];
     let displaySearchQueriesPerCompany: Record<number, string> = {
         1: "Less queries: ~5-10",
         2: "More queries: ~20-30",
@@ -309,7 +310,8 @@
                 },
                 body: JSON.stringify({
                     prompt: `${userPromptCompanies},
-${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
+${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]},
+${queryLanguage?.value}`,
                 }),
             });
             console.log(
@@ -349,7 +351,7 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
     <Section>
         <div class="flex flex-col gap-3">
             <h2 class="uppercase opacity-70">Query Generation</h2>
-            <div class="flex gap-3 items-center">
+            <div class="flex gap-5 items-center">
                 <Tooltip.Root openDelay={0}>
                     <Tooltip.Trigger class="w-fit">
                         <QuestionMark
@@ -400,6 +402,7 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                         </div>
                     </TooltipContent>
                 </Tooltip.Root>
+
                 <div class="flex join" role="radiogroup">
                     <input
                         class="join-item btn btn-sm border border-base-content/10
@@ -431,13 +434,25 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                     />
                 </div>
 
-                <div class="w-32 mx-3">
+                <div class="flex flex-col w-32 h-full justify-between mb-1">
+                    <div class="text-[12px] opacity-60">
+                        {displaySearchQueriesPerCompany[
+                            searchQueriesPerCompany[0]
+                        ]}
+                    </div>
+
                     <Slider bind:value={searchQueriesPerCompany} />
                 </div>
-                <div class="text-sm opacity-60">
-                    Number of queries — {displaySearchQueriesPerCompany[
-                        searchQueriesPerCompany[0]
-                    ]}
+
+                <div class="flex flex-col gap-2">
+                    <SearchableList
+                        placeholder="Query Language"
+                        bind:selected={queryLanguage}
+                        disabled={loading}
+                        options={languageCodes.map((e) => {
+                            return { value: e.lang, label: e.lang };
+                        })}
+                    ></SearchableList>
                 </div>
             </div>
             <form class="join w-full">
@@ -500,7 +515,7 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                         >Pages to search for</label
                     >
                     <input
-                        class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
+                        class="input input-sm rounded-full tabular-nums bg-neutral"
                         inputmode="numeric"
                         type="number"
                         id="maxPages"
@@ -515,7 +530,7 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                         >Results per page</label
                     >
                     <input
-                        class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
+                        class="input input-sm rounded-full tabular-nums bg-neutral"
                         inputmode="numeric"
                         type="number"
                         id="maxPages"
@@ -525,7 +540,7 @@ ${displaySearchQueriesPerCompany[searchQueriesPerCompany[0]]}`,
                     />
                 </div>
 
-                <div class="w-1/3">
+                <div class="w-1/3 flex flex-col gap-1">
                     <div class="text-sm opacity-60">Country</div>
                     <SearchableList
                         bind:selected={countryCode}

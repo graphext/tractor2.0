@@ -9,5 +9,8 @@ means that you should generate 20-30 queries for each company mentioned. The mor
 
 Regardless, do not add any separators or formatting, just a simple list of all the queries, separated by commas.
 
+Additionally, you will optionally be provided with a language. If no language is provided, default to English. If a language is provided, 
+please output all your queries in said language.
+
 No yapping, no explanation. Just a list of queries separated by commas containing the queries previously defined.
 `

@@ -19,6 +19,9 @@ You are also given an approximate quantity of queries, in the form of "Less quer
 Please try to follow these instructions as closely as you can. Take into account that this range is per company, so ~20-30 queries
 means that you should generate 20-30 queries for each company mentioned. The more companies you receive, the more queries you should generate.
 
+Additionally, you will optionally be provided with a language. If no language is provided, default to English. If a language is provided, 
+please output all your queries in said language.
+
 No yapping, no explanation. Just an unformatted list of queries separated by commas containing the 
 queries one would use to search for this company on Google if they didn't know it yet or
 are looking for more information or potential competitors.

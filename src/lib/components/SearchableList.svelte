@@ -34,13 +34,13 @@
         onOutsideClick={onBlur}
     >
         <Combobox.Input
-            class="inline-flex w-full h-10 truncate rounded-full bg-neutral px-3 text-sm  placeholder:text-foreground/50 focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
+            class="inline-flex w-full input input-sm truncate rounded-full bg-neutral px-3 text-sm focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
             placeholder={$$props["placeholder"]}
             on:click={() => (searchQuery = "")}
             aria-label={placeholder}
         />
         <Combobox.Content
-            side="top"
+            side={$$props["side"] ? $$props["side"] : "bottom"}
             transition={fly}
             transitionConfig={{ y: 10, duration: 300 }}
             class="w-full combo-content bg-base-200 p-1 shadow-md border border-base-content/10 overflow-y-scroll max-h-[250px] rounded-xl"

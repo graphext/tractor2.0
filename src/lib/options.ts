@@ -1,4 +1,3 @@
-
 export const languageCodes = [
 	{ code: 'en', lang: 'English' },
 	{ code: 'es', lang: 'Spanish' },

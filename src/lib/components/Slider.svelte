@@ -22,7 +22,7 @@
         {#each thumbs as thumb}
             <Slider.Thumb
                 {thumb}
-                class="absolute block size-[20px] cursor-pointer rounded-full border
+                class="block size-[10px] cursor-pointer rounded-full border
                         border-border-input bg-primary shadow-sm transition-colors
                         disabled:pointer-events-none disabled:opacity-50"
             />
