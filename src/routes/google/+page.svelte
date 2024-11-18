@@ -408,7 +408,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                         </TooltipContent>
                     </Tooltip.Root>
 
-                    <div class="flex join" role="radiogroup">
+                    <div class="flex join rounded-full" role="radiogroup">
                         <input
                             class="join-item btn btn-sm border border-base-content/10
                             checked:font-bold font-normal"
@@ -442,14 +442,22 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
 
                 <div class="divider divider-horizontal"></div>
 
-                <div class="flex flex-col w-32 h-full justify-between mb-1">
+                <div
+                    class="flex flex-col w-32 h-full justify-between mb-1 gap-1"
+                >
                     <div class="text-[12px] opacity-60">
-                        {displaySearchQueriesPerCompany[
-                            searchQueriesPerCompany[0]
-                        ]}
+                        <div class="flex justify-between">
+                            {#each displaySearchQueriesPerCompany[searchQueriesPerCompany[0]].split(":") as item, i}
+                                {#if i == 1}
+                                    <div class="font-bold">{item}</div>
+                                {:else}
+                                    <div class="">{item}</div>
+                                {/if}
+                            {/each}
+                        </div>
                     </div>
 
-                    <Slider bind:value={searchQueriesPerCompany} />
+                    <Slider bind:value={searchQueriesPerCompany} steps={3} />
                 </div>
 
                 <div class="divider divider-horizontal"></div>
