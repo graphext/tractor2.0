@@ -3,7 +3,7 @@ import type { ApifyClient } from "./apifyEndpoints";
 import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
-import type { Task, TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
+import type {  TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
 
 
 export function cleanText(text: string): string {
@@ -242,13 +242,15 @@ export function pivotJson<T>(
   json: T[],
   pivotColumn: string,
   fieldsToUnpivot: string[],
+  indexColumns: string[] = []
 ): Record<string, any> {
   const output = [];
+  console.log(indexColumns);
 
   json.forEach((obj) => {
     const pivotValues = getNestedValue(obj, pivotColumn);
     if (Array.isArray(pivotValues)) {
-      pivotValues.forEach((pivotValue) => {
+      pivotValues.forEach((pivotValue, index) => {
         const newRow = { ...obj };
         fieldsToUnpivot.forEach((field) => {
           const nestedValue = getNestedValue(pivotValue, field);
@@ -256,6 +258,9 @@ export function pivotJson<T>(
             newRow[field] = nestedValue;
           }
         });
+        if (indexColumns.includes(pivotColumn)) {
+          newRow[`index_${pivotColumn}`] = index;
+        }
         output.push(newRow);
       });
     }
@@ -308,7 +313,7 @@ export async function jsonToCsv<T>({
     }
 
     if (pivot != null) {
-      jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot);
+      jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot, pivot.index);
       console.log(jsonData);
     }
 

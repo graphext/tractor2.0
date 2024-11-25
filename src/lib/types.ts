@@ -549,5 +549,5 @@ export interface TypedJsonToCsvOptions<T> {
   unwind?: {
     [K in ArrayKeys<T>]: TypedUnwindTarget<T, K>;
   }[ArrayKeys<T>][];
-  pivot?: { column: string; pivot: string[] } | null;
+  pivot?: { column: string; pivot: string[], index:string[] } | null;
 }

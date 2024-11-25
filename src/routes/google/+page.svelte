@@ -249,6 +249,7 @@
                             "emphasizedKeywords",
                             "position",
                         ],
+                        index: ["organicResults"],
                     },
                     removeColumns: [
                         "organicResults",
@@ -262,6 +263,7 @@
                     ],
                     customColumnOrder: [
                         "position",
+                        "index_organicResults",
                         "title",
                         "url",
                         "description",
@@ -580,6 +582,12 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                         class="input input-sm rounded-full tabular-nums bg-neutral"
                         inputmode="numeric"
                         type="number"
+                        max="100"
+                        on:blur={() => {
+                            if (maxResultsPerPage > 100) {
+                                maxResultsPerPage = 100;
+                            }
+                        }}
                         id="maxPages"
                         disabled={loading}
                         bind:value={maxResultsPerPage}
