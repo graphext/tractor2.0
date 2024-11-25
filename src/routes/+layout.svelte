@@ -25,13 +25,13 @@
     $: pageUrl = $page.route.id;
 
     let actors = [
-        { id: "/", icon: TwitterLogo, title: "Twitter" },
-        { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
-        { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
+        { id: "/", icon: GoogleLogo, title: "Google" },
+        { id: "/twitter", icon: TwitterLogo, title: "Twitter" },
         { id: "/tiktok", icon: TiktokLogo, title: "TikTok" },
-        { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
-        { id: "/google", icon: GoogleLogo, title: "Google" },
+        { id: "/instagram", icon: InstagramLogo, title: "Instagram" },
         { id: "/news", icon: NewspaperClipping, title: "Google News" },
+        { id: "/linkedin", icon: LinkedinLogo, title: "LinkedIn" },
+        { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
     ];
 
     $: apikeyPresent = $apifyKey != "";
