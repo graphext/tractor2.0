@@ -39,7 +39,7 @@
         domains: string,
         loading = false,
         maxPages = 1,
-        maxResultsPerPage = 20,
+        maxResultsPerPage = 100,
         countryCode: Selected<string> = {
             value: "us",
             label: "🇺🇸 United States",
