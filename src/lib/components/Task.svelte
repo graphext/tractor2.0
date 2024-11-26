@@ -391,7 +391,7 @@
 
                         <div class="flex gap-3 justify-between">
                             <button
-                                class="btn border-base-content/10 btn-square"
+                                class="btn border-base-content/10"
                                 on:click={() =>
                                     downloadRunDataset(task.actName, run.id)}
                             >
@@ -408,7 +408,7 @@
                                 {/if}
                             </button>
                             <a
-                                class="btn btn-square border-base-content/10"
+                                class="btn border-base-content/10"
                                 target="_blank"
                                 href={`https://console.apify.com/organization/${userId}/actors/tasks/${task.id}/runs/${run.id}#output`}
                             >
@@ -416,7 +416,7 @@
                             </a>
                         </div>
 
-                        <div class="flex justify-between">
+                        <div class="flex justify-between gap-4">
                             <div class="text-xs">
                                 {#if run.status == "SUCCEEDED"}
                                     <div class="badge badge-success badge-xs">
@@ -433,7 +433,10 @@
                                 {/if}
                             </div>
                             <div class="tabular-nums text-xs">
-                                ${run.usageTotalUsd.toFixed(4)}
+                                <span class="opacity-60">$</span><span
+                                    class="font-semibold"
+                                    >{run.usageTotalUsd.toFixed(3)}</span
+                                >
                             </div>
                         </div>
                     </div>
