@@ -573,14 +573,14 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label for="maxPages" class="text-sm opacity-60"
+                    <label for="maxResults" class="text-sm opacity-60"
                         >Results per page</label
                     >
                     <input
                         class="input input-sm rounded-full tabular-nums bg-neutral"
                         inputmode="numeric"
                         type="number"
-                        id="maxPages"
+                        id="maxResults"
                         on:change={() => {
                             if (maxResultsPerPage > 100)
                                 maxResultsPerPage = 100;
