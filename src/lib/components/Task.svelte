@@ -186,7 +186,13 @@
             ],
             pivot: {
                 column: "organicResults",
-                pivot: ["title", "url", "description", "emphasizedKeywords"],
+                pivot: [
+                    "title",
+                    "url",
+                    "description",
+                    "emphasizedKeywords",
+                    "position",
+                ],
             },
             removeColumns: [
                 "organicResults",
@@ -199,6 +205,7 @@
                 "searchQuery.resultsPerPage",
             ],
             customColumnOrder: [
+                "position",
                 "title",
                 "url",
                 "description",
