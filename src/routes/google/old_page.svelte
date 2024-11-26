@@ -581,6 +581,12 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                         inputmode="numeric"
                         type="number"
                         id="maxPages"
+                        on:change={() => {
+                            if (maxResultsPerPage > 100) {
+                                console.log("fuck");
+                                maxResultsPerPage = 100;
+                            }
+                        }}
                         disabled={loading}
                         bind:value={maxResultsPerPage}
                         placeholder="Enter maximum number of items"
