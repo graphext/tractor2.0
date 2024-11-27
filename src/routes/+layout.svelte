@@ -33,21 +33,7 @@
 
         const allTasks: Task[] = data.data.items;
 
-        const userTasks = allTasks.filter((t: Task) => {
-            return (
-                $apifyKey.slice(-4) == t.name.split("-")[1] &&
-                t.name.includes("TRCTR")
-            );
-        });
-
-        userTasks.sort((b, a) => {
-            return (
-                new Date(a.createdAt).getTime() -
-                new Date(b.createdAt).getTime()
-            );
-        });
-
-        return userTasks;
+        return allTasks;
     }
 
     $: pageUrl = $page.route.id;

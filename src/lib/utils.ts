@@ -1,3 +1,4 @@
+import { toast } from 'svelte-sonner'
 import type { DateRange, Selected } from "bits-ui";
 import type { ApifyClient } from "./apifyEndpoints";
 import { frequencyStore } from "./stores/store";
@@ -5,6 +6,13 @@ import { get } from "svelte/store";
 
 import type { Task, TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
 
+
+export async function createFileName({ actorName, information, datasetId }: { actorName: string, information: object, datasetId: string }) {
+
+  const fileKeyword = await generateNames(actorName, JSON.stringify(information));
+
+  return `${fileKeyword}_${datasetId.slice(-6)}_TR`;
+}
 
 export function cleanText(text: string): string {
   text = text.replace(/[^\S\r\n]+/g, " ");
@@ -536,6 +544,30 @@ export async function generateDatasetName(queries: string) {
   }
 }
 
+export async function generateNames(actor: string, information: object) {
+  try {
+    const res = await fetch("/api/names", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(({ inputData: information, actorName: actor })),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(
+        errorData.error || `HTTP error! status: ${res.status}`,
+      );
+    }
+
+    return res.text();
+  } catch (err) {
+    console.error("Error:", err);
+    throw err;
+  }
+}
+
 
 export async function submitTask(
   {
@@ -553,17 +585,40 @@ export async function submitTask(
       onStatusCheckStart?: Function,
     }) {
   let runId;
+  let taskName
+  let oldTaskName
 
   try {
-    const task = await apifyClient.createTask(inputData);
+    taskName = await generateNames(apifyClient.name, inputData)
+    console.log(taskName)
+
+    const task = await apifyClient.createTask(taskName, inputData);
     runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
     onTaskCreated(runId);
 
     if (onStatusCheckStart)
       setTimeout(onStatusCheckStart, 1500);
-  } catch (err) {
-    onError(err);
+  } catch (err: any) {
+
+    const stringError = err.toString()
+
+    if (stringError.includes("actor-task-name-not-unique")) {
+      oldTaskName = taskName
+      taskName += `-${Math.floor(Math.random() * 1000)}`
+
+      const task = await apifyClient.createTask(taskName, inputData);
+      runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
+
+      onTaskCreated(runId);
+
+      toast.warning(`${oldTaskName} was already in use, renamed to ${taskName}`)
+
+
+    } else {
+      onError(err);
+    }
+
   }
 }
 

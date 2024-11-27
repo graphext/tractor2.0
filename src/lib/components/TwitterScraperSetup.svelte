@@ -9,6 +9,7 @@
     import WarningCost from "./WarningCost.svelte";
     import {
         checkTaskStatus,
+        createFileName,
         generateDatasetName,
         jsonToCsv,
         sendEventData,
@@ -77,7 +78,7 @@
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
-    const apifyClient = new ApifyClient(TWITTER_ACT_ID); // Twitter Actor ID
+    const apifyClient = new ApifyClient(TWITTER_ACT_ID, "Twitter/X Scraper"); // Twitter Actor ID
     const socialMedia = "Twitter";
 
     async function handleTwitterSubmit() {
@@ -209,11 +210,17 @@
 
                 console.log(datasetData);
 
-                const fileKeyWord = await generateDatasetName(
-                    queriesSpreadOverTime,
-                );
-
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        userQuery: userQuery,
+                        frequency: $frequencyStore,
+                        searchTerms: queriesSpreadOverTime,
+                        maxItems: numTweets,
+                        sortingMethod: tweetOrder.value,
+                    },
+                    datasetId: datasetData.data.id,
+                });
 
                 datasetSize = datasetData.data.itemCount;
 

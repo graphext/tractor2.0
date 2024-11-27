@@ -17,6 +17,8 @@
     import type { SearchGoogleResult } from "$lib/types";
     import {
         checkTaskStatus,
+        createFileName,
+        generateNames,
         jsonToCsv,
         sendEventData,
         submitTask,
@@ -32,7 +34,10 @@
     import { fly } from "svelte/transition";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
 
-    let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
+    let apifyClient = new ApifyClient(
+        GOOGLE_ACTOR_ID,
+        "Google Search Results Scraper",
+    );
 
     const socialMedia = "google-search";
 
@@ -108,8 +113,6 @@
             // put queries in line-by-line format
             inputQueries = queries.join("\n");
         }
-
-        console.log(inputQueries);
 
         let inputData = {
             includeIcons: false,
@@ -203,13 +206,15 @@
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
 
-                const fileKeyWord =
-                    `${selectedGenerator}_${userPromptCompanies}`.replaceAll(
-                        /[^a-zA-Z0-9]/g,
-                        "_",
-                    );
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
-
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        queriedCompanies: userPromptCompanies,
+                        queryIntention: selectedGenerator,
+                        keywords: keywords.slice(0, 50),
+                    },
+                    datasetId: datasetData.data.id,
+                });
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
