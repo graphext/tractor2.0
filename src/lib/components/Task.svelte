@@ -446,13 +446,13 @@
             <div class="">
                 <p class="opacity-70">No runs executed for this task.</p>
                 <p class="opacity-40">
-                    Remember that Apify deletes all data older than 14 days
-                    unless <a
+                    Remember that Apify deletes Run and Task data after some
+                    time <a
                         href="https://docs.apify.com/platform/actors/running/runs-and-builds#data-retention"
                         target="_blank"
                         class="underline
                         font-bold text-primary opacity-100"
-                        >explicitly specified</a
+                        >depending on your subscription</a
                     >.
                 </p>
             </div>
