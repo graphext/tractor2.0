@@ -5,6 +5,7 @@
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
+    import LiveInfo from "$lib/components/LiveInfo.svelte";
     import LiveTable from "$lib/components/LiveTable.svelte";
     import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Section from "$lib/components/Section.svelte";
@@ -442,38 +443,15 @@
         {socialMedia}
     />
 
-    {#if error || status}
-        <div>
-            <div class="divider mt-3 mb-3" />
-
-            <div class="flex flex-col gap-5">
-                <div class="flex justify-between items-baseline">
-                    {#if status == "RUNNING" || status == "ABORTING"}
-                        <StopButton {apifyClient} {runId} />
-                    {/if}
-
-                    {#if status == "ABORTED" || status == "READY"}
-                        <ResumeButton
-                            {status}
-                            bind:resuming
-                            {apifyClient}
-                            {runId}
-                        />
-                    {/if}
-
-                    {#if error}
-                        <Error {error} {userId} {runId} />
-                    {:else}
-                        <p class="opacity-0">error</p>
-                    {/if}
-
-                    {#if status}
-                        <Status bind:status bind:outputProgress />
-                    {/if}
-                </div>
-
-                <LiveTable {headers} {rows} />
-            </div>
-        </div>
-    {/if}
+    <LiveInfo
+        {apifyClient}
+        {userId}
+        {runId}
+        {headers}
+        {rows}
+        {resuming}
+        {status}
+        {error}
+        {outputProgress}
+    />
 </Section>

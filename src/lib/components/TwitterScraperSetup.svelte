@@ -30,6 +30,7 @@
     import DownloadButton from "./DownloadButton.svelte";
     import Select from "./Select.svelte";
     import { Newspaper, ArrowsDownUp } from "phosphor-svelte";
+    import LiveInfo from "./LiveInfo.svelte";
 
     export let queries = "";
     export let selectedRange: DateRange;
@@ -333,35 +334,14 @@
 
 <DownloadButton {csvBlob} {filename} {datasetSize} {loading} {socialMedia} />
 
-{#if error || status}
-    <div class="divider mt-3 mb-3" />
-    <div>
-        <div class="flex flex-col gap-1">
-            <div class="flex justify-between items-baseline mb-5">
-                {#if status == "RUNNING" || status == "ABORTING"}
-                    <StopButton {apifyClient} {runId} />
-                {/if}
-
-                {#if status == "ABORTED" || status == "READY"}
-                    <ResumeButton
-                        {status}
-                        bind:resuming
-                        {apifyClient}
-                        {runId}
-                    />
-                {/if}
-
-                {#if error}
-                    <Error {error} {userId} {runId} />
-                {:else}
-                    <p class="opacity-0">error</p>
-                {/if}
-
-                {#if status}
-                    <Status {status} {outputProgress} />
-                {/if}
-            </div>
-            <LiveTable {headers} {rows} />
-        </div>
-    </div>
-{/if}
+<LiveInfo
+    {apifyClient}
+    {userId}
+    {runId}
+    {headers}
+    {rows}
+    {resuming}
+    {status}
+    {error}
+    {outputProgress}
+/>

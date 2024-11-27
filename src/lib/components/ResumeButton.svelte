@@ -15,6 +15,6 @@
         resuming = true;
         if (runId) apifyClient.resurrectRun(runId);
     }}
-    class="btn btn-accent btn-sm"
+    class="btn hover:btn-accent btn-outline border-base-content/20 btn-sm"
     disabled={resuming}><Play weight="fill" /> {resumeButtonText}</button
 >

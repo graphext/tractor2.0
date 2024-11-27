@@ -15,6 +15,6 @@
         stopping = true;
         if (runId) apifyClient.abortRun(runId);
     }}
-    class="btn btn-error btn-sm"
+    class="btn hover:btn-error btn-outline border-base-content/20 btn-sm"
     disabled={stopping}><Stop weight="fill" /> {stopButtonText}</button
 >

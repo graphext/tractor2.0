@@ -29,6 +29,7 @@
     import StopButton from "$lib/components/StopButton.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import { QuestionMark } from "phosphor-svelte";
+    import LiveInfo from "$lib/components/LiveInfo.svelte";
 
     let apifyClient = new ApifyClient(YOUTUBE_ACTOR_ID);
     const socialMedia = "youtube";
@@ -468,40 +469,17 @@
         {socialMedia}
     />
 
-    {#if error || status}
-        <div>
-            <div class="divider mt-3 mb-3" />
-
-            <div class="flex flex-col gap-5">
-                <div class="flex justify-between items-baseline">
-                    {#if status == "RUNNING" || status == "ABORTING"}
-                        <StopButton {apifyClient} {runId} />
-                    {/if}
-
-                    {#if status == "ABORTED" || status == "READY"}
-                        <ResumeButton
-                            {status}
-                            bind:resuming
-                            {apifyClient}
-                            {runId}
-                        />
-                    {/if}
-
-                    {#if error}
-                        <Error {error} {userId} {runId} />
-                    {:else}
-                        <p class="opacity-0">error</p>
-                    {/if}
-
-                    {#if status}
-                        <Status {status} {outputProgress} />
-                    {/if}
-                </div>
-
-                <LiveTable {headers} {rows} />
-            </div>
-        </div>
-    {/if}
+    <LiveInfo
+        {apifyClient}
+        {userId}
+        {runId}
+        {headers}
+        {rows}
+        {resuming}
+        {status}
+        {error}
+        {outputProgress}
+    />
 </Section>
 
 <style>

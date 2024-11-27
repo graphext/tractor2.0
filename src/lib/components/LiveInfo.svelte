@@ -1,5 +1,6 @@
 <script lang="ts">
     import { type ApifyClient } from "$lib/apifyEndpoints";
+    import { onMount } from "svelte";
     import Error from "./Error.svelte";
     import LiveTable from "./LiveTable.svelte";
     import ResumeButton from "./ResumeButton.svelte";
@@ -18,8 +19,8 @@
 </script>
 
 {#if error || status}
-    <div>
-        <div class="divider mt-3 mb-3" />
+    <div class="flex flex-col gap-5">
+        <div class="divider"></div>
 
         <div class="flex flex-col gap-5">
             <div class="flex justify-between items-baseline">
@@ -36,12 +37,6 @@
                     />
                 {/if}
 
-                {#if error}
-                    <Error {error} {userId} {runId} />
-                {:else}
-                    <p class="opacity-0">error</p>
-                {/if}
-
                 {#if status}
                     <Status {status} {outputProgress} />
                 {/if}
@@ -49,5 +44,11 @@
 
             <LiveTable {headers} {rows} />
         </div>
+
+        {#if error}
+            <Error {error} {userId} {runId} />
+        {:else}
+            <p class="opacity-0">error</p>
+        {/if}
     </div>
 {/if}
