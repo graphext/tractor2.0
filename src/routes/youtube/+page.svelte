@@ -17,21 +17,18 @@
     } from "@internationalized/date";
     import {
         checkTaskStatus,
+        createFileName,
         jsonToCsv,
         sendEventData,
         submitTask,
     } from "$lib/utils";
     import { toast } from "svelte-sonner";
     import Error from "$lib/components/Error.svelte";
-    import LiveTable from "$lib/components/LiveTable.svelte";
-    import Status from "$lib/components/Status.svelte";
-    import ResumeButton from "$lib/components/ResumeButton.svelte";
-    import StopButton from "$lib/components/StopButton.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import { QuestionMark } from "phosphor-svelte";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
 
-    let apifyClient = new ApifyClient(YOUTUBE_ACTOR_ID);
+    let apifyClient = new ApifyClient(YOUTUBE_ACTOR_ID, "Youtube Scraper");
     const socialMedia = "youtube";
 
     let query: string;
@@ -256,7 +253,13 @@
                                   .replaceAll(".", "");
                           });
 
-                filename = `data_TRCTR_${fileKeyword}_${datasetData.data.id}`;
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        ...processInputData(query, searchMode),
+                    },
+                    datasetId: datasetData.data.id,
+                });
 
                 datasetSize = datasetData.data.itemCount;
 

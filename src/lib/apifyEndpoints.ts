@@ -90,18 +90,22 @@ export async function getPrivateUserData() {
 }
 
 export class ApifyClient {
-  constructor(public actorId: string) {}
+  constructor(public actorId: string, public actorName: string) {
+    this.actorName = actorName
+  }
 
-  async createTask(input: Record<string, unknown>) {
+  get name() {
+    return this.actorName
+  }
+
+  async createTask(taskName, input: Record<string, unknown>) {
     const token = get(apifyKey);
     const tokenEnd = token.slice(-4);
 
     const endpoint = "/actor-tasks";
     const body = JSON.stringify({
       actId: this.actorId,
-      name: `TRCTR-${tokenEnd}-${Math.floor(Math.random() * 100000)
-        .toString()
-        .padStart(5, "0")}`,
+      name: `${taskName}-${tokenEnd}`,
       options: {
         build: "latest",
       },
@@ -202,7 +206,7 @@ export class ApifyClient {
 }
 
 export class ApifyScheduler {
-  constructor(private apifyClient: ApifyClient) {}
+  constructor(private apifyClient: ApifyClient) { }
 
   async createWebhook(requestBody: Record<string, unknown>) {
     const endpoint = `/webhooks`;

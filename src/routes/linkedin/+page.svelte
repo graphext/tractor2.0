@@ -16,6 +16,7 @@
     import { type LinkedInResult } from "$lib/types";
     import {
         checkTaskStatus,
+        createFileName,
         jsonToCsv,
         sendEventData,
         submitTask,
@@ -46,7 +47,10 @@
         };
     }
 
-    let apifyClient = new ApifyClient(LINKEDIN_ACTOR_ID);
+    let apifyClient = new ApifyClient(
+        LINKEDIN_ACTOR_ID,
+        "LinkedIn Posts Scraper",
+    );
 
     const socialMedia = "linkedin";
 
@@ -258,7 +262,22 @@
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
 
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        urls: urlsSplit,
+                        limitPerSource: maxItems,
+                        maxDelay: 10,
+                        minDelay: 2,
+                        proxy: {
+                            useApifyProxy: true,
+                            apifyProxyGroups: [],
+                            apifyProxyCountry: "US",
+                        },
+                        rawData: false,
+                    },
+                    datasetId: datasetData.data.id,
+                });
 
                 datasetSize = datasetData.data.itemCount;
 

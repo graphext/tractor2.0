@@ -18,6 +18,7 @@
     import type { InstagramPost } from "$lib/types";
     import {
         checkTaskStatus,
+        createFileName,
         jsonToCsv,
         sendEventData,
         submitTask,
@@ -34,7 +35,7 @@
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
 
-    let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID);
+    let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID, "Instagram Scraper");
     const socialMedia = "instagram";
 
     let keywords = "";
@@ -125,8 +126,6 @@
             directUrls: urls,
             resultsLimit: maxItems,
             resultsType: selectedResultType.value,
-            searchLimit: 1,
-            searchType: "hashtag",
             enhanceUserSearchWithFacebookPage: false,
             isUserReelFeedURL: false,
             isUserTaggedFeedURL: false,
@@ -270,15 +269,17 @@
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
 
-                const fileKeyWord = keywords.length
-                    ? keywords.replaceAll(",", "_")
-                    : keywords;
-                filename = `data_TRCTR_${fileKeyWord
-                    .replaceAll("https://instagram.com/", "")
-                    .replaceAll("/", "")
-                    .replaceAll(".", "")
-                    .replaceAll(" ", "")
-                    .replaceAll("@", "")}_${datasetData.data.id}`;
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        directUrls: processInstagramInput(keywords),
+                        resultsLimit: maxItems,
+                        resultsType: selectedResultType.value,
+                        searchLimit: 1,
+                        searchType: "hashtag",
+                    },
+                    datasetId: datasetData.data.id,
+                });
 
                 datasetSize = datasetData.data.itemCount;
 

@@ -23,6 +23,7 @@
     import { Hash, MagnifyingGlass, QuestionMark, User } from "phosphor-svelte";
     import {
         checkTaskStatus,
+        createFileName,
         jsonToCsv,
         sendEventData,
         submitTask,
@@ -31,7 +32,7 @@
     import type { TikTokPost } from "$lib/types";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
 
-    let apifyClient = new ApifyClient(TIKTOK_ACTOR_ID);
+    let apifyClient = new ApifyClient(TIKTOK_ACTOR_ID, "Tiktok Data Extractor");
     const socialMedia = "youtube";
 
     let maxItems = 100;
@@ -203,9 +204,16 @@
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
 
-                const fileKeyWord = "tiktok_search";
-
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        hashtags: hashtagArray,
+                        profiles: profileArray,
+                        resultsPerPage: maxItems,
+                        searchQueries: keywordArray,
+                    },
+                    datasetId: datasetData.data.id,
+                });
 
                 datasetSize = datasetData.data.itemCount;
 

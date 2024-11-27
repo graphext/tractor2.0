@@ -1,11 +1,12 @@
 <script lang="ts">
     import Input from "$lib/components/Input.svelte";
-    import { ApifyClient, ApifyScheduler } from "$lib/apifyEndpoints";
+    import { ApifyClient } from "$lib/apifyEndpoints";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { NEWS_ACTOR_ID } from "$lib/actors";
     import SearchableList from "$lib/components/SearchableList.svelte";
     import {
         checkTaskStatus,
+        createFileName,
         jsonToCsv,
         sendEventData,
         submitTask,
@@ -19,12 +20,8 @@
     import { toast } from "svelte-sonner";
     import { tweened } from "svelte/motion";
     import { cubicInOut } from "svelte/easing";
-    import LiveTable from "$lib/components/LiveTable.svelte";
 
-    import StopButton from "$lib/components/StopButton.svelte";
-    import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Error from "$lib/components/Error.svelte";
-    import Status from "$lib/components/Status.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Section from "$lib/components/Section.svelte";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
@@ -33,7 +30,10 @@
     let maxItems: number = 500;
     let languageSelected = languages[0];
 
-    let apifyClient: ApifyClient = new ApifyClient(NEWS_ACTOR_ID);
+    let apifyClient: ApifyClient = new ApifyClient(
+        NEWS_ACTOR_ID,
+        "Google News Scraper",
+    );
     const socialMedia = "google-news";
 
     let selectedRange: DateRange;
@@ -178,11 +178,20 @@
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
 
-                const fileKeyWord = keywords
-                    .replaceAll(/[^\w\s]/gi, "")
-                    .replaceAll(/\s+/g, "_")
-                    .toLowerCase();
-                filename = `data_TRCTR_${fileKeyWord}_${datasetData.data.id}`;
+                filename = await createFileName({
+                    actorName: apifyClient.name,
+                    information: {
+                        query: keywords
+                            .split(",")
+                            .map((kw) => kw.trim())
+                            .join(" OR "),
+                        language: languageSelected.value,
+                        dateFrom: selectedRange.start?.toString(),
+                        dateTo: selectedRange.end?.toString(),
+                        maxItems: maxItems,
+                    },
+                    datasetId: datasetData.data.id,
+                });
 
                 datasetSize = datasetData.data.itemCount;
 
