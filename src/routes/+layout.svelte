@@ -3,6 +3,8 @@
     import "../app.css";
     import { Toaster } from "svelte-sonner";
 
+    import { Drawer } from "vaul-svelte";
+
     import { dev } from "$app/environment";
     import { inject } from "@vercel/analytics";
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
@@ -21,6 +23,32 @@
         YoutubeLogo,
         TiktokLogo,
     } from "phosphor-svelte";
+
+    import { getTasks } from "$lib/apifyEndpoints";
+    import TaskElement from "$lib/components/Task.svelte";
+    import type { Task } from "$lib/types";
+
+    async function getUserTasks(): Promise<Task[]> {
+        const data = await getTasks();
+
+        const allTasks: Task[] = data.data.items;
+
+        const userTasks = allTasks.filter((t: Task) => {
+            return (
+                $apifyKey.slice(-4) == t.name.split("-")[1] &&
+                t.name.includes("TRCTR")
+            );
+        });
+
+        userTasks.sort((b, a) => {
+            return (
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            );
+        });
+
+        return userTasks;
+    }
 
     $: pageUrl = $page.route.id;
 
@@ -83,60 +111,90 @@
     }}
 />
 
-<main
-    class="w-[95%] subpixel-antialiased max-w-7xl mx-auto my-10 selection:bg-primary selection:text-primary-content"
->
-    <Header />
+<Drawer.Root direction="left">
+    <main
+        class="w-[95%] subpixel-antialiased max-w-7xl mx-auto my-10 selection:bg-primary selection:text-primary-content"
+    >
+        <Header />
 
-    <ApifyKeyInput />
+        <ApifyKeyInput />
 
-    <div class="flex items-baseline gap-1 justify-between mt-10">
-        <div class="flex flex-grow relative overflow-hidden">
-            <div
-                class="flex gap-1 text-sm lg:text-base lg:gap-5 items-center my-5 overflow-x-scroll no-scroll relative"
-            >
-                {#each actors as actor}
-                    <a href={actor.id} class="group anchor-tray">
-                        <div
-                            class={`hover-underline-animation flex gap-2 pb-2 items-center`}
-                        >
-                            <svelte:component
-                                this={actor.icon}
-                                size={24}
-                                weight={pageUrl == actor.id
-                                    ? "fill"
-                                    : "regular"}
-                                class="fill-primary group-hover:-rotate-12 transition-all"
-                            />
-                            <h2
-                                class={`transition-opacity ${
-                                    pageUrl == actor.id
-                                        ? "font-bold opacity-100"
-                                        : "font-normal opacity-50 hover:opacity-80"
-                                }`}
+        <div class="flex items-baseline gap-1 justify-between mt-10">
+            <div class="flex flex-grow relative overflow-hidden">
+                <div
+                    class="flex gap-1 text-sm lg:text-base lg:gap-5 items-center my-5 overflow-x-scroll no-scroll relative"
+                >
+                    {#each actors as actor}
+                        <a href={actor.id} class="group anchor-tray">
+                            <div
+                                class={`hover-underline-animation flex gap-2 pb-2 items-center`}
                             >
-                                {actor.title}
-                            </h2>
-                        </div>
-                    </a>
-                {/each}
-            </div>
-            <div
-                class="absolute right-0 h-full w-5 bg-gradient-to-r
+                                <svelte:component
+                                    this={actor.icon}
+                                    size={24}
+                                    weight={pageUrl == actor.id
+                                        ? "fill"
+                                        : "regular"}
+                                    class="fill-primary group-hover:-rotate-12 transition-all"
+                                />
+                                <h2
+                                    class={`transition-opacity ${
+                                        pageUrl == actor.id
+                                            ? "font-bold opacity-100"
+                                            : "font-normal opacity-50 hover:opacity-80"
+                                    }`}
+                                >
+                                    {actor.title}
+                                </h2>
+                            </div>
+                        </a>
+                    {/each}
+                </div>
+                <div
+                    class="absolute right-0 h-full w-5 bg-gradient-to-r
             from-transparent to-base-100"
-            ></div>
+                ></div>
+            </div>
+
+            {#if apikeyPresent}
+                <div class="w-32 shrink-0">
+                    <ResetApiButton {apikeyPresent} />
+                </div>
+            {/if}
         </div>
 
-        {#if apikeyPresent}
-            <div class="w-32 shrink-0">
-                <ResetApiButton {apikeyPresent} />
-            </div>
-        {/if}
-    </div>
+        <slot />
+        <Footer />
+    </main>
 
-    <slot />
-    <Footer />
-</main>
+    <Drawer.Portal>
+        <Drawer.Overlay class="fixed inset-0 bg-black/10 backdrop-blur-[1px]" />
+
+        <Drawer.Content
+            class="fixed bottom-0 left-0 top-0 w-[30%] overflow-y-scroll
+            shadow-lg bg-base-100 p-10 flex-row rounded-r-[10px]
+            h-full"
+        >
+            <h1 class="mt-10 text-3xl font-bold mb-3">Tasks</h1>
+
+            {#await getUserTasks()}
+                <div>loading...</div>
+            {:then tasks}
+                Total tasks: <b>{tasks.length}</b>
+                <ol class="my-10">
+                    {#each tasks as task, i}
+                        <li class="">
+                            <TaskElement {task} />
+                        </li>
+                        {#if i < tasks.length - 1}
+                            <div class="divider my-0"></div>
+                        {/if}
+                    {/each}
+                </ol>
+            {/await}
+        </Drawer.Content>
+    </Drawer.Portal>
+</Drawer.Root>
 
 <style>
     .hover-underline-animation {

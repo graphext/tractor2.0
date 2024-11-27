@@ -443,7 +443,19 @@
                 {/each}
             </div>
         {:else}
-            <div>No runs executed for this task</div>
+            <div class="">
+                <p class="opacity-70">No runs executed for this task.</p>
+                <p class="opacity-40">
+                    Remember that Apify deletes all data older than 14 days
+                    unless <a
+                        href="https://console.apify.com"
+                        target="_blank"
+                        class="underline
+                        font-bold text-primary opacity-100"
+                        >explicitly specified</a
+                    >.
+                </p>
+            </div>
         {/if}
     {/await}
 </div>

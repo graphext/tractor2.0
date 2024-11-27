@@ -1,15 +1,14 @@
 <script lang="ts">
   import User from "$lib/components/User.svelte";
-  import { Book, Gauge, FileText } from "phosphor-svelte";
+  import { Book, Gauge, FileText, File } from "phosphor-svelte";
   import ThemeToggler from "./ThemeToggler.svelte";
   import HeaderNavItem from "./HeaderNavItem.svelte";
   import { onMount } from "svelte";
   import { getLimits } from "$lib/apifyEndpoints";
-  import { parseDateTime } from "@internationalized/date";
-  import type { DateRange } from "bits-ui";
   import TooltipContent from "./TooltipContent.svelte";
   import { Tooltip } from "bits-ui";
   import { apifyKey } from "$lib/stores/apifyStore";
+  import { Drawer } from "vaul-svelte";
 
   let currentSpent = 0;
   let maxLimitUsd = 0;
@@ -75,7 +74,21 @@
   </div>
 
   <div class="flex gap-5 items-center">
-    <HeaderNavItem icon={FileText} url="/tasks" tooltipContent="Tasks" />
+    <Drawer.Trigger>
+      <Tooltip.Root openDelay={30}>
+        <Tooltip.Trigger>
+          <button
+            class="btn btn-circle btn-ghost border border-base-content/10 shadow-sm text-base-content/60 hover:text-base-content/80"
+          >
+            <FileText size={24} weight="bold" />
+          </button>
+        </Tooltip.Trigger>
+
+        <TooltipContent transitionConfig={{ duration: 100, y: -5 }}>
+          Tasks
+        </TooltipContent>
+      </Tooltip.Root>
+    </Drawer.Trigger>
     <HeaderNavItem
       icon={Gauge}
       url="https://console.apify.com/actors/runs"
