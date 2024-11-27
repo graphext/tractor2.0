@@ -448,7 +448,7 @@
                 <p class="opacity-40">
                     Remember that Apify deletes all data older than 14 days
                     unless <a
-                        href="https://console.apify.com"
+                        href="https://docs.apify.com/platform/actors/running/runs-and-builds#data-retention"
                         target="_blank"
                         class="underline
                         font-bold text-primary opacity-100"

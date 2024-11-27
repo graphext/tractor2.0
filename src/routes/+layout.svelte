@@ -171,7 +171,7 @@
         <Drawer.Overlay class="fixed inset-0 bg-black/10 backdrop-blur-[1px]" />
 
         <Drawer.Content
-            class="fixed bottom-0 left-0 top-0 w-[30%] overflow-y-scroll
+            class="fixed bottom-0 left-0 top-0 w-[50%] lg:w-[30%] overflow-y-scroll
             shadow-lg bg-base-100 p-10 flex-row rounded-r-[10px]
             h-full"
         >
