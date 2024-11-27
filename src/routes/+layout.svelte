@@ -164,6 +164,7 @@
         </div>
 
         <slot />
+
         <Footer />
     </main>
 
@@ -177,6 +178,15 @@
         >
             <h1 class="mt-10 text-3xl font-bold mb-3">Tasks</h1>
 
+            {#if !$apifyKey}
+                <div class="opacity-70">
+                    Log in using an <a
+                        class="link-hover link link-primary font-bold"
+                        href="https://console.apify.com/settings/integrations"
+                        >Apify key</a
+                    > to see your latest tasks.
+                </div>
+            {/if}
             {#await getUserTasks()}
                 <div>loading...</div>
             {:then tasks}
