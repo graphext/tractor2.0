@@ -33,6 +33,7 @@
     import { tweened } from "svelte/motion";
     import { fly } from "svelte/transition";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
+    import HoverInformation from "$lib/components/HoverInformation.svelte";
 
     let apifyClient = new ApifyClient(
         GOOGLE_ACTOR_ID,
@@ -564,9 +565,24 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
 
             <div class="flex items-center gap-3">
                 <div class="flex flex-col gap-1">
-                    <label for="maxPages" class="text-sm opacity-60"
-                        >Pages to search for</label
-                    >
+                    <div class="flex gap-2">
+                        <label for="maxPages" class="text-sm opacity-60"
+                            >Pages to search for</label
+                        >
+                        <HoverInformation icon={QuestionMark}>
+                            <div class="prose prose-sm">
+                                <span class="font-bold"
+                                    >How many pages to search for.</span
+                                >
+                                <p>
+                                    Think of the long "Gooooooogle" at the very
+                                    bottom of the search page. Google usually
+                                    won't bring much more than 6 pages, even if
+                                    there are millions of results.
+                                </p>
+                            </div>
+                        </HoverInformation>
+                    </div>
                     <input
                         class="input input-sm rounded-full tabular-nums bg-neutral"
                         inputmode="numeric"
@@ -579,9 +595,35 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label for="maxResults" class="text-sm opacity-60"
-                        >Results per page</label
-                    >
+                    <div class="flex gap-2">
+                        <label for="maxResults" class="text-sm opacity-60"
+                            >Results per page</label
+                        >
+
+                        <HoverInformation icon={QuestionMark}>
+                            <div class="prose prose-sm">
+                                <span class="font-bold"
+                                    >How many results per each page.</span
+                                >
+                                <p>
+                                    You cannot request more than 100 results per
+                                    page.
+                                </p>
+                                <p>
+                                    If you ask for 100 per page, Google will
+                                    probably only bring 3, or maybe 4 pages, for
+                                    a total of 300-400 results.
+                                </p>
+                                <p>
+                                    Each one of these results will contain many
+                                    links, ordered in the same way as the real
+                                    search page, so usually you can get around
+                                    ~15-20K actually useful results. Your
+                                    mileage may vary!
+                                </p>
+                            </div>
+                        </HoverInformation>
+                    </div>
                     <input
                         class="input input-sm rounded-full tabular-nums bg-neutral"
                         inputmode="numeric"
