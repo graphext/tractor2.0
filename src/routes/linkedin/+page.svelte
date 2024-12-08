@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { LINKEDIN_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import CleanPasteInput from "$lib/components/CleanPasteInput.svelte";
@@ -28,7 +30,7 @@
     import { cubicInOut, quartInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
 
-    let mounted = false;
+    let mounted = $state(false);
 
     onMount(() => {
         mounted = true;
@@ -54,45 +56,31 @@
 
     const socialMedia = "linkedin";
 
-    let urls: string,
-        loading = false,
-        maxItems = 100;
+    let urls: string = $state(),
+        loading = $state(false),
+        maxItems = $state(100);
 
-    let urlsSplit: string[] = [];
-    $: if (urls) {
-        urlsSplit = urls
-            .split("\n")
-            .map((u) => u.trim())
-            .filter((u) => u != "" && u.length > 0);
-    }
+    let urlsSplit: string[] = $state([]);
 
-    $: buttonText = loading ? "Getting results" : "Get LinkedIn posts";
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let resuming: boolean;
+    let resuming: boolean = $state();
 
-    $: if (resuming) {
-        loading = true;
-
-        setTimeout(() => {
-            checkLinkedinStatus({ apifyClient, runId, maxItems });
-        }, 500);
-    }
 
     let datasetLink: string;
     let datasetData;
-    let runId: string;
-    let status: string;
-    let error: string;
-    let csvBlob: Blob;
-    let headers: string[], rows: Array<string[]>;
-    let userId: string;
-    let filename: string;
-    let datasetSize: number;
+    let runId: string = $state();
+    let status: string = $state();
+    let error: string = $state();
+    let csvBlob: Blob = $state();
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let userId: string = $state();
+    let filename: string = $state();
+    let datasetSize: number = $state();
 
-    let cookieTextAreaValue: string;
+    let cookieTextAreaValue: string = $state();
 
     async function handleLinkedinSubmit() {
         datasetLink = "";
@@ -301,12 +289,30 @@
     function resetCookies() {
         $linkedInCookies = "";
     }
+    run(() => {
+        if (urls) {
+            urlsSplit = urls
+                .split("\n")
+                .map((u) => u.trim())
+                .filter((u) => u != "" && u.length > 0);
+        }
+    });
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkLinkedinStatus({ apifyClient, runId, maxItems });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading ? "Getting results" : "Get LinkedIn posts");
 </script>
 
 <Section>
     <form
         class="flex flex-col gap-5"
-        on:submit|preventDefault={handleLinkedinSubmit}
+        onsubmit={preventDefault(handleLinkedinSubmit)}
     >
         <div class="flex flex-col gap-5">
             <div class="flex flex-col gap-2 w-full">
@@ -454,7 +460,7 @@
                             class="btn opacity-40 hover:opacity-100 btn-outline hover:btn-error rounded-full btn-xs"
                             tabindex="-1"
                             role="button"
-                            on:click={resetCookies}
+                            onclick={resetCookies}
                         >
                             Reset cookies
                         </div>
@@ -481,7 +487,7 @@
                 <button
                     class="btn btn-primary rounded-full"
                     disabled={!cookieTextAreaValue}
-                    on:click={saveCookies}
+                    onclick={saveCookies}
                 >
                     Save cookies
                 </button>

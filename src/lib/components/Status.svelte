@@ -1,5 +1,5 @@
-<script>
-    export let status, outputProgress;
+<script lang="ts">
+    let { status, outputProgress } = $props();
 </script>
 
 <div
