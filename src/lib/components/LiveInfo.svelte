@@ -7,15 +7,29 @@
     import Status from "./Status.svelte";
     import StopButton from "./StopButton.svelte";
 
-    export let error: string;
-    export let status: string;
-    export let apifyClient: ApifyClient;
-    export let resuming: boolean;
-    export let runId: string;
-    export let userId: string;
-    export let headers: string[];
-    export let rows: string[][];
-    export let outputProgress: number;
+    interface Props {
+        error: string;
+        status: string;
+        apifyClient: ApifyClient;
+        resuming: boolean;
+        runId: string;
+        userId: string;
+        headers: string[];
+        rows: string[][];
+        outputProgress: number;
+    }
+
+    let {
+        error,
+        status,
+        apifyClient,
+        resuming = $bindable(),
+        runId,
+        userId,
+        headers,
+        rows,
+        outputProgress
+    }: Props = $props();
 </script>
 
 {#if error || status}

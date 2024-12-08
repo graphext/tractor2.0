@@ -1,24 +1,36 @@
-<script>
+<script lang="ts">
     import { Tooltip } from "bits-ui";
     import TooltipContent from "./TooltipContent.svelte";
 
-    export let icon;
-    export let size = 20;
-    export let side = "right";
-    export let sideOffset = 30;
-    export let transitionConfig = { duration: 100, x: -5 };
+    interface Props {
+        icon: any;
+        size?: number;
+        side?: string;
+        sideOffset?: number;
+        transitionConfig?: any;
+        children?: import('svelte').Snippet;
+    }
+
+    let {
+        icon,
+        size = 20,
+        side = "right",
+        sideOffset = 30,
+        transitionConfig = { duration: 100, x: -5 },
+        children
+    }: Props = $props();
 </script>
 
 <Tooltip.Root openDelay={0}>
     <Tooltip.Trigger class="w-fit">
-        <svelte:component
-            this={icon}
+        {@const SvelteComponent = icon}
+        <SvelteComponent
             {size}
             weight="bold"
             class="rounded-full bg-neutral border-2 border-base-300"
         />
     </Tooltip.Trigger>
     <TooltipContent {side} {sideOffset} {transitionConfig}>
-        <slot />
+        {@render children?.()}
     </TooltipContent>
 </Tooltip.Root>

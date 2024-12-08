@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { YOUTUBE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import Section from "$lib/components/Section.svelte";
@@ -31,57 +33,34 @@
     let apifyClient = new ApifyClient(YOUTUBE_ACTOR_ID, "Youtube Scraper");
     const socialMedia = "youtube";
 
-    let query: string;
-    $: searchMode = query?.includes("youtube.com") ? "url" : "search";
-    let selectedDate: DateValue;
+    let query: string = $state();
+    let selectedDate: DateValue = $state();
 
-    let maxItems = 100;
+    let maxItems = $state(100);
 
-    $: maxItemsUrls =
-        searchMode == "url" ? startUrls.length * maxItems : maxItems;
 
-    $: startUrls =
-        searchMode == "url" &&
-        query
-            .split(",")
-            .map((a) => a.trim())
-            .map((url) => {
-                return {
-                    url: url,
-                    method: "GET",
-                };
-            });
 
-    $: console.log(maxItemsUrls);
 
-    let loading: boolean = false;
+    let loading: boolean = $state(false);
 
-    $: buttonText = loading ? `Loading video data` : `Get video data`;
-    let confirmChoice = false;
+    let confirmChoice = $state(false);
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let resuming: boolean;
-    $: if (resuming) {
-        loading = true;
+    let resuming: boolean = $state();
 
-        setTimeout(() => {
-            checkYoutubeStatus({ apifyClient, maxItems, runId });
-        }, 500);
-    }
-
-    let status: string;
-    let error: string;
+    let status: string = $state();
+    let error: string = $state();
 
     let datasetLink;
-    let runId: string;
-    let csvBlob: Blob;
-    let headers: string[], rows: Array<string[]>;
-    let userId: string;
+    let runId: string = $state();
+    let csvBlob: Blob = $state();
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let userId: string = $state();
     let datasetData: any;
-    let filename: string;
-    let datasetSize: number;
+    let filename: string = $state();
+    let datasetSize: number = $state();
 
     function processInputData(query: string, searchMode: string) {
         if (!query) return;
@@ -277,11 +256,38 @@
             },
         });
     }
+    let searchMode = $derived(query?.includes("youtube.com") ? "url" : "search");
+    let startUrls =
+        $derived(searchMode == "url" &&
+        query
+            .split(",")
+            .map((a) => a.trim())
+            .map((url) => {
+                return {
+                    url: url,
+                    method: "GET",
+                };
+            }));
+    let maxItemsUrls =
+        $derived(searchMode == "url" ? startUrls.length * maxItems : maxItems);
+    run(() => {
+        console.log(maxItemsUrls);
+    });
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkYoutubeStatus({ apifyClient, maxItems, runId });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading ? `Loading video data` : `Get video data`);
 </script>
 
 <Section>
     <form
-        on:submit|preventDefault={handleYoutubeSubmit}
+        onsubmit={preventDefault(handleYoutubeSubmit)}
         class="flex flex-col gap-5"
     >
         <div class="flex flex-col gap-2">
@@ -442,7 +448,7 @@
             {/if}
             {#if !confirmChoice}
                 <button
-                    on:click={() => (confirmChoice = true)}
+                    onclick={() => (confirmChoice = true)}
                     class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                     disabled={!$apifyKey || !query}
                     class:disabled={!$apifyKey || !query}

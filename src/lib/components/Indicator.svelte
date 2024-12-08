@@ -1,6 +1,10 @@
-<script>
-    export let index = 1;
-    export let color;
+<script lang="ts">
+    interface Props {
+        index?: number;
+        color: any;
+    }
+
+    let { index = 1, color }: Props = $props();
 
     const textColor = color.split("/")[0];
 </script>

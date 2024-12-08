@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
@@ -30,49 +32,42 @@
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
     import { fly } from "svelte/transition";
+import { mount } from "svelte";
 
     let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
 
     const socialMedia = "google-search";
 
-    let keywords: string,
-        domains: string,
-        loading = false,
-        maxPages = 1,
-        maxResultsPerPage = 20,
-        countryCode: Selected<string> = {
+    let keywords: string = $state(),
+        domains: string = $state(),
+        loading = $state(false),
+        maxPages = $state(1),
+        maxResultsPerPage = $state(20),
+        countryCode: Selected<string> = $state({
             value: "us",
             label: "🇺🇸 United States",
-        };
+        });
 
-    let queryLanguage: Selected<string>;
-    let mention = false;
-    $: buttonText = loading ? "Getting results" : "Get pages";
+    let queryLanguage: Selected<string> = $state();
+    let mention = $state(false);
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let resuming: boolean;
+    let resuming: boolean = $state();
 
-    $: if (resuming) {
-        loading = true;
-
-        setTimeout(() => {
-            checkGoogleTaskStatus({ apifyClient, runId, maxPages });
-        }, 500);
-    }
 
     let datasetLink: string;
     let datasetData;
-    let runId: string;
-    let status: string;
-    let error: string;
-    let csvBlob: Blob;
-    let headers: string[], rows: Array<string[]>;
+    let runId: string = $state();
+    let status: string = $state();
+    let error: string = $state();
+    let csvBlob: Blob = $state();
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
     let userId: string;
-    let filename: string;
-    let datasetSize: number;
-    let confirmChoice: boolean = false;
+    let filename: string = $state();
+    let datasetSize: number = $state();
+    let confirmChoice: boolean = $state(false);
 
     async function handleGoogleSubmit() {
         datasetLink = "";
@@ -284,15 +279,15 @@
     };
 
     let seoQueries: string;
-    let userPromptCompanies: string;
-    let searchQueriesPerCompany: number[] = [2];
+    let userPromptCompanies: string = $state();
+    let searchQueriesPerCompany: number[] = $state([2]);
     let displaySearchQueriesPerCompany: Record<number, string> = {
         1: "Less queries: ~5-10",
         2: "More queries: ~20-30",
         3: "Tons of queries: ~50",
     };
 
-    let selectedGenerator: string = "Related Queries";
+    let selectedGenerator: string = $state("Related Queries");
     let apiMap: Record<string, string> = {
         "Related Queries": "api/seo",
         Competitors: "api/competitors",
@@ -323,9 +318,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(
-                    errorData.error || `HTTP error! status: ${res.status}`,
-                );
+                throw mount(Error, errorData.error || `HTTP error! status: ${res.status}`);
             }
 
             const reader = res.body.getReader();
@@ -348,6 +341,16 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
             loading = false;
         }
     }
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkGoogleTaskStatus({ apifyClient, runId, maxPages });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading ? "Getting results" : "Get pages");
 </script>
 
 <main class="flex flex-col gap-5">
@@ -512,7 +515,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
 
                 <button
                     class="join-item btn btn-primary btn-sm rounded-full"
-                    on:click={generateQueries}
+                    onclick={generateQueries}
                 >
                     <CaretRight weight="bold" size={20} />
                 </button>
@@ -523,7 +526,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
     <Section>
         <form
             class="flex flex-col gap-5"
-            on:submit|preventDefault={handleGoogleSubmit}
+            onsubmit={preventDefault(handleGoogleSubmit)}
         >
             <div class="flex flex-col gap-2 w-full">
                 <label for="keywords" class="text-sm text-base-content/60"
@@ -536,7 +539,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                     id="keywords"
                     placeholder="Enter keywords separated by commas"
                     disabled={loading}
-                />
+></textarea>
             </div>
             <div>
                 <div class="flex w-full justify-between gap-3 items-center">
@@ -581,7 +584,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                         inputmode="numeric"
                         type="number"
                         id="maxPages"
-                        on:change={() => {
+                        onchange={() => {
                             if (maxResultsPerPage > 100) {
                                 console.log("fuck");
                                 maxResultsPerPage = 100;
@@ -615,7 +618,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                 {/if}
                 {#if !confirmChoice}
                     <button
-                        on:click={() => (confirmChoice = true)}
+                        onclick={() => (confirmChoice = true)}
                         class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                         disabled={!$apifyKey || !keywords}
                         class:disabled={!$apifyKey || !keywords}

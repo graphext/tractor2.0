@@ -7,9 +7,13 @@
     import { onMount } from "svelte";
     import { get } from "svelte/store";
 
-    export let task: Task;
+    interface Props {
+        task: Task;
+    }
 
-    let loading = false;
+    let { task }: Props = $props();
+
+    let loading = $state(false);
     let csvBlob: Blob | null = null;
 
     const actorToLinkMap = {
@@ -285,7 +289,7 @@
         return data.data;
     }
 
-    let userId: string | undefined;
+    let userId: string | undefined = $state();
 
     const BASE_URL = "https://api.apify.com/v2";
     function getDatasetLink({
@@ -392,7 +396,7 @@
                         <div class="flex gap-3 justify-between">
                             <button
                                 class="btn border-base-content/10"
-                                on:click={() =>
+                                onclick={() =>
                                     downloadRunDataset(task.actName, run.id)}
                             >
                                 {#if loading}

@@ -7,7 +7,11 @@
     import Scroll from "phosphor-svelte/lib/Scroll";
     import TooltipContent from "./TooltipContent.svelte";
 
-    export let lists: Selected<string>[] = [];
+    interface Props {
+        lists?: Selected<string>[];
+    }
+
+    let { lists = $bindable([]) }: Props = $props();
 </script>
 
 <Select.Root

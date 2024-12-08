@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import Section from "$lib/components/Section.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import { Tooltip } from "bits-ui";
@@ -35,69 +37,41 @@
     let apifyClient = new ApifyClient(TIKTOK_ACTOR_ID, "Tiktok Data Extractor");
     const socialMedia = "youtube";
 
-    let maxItems = 100;
-    let maxItemsWarning: number;
+    let maxItems = $state(100);
+    let maxItemsWarning: number = $derived((hashtagArray?.length + profileArray?.length + keywordArray?.length) *
+        maxItems);
 
-    let hashtagInput: string = "",
-        profileInput: string = "",
-        keywordInput: string = "";
+    let hashtagInput: string = $state(""),
+        profileInput: string = $state(""),
+        keywordInput: string = $state("");
 
-    $: hashtagArray = hashtagInput
-        ? hashtagInput
-              .split(",")
-              .filter((e) => !/^\s*$/g.test(e))
-              .map((e) => e.trim().toLowerCase())
-        : [];
 
-    $: profileArray = profileInput
-        ? profileInput
-              .split(",")
-              .filter((e) => !/^\s*$/g.test(e))
-              .map((e) => e.trim().toLowerCase())
-        : [];
 
-    $: keywordArray = keywordInput
-        ? keywordInput
-              .split(",")
-              .filter((e) => !/^\s*$/g.test(e))
-              .map((e) => e.trim().toLowerCase())
-        : [];
 
-    $: maxItemsWarning =
-        (hashtagArray?.length + profileArray?.length + keywordArray?.length) *
-        maxItems;
 
-    $: buttonText = loading ? `Fetching Tiktok data...` : `Get Tiktok data`;
 
-    let outputProgress: number = 0;
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let datasetLink;
-    let runId: string;
+    let runId: string = $state();
 
-    let resuming: boolean;
-    let loading: boolean = false;
-    let confirmChoice = false;
+    let resuming: boolean = $state();
+    let loading: boolean = $state(false);
+    let confirmChoice = $state(false);
 
-    $: if (resuming) {
-        loading = true;
 
-        setTimeout(() => {
-            checkTikTokStatus({ apifyClient, maxItems, runId });
-        }, 500);
-    }
+    let status: string = $state();
+    let error: string = $state();
 
-    let status: string;
-    let error: string;
-
-    let csvBlob: Blob;
-    let headers: string[], rows: Array<string[]>;
-    let userId: string;
+    let csvBlob: Blob = $state();
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let userId: string = $state();
     let datasetData: any;
-    let filename: string;
-    let datasetSize: number;
+    let filename: string = $state();
+    let datasetSize: number = $state();
 
-    let selectedDate: DateValue;
+    let selectedDate: DateValue = $state();
 
     async function checkTikTokStatus({
         apifyClient,
@@ -298,11 +272,49 @@
             },
         });
     }
+    let hashtagArray;
+    run(() => {
+        hashtagArray = hashtagInput
+            ? hashtagInput
+                  .split(",")
+                  .filter((e) => !/^\s*$/g.test(e))
+                  .map((e) => e.trim().toLowerCase())
+            : [];
+    });
+    let profileArray;
+    run(() => {
+        profileArray = profileInput
+            ? profileInput
+                  .split(",")
+                  .filter((e) => !/^\s*$/g.test(e))
+                  .map((e) => e.trim().toLowerCase())
+            : [];
+    });
+    let keywordArray;
+    run(() => {
+        keywordArray = keywordInput
+            ? keywordInput
+                  .split(",")
+                  .filter((e) => !/^\s*$/g.test(e))
+                  .map((e) => e.trim().toLowerCase())
+            : [];
+    });
+    
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkTikTokStatus({ apifyClient, maxItems, runId });
+            }, 500);
+        }
+    });
+    let buttonText = $derived(loading ? `Fetching Tiktok data...` : `Get Tiktok data`);
 </script>
 
 <Section>
     <form
-        on:submit|preventDefault={handleTikTokSubmit}
+        onsubmit={preventDefault(handleTikTokSubmit)}
         class="flex flex-col gap-5"
     >
         <div>
@@ -436,7 +448,7 @@
             {/if}
             {#if !confirmChoice}
                 <button
-                    on:click={() => (confirmChoice = true)}
+                    onclick={() => (confirmChoice = true)}
                     class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-sm"
                     disabled={!$apifyKey ||
                         (!profileInput && !hashtagInput && !keywordInput)}

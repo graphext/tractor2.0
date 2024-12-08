@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import { apifyKey } from "$lib/stores/apifyStore";
     import { slide, fly } from "svelte/transition";
     import { toast } from "svelte-sonner";
@@ -11,11 +13,11 @@
     import { queryParam } from "sveltekit-search-params";
     import { get } from "svelte/store";
 
-    $: pageUrl = $page.route.id;
+    let pageUrl = $derived($page.route.id);
 
-    let key = "";
-    let plan: string | null = null;
-    let apifyClient: ApifyClient | null = null;
+    let key = $state("");
+    let plan: string | null = $state(null);
+    let apifyClient: ApifyClient | null = $state(null);
 
     async function getPlanId() {
         if (apifyClient) {
@@ -24,12 +26,14 @@
         }
     }
 
-    $: if ($apifyKey) {
-        apifyClient = new ApifyClient("61RPP7dywgiy0JPD0"); // Twitter Actor ID
-        getPlanId();
-    } else {
-        plan = null;
-    }
+    run(() => {
+        if ($apifyKey) {
+            apifyClient = new ApifyClient("61RPP7dywgiy0JPD0"); // Twitter Actor ID
+            getPlanId();
+        } else {
+            plan = null;
+        }
+    });
 
     function handleSubmit() {
         if (!key.startsWith("apify_api_")) {
@@ -43,8 +47,8 @@
         }
     }
 
-    let apikeyPresent: boolean;
-    let placeholder: string;
+    let apikeyPresent: boolean = $state();
+    let placeholder: string = $state();
 
     onMount(() => {
         const apifyKeyParam = get(queryParam("apifyKey"));
@@ -58,10 +62,14 @@
             : "Enter your Apify API key";
     });
 
-    $: apikeyPresent = $apifyKey != "";
-    $: placeholder = apikeyPresent
-        ? "Key already set. Good to go!"
-        : "Enter your Apify API key";
+    run(() => {
+        apikeyPresent = $apifyKey != "";
+    });
+    run(() => {
+        placeholder = apikeyPresent
+            ? "Key already set. Good to go!"
+            : "Enter your Apify API key";
+    });
 </script>
 
 {#if !apikeyPresent}
@@ -71,7 +79,7 @@
             class="flex h-fit flex-col md:flex-row justify-between items-center w-full p-2 gap-3"
         >
             {#if !apikeyPresent}
-                <form on:submit|preventDefault={handleSubmit}>
+                <form onsubmit={preventDefault(handleSubmit)}>
                     <div
                         class="flex flex-col md:join md:flex-row md:rounded-full h-fit"
                     >
@@ -129,7 +137,7 @@
                 <p>
                     <button
                         class="underline font-bold"
-                        on:click={() => {
+                        onclick={() => {
                             navigator.clipboard.writeText("jesus@graphext.com");
                             toast.success(
                                 "Copied email 'jesus@graphext.com' to clipboard. Reach out if you need any help.",

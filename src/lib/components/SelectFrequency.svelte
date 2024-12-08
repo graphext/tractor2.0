@@ -7,9 +7,9 @@
     import { frequencyStore } from "$lib/stores/store";
     import TooltipContent from "./TooltipContent.svelte";
 
-    let selectedLabel: string;
+    let selectedLabel: string = $state();
 
-    export let options;
+    let { options } = $props();
 </script>
 
 <Select.Root

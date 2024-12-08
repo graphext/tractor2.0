@@ -2,16 +2,20 @@
     import type { ApifyClient } from "$lib/apifyEndpoints";
     import Stop from "phosphor-svelte/lib/Stop";
 
-    let stopping: boolean;
+    let stopping: boolean = $state();
 
-    export let apifyClient: ApifyClient;
-    export let runId;
+    interface Props {
+        apifyClient: ApifyClient;
+        runId: any;
+    }
 
-    $: stopButtonText = stopping ? "Aborting..." : "Stop";
+    let { apifyClient, runId }: Props = $props();
+
+    let stopButtonText = $derived(stopping ? "Aborting..." : "Stop");
 </script>
 
 <button
-    on:click={async () => {
+    onclick={async () => {
         stopping = true;
         if (runId) apifyClient.abortRun(runId);
     }}
