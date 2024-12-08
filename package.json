@@ -28,7 +28,7 @@
     "globals": "^15.0.0",
     "openai": "^4.52.7",
     "paneforge": "^0.0.5",
-    "phosphor-svelte": "^2.0.1",
+    "phosphor-svelte": "^3.0.1",
     "postcss": "^8.4.38",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
