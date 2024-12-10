@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import { Combobox, type Selected } from "bits-ui";
     import { fly } from "svelte/transition";
@@ -5,6 +6,8 @@
     export let options: Selected<string>[] = [];
     export let selected: Selected<string>;
     export let placeholder: string = "Search...";
+    export let disabled: boolean = false;
+    export let side: string = "bottom";
 
     let searchQuery = "";
 
@@ -22,7 +25,7 @@
     );
 </script>
 
-<div class:disabled={$$props["disabled"]}>
+<div class:disabled>
     <Combobox.Root
         preventScroll={false}
         onSelectedChange={(e) => {
@@ -35,12 +38,12 @@
     >
         <Combobox.Input
             class="inline-flex w-full input input-sm truncate rounded-full bg-neutral px-3 text-sm focus:outline-none focus:ring-2 focus:ring-base-300 focus:ring-offset-neutral"
-            placeholder={$$props["placeholder"]}
+            {placeholder}
             on:click={() => (searchQuery = "")}
             aria-label={placeholder}
         />
         <Combobox.Content
-            side={$$props["side"] ? $$props["side"] : "bottom"}
+            {side}
             transition={fly}
             transitionConfig={{ y: 10, duration: 300 }}
             class="w-full combo-content bg-base-200 p-1 shadow-md border border-base-content/10 overflow-y-scroll max-h-[250px] rounded-xl"

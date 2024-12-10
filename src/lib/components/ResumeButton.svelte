@@ -2,16 +2,25 @@
     import type { ApifyClient } from "$lib/apifyEndpoints";
     import Play from "phosphor-svelte/lib/Play";
 
-    export let resuming: boolean;
-    export let apifyClient: ApifyClient;
-    export let runId;
-    export let status;
+    interface Props {
+        resuming: boolean;
+        apifyClient: ApifyClient;
+        runId: any;
+        status: any;
+    }
 
-    $: resumeButtonText = resuming ? "Resuming..." : "Resume";
+    let {
+        resuming = $bindable(),
+        apifyClient,
+        runId,
+        status
+    }: Props = $props();
+
+    let resumeButtonText = $derived(resuming ? "Resuming..." : "Resume");
 </script>
 
 <button
-    on:click={async () => {
+    onclick={async () => {
         resuming = true;
         if (runId) apifyClient.resurrectRun(runId);
     }}

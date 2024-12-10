@@ -1,5 +1,5 @@
-<script>
-    export let description;
+<script lang="ts">
+    let { description } = $props();
 </script>
 
 <div class="">

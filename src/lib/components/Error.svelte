@@ -1,7 +1,7 @@
-<script>
+<script lang="ts">
     import { slide } from "svelte/transition";
 
-    export let error, userId, runId;
+    let { error, userId, runId } = $props();
 </script>
 
 <div

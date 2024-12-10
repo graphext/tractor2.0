@@ -1,10 +1,12 @@
 <script>
+    import { run } from 'svelte/legacy';
+
     import { browser } from "$app/environment";
     import { Moon, Sun } from "phosphor-svelte";
     import { onMount } from "svelte";
     import { fly } from "svelte/transition";
-    let theme = "light";
-    let prefersDark;
+    let theme = $state("light");
+    let prefersDark = $state();
 
     onMount(() => {
         const savedTheme = localStorage.getItem("theme");
@@ -28,14 +30,16 @@
         localStorage.setItem("theme", theme); // Save the theme preference
     };
 
-    $: if (browser) {
-        prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        theme = prefersDark ? "dark" : "light";
-    }
+    run(() => {
+        if (browser) {
+            prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            theme = prefersDark ? "dark" : "light";
+        }
+    });
 </script>
 
 <button
-    on:click={toggleTheme}
+    onclick={toggleTheme}
     class="btn btn-ghost btn-circle relative border border-base-content/10 shadow-sm"
 >
     {#if theme === "light"}
