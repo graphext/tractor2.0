@@ -10,9 +10,9 @@
   import { apifyKey } from "$lib/stores/apifyStore";
   import { Drawer } from "vaul-svelte";
 
-  let currentSpent = 0;
-  let maxLimitUsd = 0;
-  let monthCycle: { start: string; end: string } = { start: "", end: "" };
+  let currentSpent = $state(0);
+  let maxLimitUsd = $state(0);
+  let monthCycle: { start: string; end: string } = $state({ start: "", end: "" });
   onMount(async () => {
     const data = await getLimits();
     currentSpent = data.data.current.monthlyUsageUsd;

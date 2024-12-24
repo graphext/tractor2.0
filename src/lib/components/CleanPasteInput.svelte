@@ -1,29 +1,13 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { cleanText } from "$lib/utils";
-
-    export let placeholder = "";
-    export let value = "";
-
-    const dispatch = createEventDispatcher();
-
-    function handlePaste(event: ClipboardEvent) {
-        event.preventDefault();
-
-        const pastedText = event.clipboardData?.getData("text") || "";
-        const cleanedText = cleanText(pastedText);
-
-        value = cleanedText;
-        dispatch("input", cleanedText);
+    interface Props {
+        placeholder?: string;
+        value?: string;
+        [key: string]: any;
     }
 
-    function handleInput(event: Event) {
-        const input = event.target as HTMLTextAreaElement;
-        value = cleanText(input.value);
-        dispatch("input", value);
-    }
+    let { placeholder = "", value = $bindable(), ...rest }: Props = $props();
 
-    let textarea: HTMLTextAreaElement;
+    let textarea: HTMLTextAreaElement = $state();
 </script>
 
 <textarea
@@ -32,7 +16,7 @@
     bind:this={textarea}
     class="textarea bg-neutral w-full font-mono h-full overflow-x-scroll shadow-sm"
     rows="6"
-    {...$$restProps}
+    {...rest}
 ></textarea>
 
 <!-- lol, from https://bugzilla.mozilla.org/show_bug.cgi?id=1137650 -->

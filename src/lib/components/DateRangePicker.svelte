@@ -1,3 +1,4 @@
+<!-- @migration-task Error while migrating Svelte code: $$props is used together with named props in a way that cannot be automatically migrated. -->
 <script lang="ts">
     import type { DateRange } from "bits-ui";
     import {
@@ -173,7 +174,8 @@
         >
         <DateRangePicker.Input
             let:segments
-            class="flex tabular-nums w-full max-w-[320px] h-[40px] rounded-full select-none items-center bg-neutral px-3 py-1 text-sm"
+            class="flex tabular-nums w-full max-w-[320px] h-[40px] rounded-full
+            select-none items-center bg-neutral pl-3 pr-1 py-1 text-sm"
         >
             {#each segments.start as { part, value }}
                 <div class="inline-block select-none">

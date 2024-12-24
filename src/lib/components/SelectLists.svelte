@@ -7,16 +7,17 @@
     import Scroll from "phosphor-svelte/lib/Scroll";
     import TooltipContent from "./TooltipContent.svelte";
 
-    export let lists: Selected<string>[] = [];
+    interface Props {
+        lists?: Selected<string>[];
+    }
+
+    let { lists = $bindable() }: Props = $props();
 </script>
 
 <Select.Root
     preventScroll={false}
     bind:selected={lists}
     multiple={true}
-    onOpenChange={() => {
-        $selectedLists = lists.map((l) => l.label);
-    }}
     items={listOptions}
 >
     <div class="flex flex-col gap-1">

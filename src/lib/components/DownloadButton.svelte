@@ -1,14 +1,20 @@
-<script>
+<script lang="ts">
     import { sendEventData } from "$lib/utils";
 
-    export let csvBlob, filename, datasetSize, loading, socialMedia;
+    let {
+        csvBlob,
+        filename,
+        datasetSize,
+        loading,
+        socialMedia
+    } = $props();
 </script>
 
 {#if csvBlob && filename}
     <a
         href={URL.createObjectURL(csvBlob)}
         download={filename}
-        on:click={() =>
+        onclick={() =>
             sendEventData({
                 event: "tractor-download",
                 tr_social_media: socialMedia,

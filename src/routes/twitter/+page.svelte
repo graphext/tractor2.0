@@ -5,9 +5,9 @@
 
     import Section from "$lib/components/Section.svelte";
 
-    let queries: string;
-    let enrichedQueries: string;
-    let selectedRange: DateRange;
+    let queries: string = $state("");
+    let enrichedQueries: string = $state("");
+    let selectedRange: DateRange = $state();
     let frequency: DateRange;
 </script>
 
