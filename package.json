@@ -44,5 +44,8 @@
     "vite": "^6",
     "bits-ui": "^0.21.12"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "2.6.1"
+  }
 }
