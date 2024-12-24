@@ -11,16 +11,13 @@
         lists?: Selected<string>[];
     }
 
-    let { lists = $bindable([]) }: Props = $props();
+    let { lists = $bindable() }: Props = $props();
 </script>
 
 <Select.Root
     preventScroll={false}
     bind:selected={lists}
     multiple={true}
-    onOpenChange={() => {
-        $selectedLists = lists.map((l) => l.label);
-    }}
     items={listOptions}
 >
     <div class="flex flex-col gap-1">

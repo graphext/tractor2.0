@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
-
     import { today, getLocalTimeZone } from "@internationalized/date";
     import { userQuery } from "$lib/stores/userQueryStore";
     import { onMount } from "svelte";
@@ -35,10 +33,14 @@
         selectedRange: DateRange;
     }
 
-    let { queries = $bindable(""), enrichedQueries = $bindable(""), selectedRange = $bindable() }: Props = $props();
+    let {
+        queries = $bindable(),
+        enrichedQueries = $bindable(""),
+        selectedRange = $bindable(),
+    }: Props = $props();
     let timeSteps: Date[] = $state();
 
-    run(() => {
+    $effect(() => {
         enrichedQueries = enrichQueries(
             queries,
             timeSteps,
@@ -49,7 +51,7 @@
 
     let options = $derived(getSelectionOptions(selectedRange));
 
-    let interval: Timeout;
+    let interval: NodeJS.Timeout;
     interval = setInterval(() => {
         index = (index + 1) % placeholderIdeas.length;
         placeholder = placeholderIdeas[index];

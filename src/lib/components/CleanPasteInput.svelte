@@ -1,32 +1,11 @@
 <script lang="ts">
-    import { createEventDispatcher } from "svelte";
-    import { cleanText } from "$lib/utils";
-
     interface Props {
         placeholder?: string;
         value?: string;
-        [key: string]: any
+        [key: string]: any;
     }
 
-    let { placeholder = "", value = $bindable(""), ...rest }: Props = $props();
-
-    const dispatch = createEventDispatcher();
-
-    function handlePaste(event: ClipboardEvent) {
-        event.preventDefault();
-
-        const pastedText = event.clipboardData?.getData("text") || "";
-        const cleanedText = cleanText(pastedText);
-
-        value = cleanedText;
-        dispatch("input", cleanedText);
-    }
-
-    function handleInput(event: Event) {
-        const input = event.target as HTMLTextAreaElement;
-        value = cleanText(input.value);
-        dispatch("input", value);
-    }
+    let { placeholder = "", value = $bindable(), ...rest }: Props = $props();
 
     let textarea: HTMLTextAreaElement = $state();
 </script>
