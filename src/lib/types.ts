@@ -551,3 +551,283 @@ export interface TypedJsonToCsvOptions<T> {
   }[ArrayKeys<T>][];
   pivot?: { column: string; pivot: string[] } | null;
 }
+
+
+
+
+// twitter types
+
+interface UserEntitiesDescriptionUrls {
+  display_url?: string;
+  expanded_url?: string;
+  indices?: [number, number];
+  url?: string;
+}
+
+interface UserEntitiesDescription {
+  urls: UserEntitiesDescriptionUrls[];
+}
+
+interface UserEntitiesUrl {
+  urls?: any[]; // Example data shows empty object, but could potentially have urls
+}
+
+interface UserEntities {
+  description: UserEntitiesDescription;
+  url: UserEntitiesUrl;
+}
+
+interface ProfileBioEntitiesDescription { }
+
+interface ProfileBioEntities {
+  description: ProfileBioEntitiesDescription;
+  url?: ProfileBioEntitiesDescription; // Added as url can exist in profile_bio.entities based on example
+}
+
+interface ProfileBio {
+  description: string;
+  entities: ProfileBioEntities;
+}
+
+interface Author {
+  type: "user";
+  userName: string;
+  url: string;
+  twitterUrl: string;
+  id: string;
+  name: string;
+  isVerified: boolean;
+  isBlueVerified: boolean;
+  profilePicture: string;
+  coverPicture: string;
+  description: string;
+  location: string;
+  followers: number;
+  following: number;
+  status: string;
+  canDm: boolean;
+  canMediaTag: boolean;
+  createdAt: string;
+  entities: UserEntities;
+  fastFollowersCount: number;
+  favouritesCount: number;
+  hasCustomTimelines: boolean;
+  isTranslator: boolean;
+  mediaCount: number;
+  statusesCount: number;
+  withheldInCountries: any[]; // Assuming empty array is represented as any[]
+  affiliatesHighlightedLabel: {};
+  possiblySensitive: boolean;
+  pinnedTweetIds: string[];
+  profile_bio: ProfileBio;
+  isAutomated: boolean;
+  automatedBy: null | any; // Assuming null or potentially other types
+}
+
+interface UserMention {
+  id_str: string;
+  indices: [number, number];
+  name: string;
+  screen_name: string;
+}
+
+interface Hashtag {
+  indices: [number, number];
+  text: string;
+}
+
+interface Symbol {
+  indices: [number, number];
+  text: string;
+}
+
+interface TweetEntities {
+  user_mentions?: UserMention[];
+  hashtags?: Hashtag[];
+  symbols?: Symbol[];
+}
+
+interface ReplyToUserCore {
+  screen_name: string;
+}
+
+interface ReplyToUserResult {
+  __typename: "User";
+  rest_id: string;
+  core: ReplyToUserCore;
+}
+
+interface ReplyToUserResults {
+  rest_id: string;
+  result: ReplyToUserResult;
+}
+
+interface MediaSize {
+  w: number;
+  h: number;
+  resize: string;
+}
+
+interface MediaFaces {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+interface MediaOriginalInfo {
+  width: number;
+  height: number;
+  focus_rects?: MediaFocusRect[];
+}
+
+interface MediaFocusRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+interface MediaColorROkPaletteRgb {
+  red: number;
+  green: number;
+  blue: number;
+}
+
+interface MediaColorROkPalette {
+  rgb: MediaColorROkPaletteRgb;
+  percentage: number;
+}
+
+interface MediaColorROk {
+  palette: MediaColorROkPalette[];
+}
+
+interface MediaColorR {
+  ok: MediaColorROk;
+}
+
+interface MediaColor {
+  r: MediaColorR;
+  ttl: number;
+}
+
+interface MediaExt {
+  mediaColor: MediaColor;
+}
+
+interface MediaResultsResult {
+  __typename: "ApiMedia";
+  id: string;
+  media_key: string;
+}
+
+interface MediaResults {
+  id: string;
+  result: MediaResultsResult;
+}
+
+interface MediaType {
+  display_url?: string;
+  expanded_url?: string;
+  ext_media_availability?: { status: string };
+  features?: MediaFeatures;
+  id_str: string;
+  indices?: [number, number];
+  media_key: string;
+  media_results?: MediaResults;
+  media_url_https: string;
+  original_info: MediaOriginalInfo;
+  sizes?: {
+    medium: MediaSize;
+    small: MediaSize;
+    thumb: MediaSize;
+    large: MediaSize;
+  };
+  type: string;
+  url?: string;
+  source_user_id?: string;
+  source_user_id_str?: string;
+  media_url?: string;
+  ext?: MediaExt;
+}
+
+interface MediaFeatures {
+  large?: { faces?: MediaFaces[] };
+  orig?: { faces?: MediaFaces[] };
+}
+
+
+interface ExtendedEntities {
+  media?: MediaType[];
+}
+
+interface CardBindingValueValue {
+  string_value?: string;
+  scribe_key?: string;
+}
+
+interface CardBindingValue {
+  key: string;
+  value: CardBindingValueValue;
+}
+
+interface CardPlatformPlatformDevice {
+  name: string;
+  version: string;
+}
+
+interface CardPlatformPlatformAudience {
+  name: string;
+}
+
+interface CardPlatformPlatform {
+  audience: CardPlatformPlatformAudience;
+  device: CardPlatformPlatformDevice;
+}
+
+interface CardPlatform {
+  platform: CardPlatformPlatform;
+}
+
+interface Card {
+  binding_values: CardBindingValue[];
+  card_platform: CardPlatform;
+  name: string;
+  url: string;
+}
+
+
+export type TweetType = {
+  type: "tweet";
+  id: string;
+  url: string;
+  twitterUrl: string;
+  text: string;
+  source: string;
+  retweetCount: number;
+  replyCount: number;
+  likeCount: number;
+  quoteCount: number;
+  viewCount: number;
+  createdAt: string;
+  lang: string;
+  bookmarkCount: number;
+  isReply: boolean;
+  inReplyToId: string | null;
+  conversationId: string;
+  inReplyToUserId: string | null;
+  inReplyToUsername: string | null;
+  isPinned: boolean;
+  author: Author;
+  extendedEntities: ExtendedEntities;
+  card: Card | null;
+  place: {}; // Assuming empty object for place
+  entities: TweetEntities;
+  reply_to_user_results: ReplyToUserResults | null;
+  quoted_tweet_results: null;
+  quoted_tweet: null;
+  retweeted_tweet: null;
+  isConversationControlled: boolean;
+  searchTermIndex: number;
+}
