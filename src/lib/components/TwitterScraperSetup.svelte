@@ -10,27 +10,21 @@
     import {
         checkTaskStatus,
         createFileName,
-        generateDatasetName,
         jsonToCsv,
         sendEventData,
         submitTask,
     } from "$lib/utils";
     import { ApifyClient, getPrivateUserData } from "../apifyEndpoints";
 
-    import { TWITTER_ACT_ID } from "$lib/actors";
-    import { createFunctionString } from "$lib/postprocess";
-    import LiveTable from "./LiveTable.svelte";
-    import StopButton from "./StopButton.svelte";
-    import ResumeButton from "./ResumeButton.svelte";
+    import { TWITTER_ACT_ID_2 } from "$lib/actors";
     import { userQuery } from "$lib/stores/userQueryStore";
     import type { DateRange, Selected } from "bits-ui";
 
     import { frequencyStore, selectedLists } from "$lib/stores/store";
     import Error from "./Error.svelte";
-    import Status from "./Status.svelte";
     import DownloadButton from "./DownloadButton.svelte";
     import Select from "./Select.svelte";
-    import { Newspaper, ArrowsDownUp } from "phosphor-svelte";
+    import { ArrowsDownUp } from "phosphor-svelte";
     import LiveInfo from "./LiveInfo.svelte";
 
     export let queries = "";
@@ -78,7 +72,7 @@
 
     $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
-    const apifyClient = new ApifyClient(TWITTER_ACT_ID, "Twitter/X Scraper"); // Twitter Actor ID
+    const apifyClient = new ApifyClient(TWITTER_ACT_ID_2, "Twitter/X Scraper"); // Twitter Actor ID
     const socialMedia = "Twitter";
 
     async function handleTwitterSubmit() {
@@ -88,23 +82,16 @@
         outputProgress = 0;
         status = "STARTING";
 
-        const queryList = queriesSpreadOverTime
-            .split("\n")
-            .filter((q) => q.trim() !== "");
-        const nQueries = queriesSpreadOverTime.split("\n").length;
+        const queryList = queries.split("\n").filter((q) => q.trim() !== "");
+        const nQueries = queries.split("\n").length;
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
         const inputData = {
             searchTerms: queryList,
             maxItems: numTweets,
-            maxTweetsPerQuery: maxTweetsPerQuery,
-            onlyImage: false,
-            onlyQuote: false,
-            onlyTwitterBlue: false,
-            onlyVerifiedUsers: false,
-            onlyVideo: false,
-            sort: tweetOrder.value,
-            customMapFunction: createFunctionString(),
+            queryType: tweetOrder.value,
+            since: selectedRange.start?.toString(),
+            until: selectedRange.end?.toString(),
         };
 
         sendEventData({
@@ -328,7 +315,7 @@
                 {buttonText}
             </button>
         {:else}
-            <WarningCost unitPrice={0.4 / 1000} maxItems={numTweets} />
+            <WarningCost unitPrice={0.25 / 1000} maxItems={numTweets} />
             <button
                 class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                 disabled={!$apifyKey || !queries}

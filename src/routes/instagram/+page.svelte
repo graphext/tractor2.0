@@ -6,12 +6,8 @@
     import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
-    import LiveTable from "$lib/components/LiveTable.svelte";
-    import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Section from "$lib/components/Section.svelte";
     import Select from "$lib/components/Select.svelte";
-    import Status from "$lib/components/Status.svelte";
-    import StopButton from "$lib/components/StopButton.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
