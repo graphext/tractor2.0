@@ -124,6 +124,11 @@ export class ApifyClient {
     return apifyFetch(endpoint, { method: "POST" });
   }
 
+  async runActor(actorId: string, inputData: any) {
+    const endpoint = `/acts/${actorId}/runs`;
+    return apifyFetch(endpoint, { method: "POST", body: JSON.stringify(inputData) });
+  }
+
   async abortRun(runId: string) {
     const endpoint = `/actor-runs/${runId}/abort`;
     return apifyFetch(endpoint, { method: "POST" });
