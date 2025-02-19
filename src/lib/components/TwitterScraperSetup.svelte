@@ -26,6 +26,7 @@
     import Select from "./Select.svelte";
     import { ArrowsDownUp } from "phosphor-svelte";
     import LiveInfo from "./LiveInfo.svelte";
+    import { type TweetType } from "$lib/types";
 
     export let queries = "";
     export let selectedRange: DateRange;
@@ -90,8 +91,8 @@
             searchTerms: queryList,
             maxItems: numTweets,
             queryType: tweetOrder.value,
-            since: selectedRange.start?.toString(),
-            until: selectedRange.end?.toString(),
+            since: new Date(selectedRange.start?.toString()!).toISOString(),
+            until: new Date(selectedRange.end?.toString()!).toISOString(),
         };
 
         sendEventData({
@@ -169,17 +170,57 @@
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
+                    unwind: ["author"],
+                    omitColumns: [
+                        "profile_bio_entities_description_symbols",
+                        "profile_bio_entities_description_urls",
+                        "withheldInCountries",
+                        "isTranslator",
+                        "entities_description_urls",
+                        "description",
+                    ],
+                    includeOnly: [
+                        "createdAt",
+                        "text",
+                        "url",
+                        "viewCount",
+                        "retweetCount",
+                        "replyCount",
+                        "likeCount",
+                        "quoteCount",
+                        "userName",
+                        "name",
+                        "profilePicture",
+                        "profileBio.description",
+                        "mediaCount",
+                        "statusesCount",
+                        "following",
+                        "followers",
+                        "twitterUrl",
+                        "lang",
+                        "location",
+                        "author",
+                    ],
                 });
 
-                csvBlob = await jsonToCsv({
+                csvBlob = await jsonToCsv<TweetType>({
                     url: datasetLink,
-                    dedupKey: "url<gx:url>",
+                    dedupKey: "id",
                     customColumnOrder: [
-                        "createdAt<gx:date>",
-                        "authorName<gx:category>",
-                        "text<gx:text>",
-                        "url<gx:url>",
-                        "viewCount<gx:number>",
+                        "createdAt",
+                        "text",
+                        "url",
+                        "viewCount",
+                        "retweetCount",
+                        "replyCount",
+                        "likeCount",
+                        "quoteCount",
+                        "userName",
+                        "name",
+                        "profilePicture",
+                        "profileBio.description",
+                        "mediaCount",
+                        "statusesCount",
                     ],
                 });
 
