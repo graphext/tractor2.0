@@ -9,7 +9,7 @@ as the actor they used, and I need this to be file safe. That is, it should be a
 that can be used as a filename. It needs to be short, at most 2 words or 20 characters. This string will be used alongside
 some other pieces of data to create a more complete filename, so that's why it needs to be so short.
 
-Also, the name can only contain letters 'a' through 'z', the digits '0' through '9', and the hyphen ('-') but only in the middle of the string (e.g. 'my-value-1').
+Extremely important: this name can exclusively contain letters 'a' through 'z', the digits '0' through '9', and the hyphen ('-') but only in the middle of the string (e.g. 'my-value-1').
 
 Make sure the actor's name is mentioned somewhat legibly, or that key parts of its name are mentioned.
 

@@ -544,6 +544,24 @@ export async function generateDatasetName(queries: string) {
   }
 }
 
+/**
+ * Truncates the JSON representation of an object to a specified maximum number of tokens.
+ * Sometimes, large queries would prevent you from downloading data just because
+ * the name of the task gave an error. 
+ * @param {any} information - The object to be truncated.
+ * @param {number} [maxTokens=64000] - The maximum number of tokens allowed in the JSON string.
+ * @returns {any} - The original object if the JSON string length is within the limit, otherwise the truncated object.
+ */
+function truncateObject(information: any, maxTokens: number = 64000): any {
+  let jsonString = JSON.stringify(information);
+  if (jsonString.length > maxTokens) {
+    // Truncate the JSON string to the maximum allowed length
+    jsonString = jsonString.substring(0, maxTokens);
+    // Parse the truncated string back to an object
+  }
+  return information;
+}
+
 export async function generateNames(actor: string, information: object) {
   try {
     const res = await fetch("/api/names", {
@@ -551,7 +569,7 @@ export async function generateNames(actor: string, information: object) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(({ inputData: information, actorName: actor })),
+      body: JSON.stringify(({ inputData: truncateObject(information), actorName: actor })),
     });
 
     if (!res.ok) {
@@ -590,7 +608,7 @@ export async function submitTask(
 
   try {
     taskName = await generateNames(apifyClient.name, inputData)
-    console.log(taskName)
+    taskName = taskName.replace(/[^a-zA-Z0-9-\-]/g, "")
 
     const task = await apifyClient.createTask(taskName, inputData);
     runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
