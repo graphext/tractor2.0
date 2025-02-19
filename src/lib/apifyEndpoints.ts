@@ -98,7 +98,7 @@ export class ApifyClient {
     return this.actorName
   }
 
-  async createTask(taskName, input: Record<string, unknown>) {
+  async createTask(taskName: string, input: Record<string, unknown>) {
     const token = get(apifyKey);
     const tokenEnd = token.slice(-4);
 
