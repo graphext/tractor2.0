@@ -83,16 +83,26 @@
         outputProgress = 0;
         status = "STARTING";
 
-        const queryList = queries.split("\n").filter((q) => q.trim() !== "");
-        const nQueries = queries.split("\n").length;
+        const queryList = queriesSpreadOverTime
+            .split("\n")
+            .filter((q) => q.trim() !== "");
+        const nQueries = queriesSpreadOverTime.split("\n").length;
         const maxTweetsPerQuery = Math.ceil(numTweets / nQueries);
 
         const inputData = {
             searchTerms: queryList,
-            maxItems: numTweets,
+            maxItems: maxTweetsPerQuery,
             queryType: tweetOrder.value,
-            since: new Date(selectedRange.start?.toString()!).toISOString(),
-            until: new Date(selectedRange.end?.toString()!).toISOString(),
+            since:
+                new Date(selectedRange.start!.toString())
+                    .toISOString()
+                    .replace("T", "_")
+                    .split(".")[0] + "_UTC",
+            until:
+                new Date(selectedRange.end!.toString())
+                    .toISOString()
+                    .replace("T", "_")
+                    .split(".")[0] + "_UTC",
         };
 
         sendEventData({
@@ -170,7 +180,6 @@
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
-                    unwind: ["author"],
                     omitColumns: [
                         "profile_bio_entities_description_symbols",
                         "profile_bio_entities_description_urls",
@@ -188,18 +197,21 @@
                         "replyCount",
                         "likeCount",
                         "quoteCount",
-                        "userName",
-                        "name",
-                        "profilePicture",
-                        "profileBio.description",
-                        "mediaCount",
-                        "statusesCount",
-                        "following",
-                        "followers",
-                        "twitterUrl",
+                        "author",
+                        "author.createdAt",
+                        "author.userName",
+                        "author.name",
+                        "author.profilePicture",
+                        "author.profileBio.description",
+                        "author.mediaCount",
+                        "author.statusesCount",
+                        "author.following",
+                        "author.followers",
+                        "author.twitterUrl",
                         "lang",
                         "location",
-                        "author",
+                        "author.location",
+                        "id",
                     ],
                 });
 
