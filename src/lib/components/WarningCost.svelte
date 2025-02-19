@@ -1,9 +1,8 @@
-<script>
+<script lang="ts">
     import { backOut } from "svelte/easing";
     import { fly } from "svelte/transition";
 
-    export let unitPrice;
-    export let maxItems;
+    let { unitPrice, maxItems } = $props();
 </script>
 
 <div

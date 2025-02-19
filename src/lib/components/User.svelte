@@ -1,15 +1,13 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import { fly } from 'svelte/transition'
     import { ApifyClient } from '$lib/apifyEndpoints'
     import { apifyKey } from '$lib/stores/apifyStore'
 
-    let name: string
-    let apifyClient: ApifyClient | null = null
+    let name: string = $state()
+    let apifyClient: ApifyClient | null = $state(null)
 
-    $: if ($apifyKey) {
-        apifyClient = new ApifyClient('61RPP7dywgiy0JPD0') // Twitter Actor ID
-        getUserName()
-    }
 
     async function getUserName() {
         if (apifyClient) {
@@ -17,6 +15,12 @@
             name = data.data.profile.name
         }
     }
+    run(() => {
+        if ($apifyKey) {
+            apifyClient = new ApifyClient('61RPP7dywgiy0JPD0') // Twitter Actor ID
+            getUserName()
+        }
+    });
 </script>
 
 {#if $apifyKey && name}
