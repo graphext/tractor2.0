@@ -106,25 +106,15 @@
             tr_lists: $selectedLists,
         });
 
-        submitTask({
-            apifyClient,
-            inputData,
-            onTaskCreated: (createdRunId: string) => {
-                runId = createdRunId;
+        const runData = await apifyClient.runActor(TWITTER_ACT_ID_2, inputData);
+        console.log(runData);
 
-                toast.info("Fetching data. This may take a while...");
+        toast.info("Fetching data. This may take a while...");
+        runId = runData.data.id;
+        console.log(runId);
+        loading = true;
 
-                loading = true;
-                // check for task status and update UI
-                checkTwitterTaskStatus({ apifyClient, numTweets, runId });
-            },
-
-            //oh shoot
-            onError: (err: Error) => {
-                error = err.message;
-                loading = false;
-            },
-        });
+        checkTwitterTaskStatus({ apifyClient, numTweets, runId });
     }
 
     async function checkTwitterTaskStatus({

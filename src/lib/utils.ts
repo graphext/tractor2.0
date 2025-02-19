@@ -625,7 +625,7 @@ export async function submitTask(
       oldTaskName = taskName
       taskName += `-${Math.floor(Math.random() * 1000)}`
 
-      const task = await apifyClient.createTask(taskName, inputData);
+      const task = await apifyClient.createTask(taskName!, inputData);
       runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
       onTaskCreated(runId);
