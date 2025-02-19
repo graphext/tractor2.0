@@ -28,6 +28,11 @@
     import { getTasks } from "$lib/apifyEndpoints";
     import TaskElement from "$lib/components/Task.svelte";
     import type { Task } from "$lib/types";
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 
     async function getUserTasks(): Promise<Task[]> {
         const data = await getTasks();
@@ -37,7 +42,7 @@
         return allTasks;
     }
 
-    $: pageUrl = $page.route.id;
+    let pageUrl = $derived($page.route.id);
 
     appState.set("idle");
     let actors = [
@@ -50,7 +55,7 @@
         { id: "/youtube", icon: YoutubeLogo, title: "YouTube" },
     ];
 
-    $: apikeyPresent = $apifyKey != "";
+    let apikeyPresent = $derived($apifyKey != "");
 
     inject({ mode: dev ? "development" : "production" });
 </script>
@@ -119,8 +124,7 @@
                             <div
                                 class={`hover-underline-animation flex gap-2 pb-2 items-center`}
                             >
-                                <svelte:component
-                                    this={actor.icon}
+                                <actor.icon
                                     size={24}
                                     weight={pageUrl == actor.id
                                         ? "fill"
@@ -153,7 +157,7 @@
             {/if}
         </div>
 
-        <slot />
+        {@render children?.()}
 
         <Footer />
     </main>

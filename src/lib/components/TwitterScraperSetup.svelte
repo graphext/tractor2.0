@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run, preventDefault } from 'svelte/legacy';
+
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
     import { PaneGroup, Pane, PaneResizer } from "paneforge";
@@ -29,50 +31,42 @@
     import { type TweetType } from "$lib/types";
     import { appState } from "$lib/stores/appStateStore";
 
-    export let queries = "";
-    export let selectedRange: DateRange;
-    export let queriesSpreadOverTime = "";
-
-    $: numQueries = queriesSpreadOverTime
-        ? queriesSpreadOverTime.trim().split("\n").length
-        : 0;
-
-    let loading = false;
-    let resuming = false;
-
-    $: if (resuming) {
-        loading = true;
-
-        setTimeout(() => {
-            checkTwitterTaskStatus({ apifyClient, runId, numTweets });
-        }, 500);
+    interface Props {
+        queries?: string;
+        selectedRange: DateRange;
+        queriesSpreadOverTime?: string;
     }
 
-    let confirmChoice = false;
+    let { queries = $bindable(""), selectedRange, queriesSpreadOverTime = $bindable("") }: Props = $props();
 
-    let userId: string | null = null;
-    let runId: string | null = null;
-    let status: string | null = null;
 
-    let outputProgress: number = 0;
+    let loading = $state(false);
+    let resuming = $state(false);
+
+
+    let confirmChoice = $state(false);
+
+    let userId: string | null = $state(null);
+    let runId: string | null = $state(null);
+    let status: string | null = $state(null);
+
+    let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
-    let numTweets = 5000;
-    let tweetOrder: Selected<string> = { label: "Latest", value: "Latest" };
-    $: console.log(tweetOrder.label);
+    let numTweets = $state(5000);
+    let tweetOrder: Selected<string> = $state({ label: "Latest", value: "Latest" });
 
-    let headers: string[], rows: Array<string[]>;
+    let headers: string[] = $state(), rows: Array<string[]> = $state();
 
     let datasetLink: string | null = null;
     let datasetData;
-    let csvBlob: Blob | null = null;
+    let csvBlob: Blob | null = $state(null);
 
-    let filename: string | null = null;
-    let datasetSize: number | null = null;
+    let filename: string | null = $state(null);
+    let datasetSize: number | null = $state(null);
 
-    let error: string | null = null;
+    let error: string | null = $state(null);
 
-    $: buttonText = loading ? "Loading tweets..." : "Get Tweets";
 
     const apifyClient = new ApifyClient(TWITTER_ACT_ID_2, "Twitter/X Scraper"); // Twitter Actor ID
     const socialMedia = "Twitter";
@@ -279,10 +273,26 @@
             },
         });
     }
+    let numQueries = $derived(queriesSpreadOverTime
+        ? queriesSpreadOverTime.trim().split("\n").length
+        : 0);
+    run(() => {
+        if (resuming) {
+            loading = true;
+
+            setTimeout(() => {
+                checkTwitterTaskStatus({ apifyClient, runId, numTweets });
+            }, 500);
+        }
+    });
+    run(() => {
+        console.log(tweetOrder.label);
+    });
+    let buttonText = $derived(loading ? "Loading tweets..." : "Get Tweets");
 </script>
 
 <form
-    on:submit|preventDefault={handleTwitterSubmit}
+    onsubmit={preventDefault(handleTwitterSubmit)}
     class="flex flex-col gap-3"
 >
     <PaneGroup direction="horizontal" class="items-center gap-1 mb-4 ">
@@ -358,7 +368,7 @@
         {/if}
         {#if !confirmChoice}
             <button
-                on:click={() => (confirmChoice = true)}
+                onclick={() => (confirmChoice = true)}
                 class="btn btn-primary w-full shadow-primary/20 rounded-full shadow-md"
                 disabled={!$apifyKey || !queries}
                 class:disabled={!$apifyKey || !queries}
