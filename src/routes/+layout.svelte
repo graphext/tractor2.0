@@ -16,6 +16,7 @@
     import ResetApiButton from "$lib/components/ResetApiButton.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { MetaTags } from "svelte-meta-tags";
+    import { appState } from "$lib/stores/appStateStore";
     import {
         LinkedinLogo,
         InstagramLogo,
@@ -38,6 +39,7 @@
 
     $: pageUrl = $page.route.id;
 
+    appState.set("idle");
     let actors = [
         { id: "/", icon: GoogleLogo, title: "Google" },
         { id: "/twitter", icon: TwitterLogo, title: "Twitter" },
@@ -60,8 +62,10 @@
     description="Easiest way to Download & analyze Tweets"
     canonical="https://tractor.graphext.com"
     additionalLinkTags={[
-        { rel: "icon", href: "/favicon-32x32.png" },
-        { rel: "icon", href: "/favicon-16x16.png" },
+        {
+            rel: "icon",
+            href: `/favicon-${$appState}.png`,
+        },
         { rel: "apple-touch-icon", href: "apple-touch-icon.png" },
         { rel: "manifest", href: "/site.webmanifest" },
     ]}

@@ -1,3 +1,4 @@
+
 import { persisted } from "svelte-persisted-store"
 
 
@@ -8,4 +9,3 @@ export const frequencyStore = persisted<Frequency>("frequencyStore", "Daily");
 export const selectedDateRange = persisted<DateRange | null>("selectedDateRange", null);
 export const selectedLists = persisted<string[]>("selectedLists", []);
 export const linkedInCookies = persisted<string>("linkedInCookies", "");
-

@@ -27,6 +27,7 @@
     import { ArrowsDownUp } from "phosphor-svelte";
     import LiveInfo from "./LiveInfo.svelte";
     import { type TweetType } from "$lib/types";
+    import { appState } from "$lib/stores/appStateStore";
 
     export let queries = "";
     export let selectedRange: DateRange;
@@ -122,8 +123,9 @@
 
         toast.info("Fetching data. This may take a while...");
         runId = runData.data.id;
-        console.log(runId);
         loading = true;
+
+        $appState = "running";
 
         checkTwitterTaskStatus({ apifyClient, numTweets, runId });
     }
@@ -177,6 +179,8 @@
             }) => {
                 status = completedStatus;
 
+                $appState = "success";
+
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
@@ -198,16 +202,6 @@
                         "likeCount",
                         "quoteCount",
                         "author",
-                        "author.createdAt",
-                        "author.userName",
-                        "author.name",
-                        "author.profilePicture",
-                        "author.profileBio.description",
-                        "author.mediaCount",
-                        "author.statusesCount",
-                        "author.following",
-                        "author.followers",
-                        "author.twitterUrl",
                         "lang",
                         "location",
                         "author.location",
@@ -227,12 +221,6 @@
                         "replyCount",
                         "likeCount",
                         "quoteCount",
-                        "userName",
-                        "name",
-                        "profilePicture",
-                        "profileBio.description",
-                        "mediaCount",
-                        "statusesCount",
                     ],
                 });
 
@@ -265,6 +253,7 @@
                     duration: 10000,
                 });
                 loading = false;
+                $appState = "error";
             },
         });
     }

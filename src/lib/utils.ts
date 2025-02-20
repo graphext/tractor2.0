@@ -5,6 +5,7 @@ import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
 import type { Task, TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
+import { appState } from './stores/appStateStore';
 
 
 export async function createFileName({ actorName, information, datasetId }: { actorName: string, information: object, datasetId: string }) {
@@ -615,6 +616,8 @@ export async function submitTask(
 
     onTaskCreated(runId);
 
+    appState.set('running')
+
     if (onStatusCheckStart)
       setTimeout(onStatusCheckStart, 1500);
   } catch (err: any) {
@@ -634,6 +637,7 @@ export async function submitTask(
 
 
     } else {
+      appState.set('error')
       onError(err);
     }
 
@@ -666,6 +670,8 @@ export async function checkTaskStatus({
     const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId!);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
+
+      if (status === "SUCCEEDED") appState.set('success');
 
       try {
         await onComplete({
