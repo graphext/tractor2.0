@@ -1,4 +1,3 @@
-
 import { namesPrompt } from "./namesPrompt";
 import { json } from "@sveltejs/kit";
 import { getOpenAIResponse } from "../openai";

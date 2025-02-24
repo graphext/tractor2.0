@@ -10,9 +10,9 @@ import { appState } from './stores/appStateStore';
 
 export async function createFileName({ actorName, information, datasetId }: { actorName: string, information: object, datasetId: string }) {
 
-  const fileKeyword = await generateNames(actorName, JSON.stringify(information));
+  const fileKeyword = await generateNames(actorName, information);
 
-  return `${fileKeyword}_${datasetId.slice(-6)}_TR`;
+  return `${fileKeyword}_${datasetId.slice(-6)}`;
 }
 
 export function cleanText(text: string): string {

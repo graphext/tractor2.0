@@ -13,7 +13,7 @@ export async function getOpenAIResponse(prompt: string, systemPrompt: string) {
 	}
 
 	const stream = await openai.chat.completions.create({
-		model: "o3-mini-2025-01-31",
+		model: "gpt-4o-mini-2024-07-18",
 		stream: true,
 		messages: [
 			{
