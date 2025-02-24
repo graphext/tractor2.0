@@ -31,7 +31,7 @@
     import { tweened } from "svelte/motion";
     import { fly } from "svelte/transition";
 
-    let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
+    let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID, "Google");
 
     const socialMedia = "google-search";
 
