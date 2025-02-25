@@ -9,8 +9,6 @@
     import { inject } from "@vercel/analytics";
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
     import Header from "$lib/components/Header.svelte";
-    import TwitterLogo from "phosphor-svelte/lib/TwitterLogo";
-    import NewspaperClipping from "phosphor-svelte/lib/NewspaperClipping";
 
     import { page } from "$app/stores";
     import ResetApiButton from "$lib/components/ResetApiButton.svelte";
@@ -23,6 +21,8 @@
         GoogleLogo,
         YoutubeLogo,
         TiktokLogo,
+        TwitterLogo,
+        NewspaperClipping,
     } from "phosphor-svelte";
 
     import { getTasks } from "$lib/apifyEndpoints";
@@ -162,7 +162,7 @@
         <Drawer.Overlay class="fixed inset-0 bg-black/10 backdrop-blur-[1px]" />
 
         <Drawer.Content
-            class="fixed bottom-0 left-0 top-0 w-[50%] lg:w-[30%] overflow-y-scroll
+            class="fixed bottom-0 left-0 top-0 min-w-[600px] w-[40%] overflow-y-scroll
             shadow-lg bg-base-100 p-10 flex-row rounded-r-[10px]
             h-full"
         >

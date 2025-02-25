@@ -1,5 +1,6 @@
 <script lang="ts">
     import { getPrivateUserData, getRunsForTask } from "$lib/apifyEndpoints";
+    import { actorIconMap } from "$lib/options";
     import { apifyKey } from "$lib/stores/apifyStore";
     import type { Task } from "$lib/types";
     import { jsonToCsv } from "$lib/utils";
@@ -13,8 +14,31 @@
     let csvBlob: Blob | null = null;
 
     const actorToLinkMap = {
-        "tweet-scraper": {
+        "twitter-x-data-tweet-scraper-pay-per-result-cheapest": {
             format: "json",
+            omitColumns: [
+                "profile_bio_entities_description_symbols",
+                "profile_bio_entities_description_urls",
+                "withheldInCountries",
+                "isTranslator",
+                "entities_description_urls",
+                "description",
+            ],
+            includeOnly: [
+                "createdAt",
+                "text",
+                "url",
+                "viewCount",
+                "retweetCount",
+                "replyCount",
+                "likeCount",
+                "quoteCount",
+                "author",
+                "lang",
+                "location",
+                "author.location",
+                "id",
+            ],
         },
         "free-tiktok-scraper": {
             format: "json",
@@ -82,14 +106,17 @@
     };
 
     const actorToBlobMap = {
-        "tweet-scraper": {
-            dedupKey: "url<gx:url>",
+        "twitter-x-data-tweet-scraper-pay-per-result-cheapest": {
+            dedupKey: "id",
             customColumnOrder: [
-                "createdAt<gx:date>",
-                "authorName<gx:category>",
-                "text<gx:text>",
-                "url<gx:url>",
-                "viewCount<gx:number>",
+                "createdAt",
+                "text",
+                "url",
+                "viewCount",
+                "retweetCount",
+                "replyCount",
+                "likeCount",
+                "quoteCount",
             ],
         },
 
@@ -361,16 +388,19 @@
                 target="_blank">{task.name}</a
             >
         </div>
-        <div class="opacity-70">
-            {task.actName}
-        </div>
+        <div class="flex gap-3 items-baseline">
+            <svelte:component
+                this={actorIconMap[task.actName]}
+                class="self-center"
+                size={20}
+                weight="fill"
+            />
 
-        <div class="">
             <span class="opacity-70"
                 >{getRelativeTime(new Date(task.createdAt))}</span
             >
-            ·
-            <span class="opacity-50"
+
+            <span class="opacity-50 text-[10px] font-semibold"
                 >{new Date(task.createdAt).toLocaleString("en-UK")}</span
             >
         </div>
