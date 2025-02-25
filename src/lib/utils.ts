@@ -607,11 +607,13 @@ export async function submitTask(
   let taskName
   let oldTaskName
 
+  const build = apifyClient.actorName === 'Twitter/X Scraper' ? 'latest0225' : 'latest'
+
   try {
     taskName = await generateNames(apifyClient.name, inputData)
     taskName = taskName.replace(/[^a-zA-Z0-9-\-]/g, "")
 
-    const task = await apifyClient.createTask(taskName, inputData);
+    const task = await apifyClient.createTask(taskName, inputData, build);
     runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
     onTaskCreated(runId);
@@ -628,7 +630,7 @@ export async function submitTask(
       oldTaskName = taskName
       taskName += `-${Math.floor(Math.random() * 1000)}`
 
-      const task = await apifyClient.createTask(taskName!, inputData);
+      const task = await apifyClient.createTask(taskName!, inputData, build);
       runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
       onTaskCreated(runId);
