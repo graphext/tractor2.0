@@ -109,6 +109,7 @@ export class ApifyClient {
       name: `${taskName}-${tokenEnd}`,
       options: {
         build: build || "latest",
+        memoryMbytes: 2048,
       },
       input: {
         ...input,
