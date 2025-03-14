@@ -38,6 +38,7 @@
                 "location",
                 "author.location",
                 "id",
+                "extendedEntities",
             ],
         },
         "free-tiktok-scraper": {
@@ -108,6 +109,13 @@
     const actorToBlobMap = {
         "twitter-x-data-tweet-scraper-pay-per-result-cheapest": {
             dedupKey: "id",
+            //unwind: [
+            //    {
+            //        targetCol: "extendedEntities.media",
+            //        take: 4,
+            //        fields: [{ field: "media_url_https" }],
+            //    },
+            //],
             customColumnOrder: [
                 "createdAt",
                 "text",
@@ -118,6 +126,11 @@
                 "likeCount",
                 "quoteCount",
             ],
+            pivot: {
+                column: "extendedEntities.media",
+                pivot: ["media_url_https"],
+            },
+            removeColumns: ["extendedEntities.media"],
         },
 
         "free-tiktok-scraper": {
