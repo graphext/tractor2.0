@@ -215,12 +215,20 @@
                         "location",
                         "author.location",
                         "id",
+                        "extendedEntities",
                     ],
                 });
 
                 csvBlob = await jsonToCsv<TweetType>({
                     url: datasetLink,
                     dedupKey: "id",
+                    unwind: [
+                        {
+                            targetCol: "extendedEntities",
+                            take: 4,
+                            fields: [{ field: "media", alias:"top_4_images" }],
+                        },
+                    ],
                     customColumnOrder: [
                         "createdAt",
                         "text",
@@ -231,6 +239,11 @@
                         "likeCount",
                         "quoteCount",
                     ],
+                    pivot: {
+                        column: "extendedEntities.media",
+                        pivot: [ "expanded_url" ],
+                    },
+                    removeColumns: ["extendedEntities.media"],
                 });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);

@@ -205,27 +205,30 @@ function flattenObjectWithUnwind<T>(
       (target) => target.targetCol === key,
     );
 
-    if (unwindTarget && Array.isArray(value)) {
+    if (unwindTarget) {
       // Handle the unwind case for this target
       unwindTarget.fields.forEach((fieldDef) => {
         const take = unwindTarget.take || 1;
         const fieldPath = fieldDef.field;
 
-        if (take != "max") {
-          value.slice(0, take)
-        }
-
-        // Extract values from the array
-        const extractedValues = value
-          .map((item) => getNestedValue(item, fieldPath))
-          .filter((v) => v !== undefined);
-
         // Use alias if provided, otherwise construct default column name
         const outputKey = fieldDef.alias || `${pre}${key}.${fieldDef.field}`;
 
-        // If we're taking multiple values, store as an array
-        // If taking just one, store as a single value for backward compatibility
-        acc[outputKey] = take === 1 ? extractedValues[0] : extractedValues;
+        // Always include the field in the output, even if the array is empty or not an array
+        if (!Array.isArray(value) || value.length === 0) {
+          // If value is not an array or is empty, set to empty string or empty array
+          acc[outputKey] = take === 1 ? '' : [];
+        } else {
+          // If take is not "max", slice the array
+          const slicedValue = take !== "max" ? value.slice(0, take) : value;
+
+          // Extract values from the array without filtering
+          const extractedValues = slicedValue.map((item) => getNestedValue(item, fieldPath));
+
+          // If we're taking multiple values, store as an array
+          // If taking just one, store as a single value for backward compatibility
+          acc[outputKey] = take === 1 ? (extractedValues[0] ?? '') : extractedValues;
+        }
       });
 
       // Keep the original array as well
@@ -256,17 +259,21 @@ export function pivotJson<T>(
 
   json.forEach((obj) => {
     const pivotValues = getNestedValue(obj, pivotColumn);
-    if (Array.isArray(pivotValues)) {
+
+    // If the pivot column exists and is an array, create new rows for each value
+    if (Array.isArray(pivotValues) && pivotValues.length > 0) {
       pivotValues.forEach((pivotValue) => {
         const newRow = { ...obj };
         fieldsToUnpivot.forEach((field) => {
           const nestedValue = getNestedValue(pivotValue, field);
-          if (nestedValue !== undefined) {
-            newRow[field] = nestedValue;
-          }
+          // Always set the field, even if undefined
+          newRow[field] = nestedValue;
         });
         output.push(newRow);
       });
+    } else {
+      // If the pivot column doesn't exist or isn't an array, keep the original row
+      output.push({ ...obj });
     }
   });
 
@@ -316,20 +323,23 @@ export async function jsonToCsv<T>({
       throw emptyError;
     }
 
+    if (dedupKey && dedupKey !== "") {
+      console.log("items before deduplication", jsonData.length);
+      jsonData = unique(jsonData, dedupKey);
+      console.log("items after deduplication", jsonData.length);
+    }
+
+    console.log(jsonData.length)
     if (pivot != null) {
       jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot);
-      console.log(jsonData);
     }
+    console.log(jsonData.length)
 
-    if (dedupKey && dedupKey !== "") {
-      console.log(" items before deduplication", jsonData.length);
-      jsonData = unique(jsonData, dedupKey);
-      console.log(" items after deduplication", jsonData.length);
-    }
 
     const flattenedData = jsonData.map((item) =>
-      flattenObjectWithUnwind<T>(item, unwind),
+      flattenObjectWithUnwind<T>(item, unwind)
     );
+
 
     const allHeaders = [
       ...new Set(flattenedData.flatMap((item) => Object.keys(item))),
