@@ -254,30 +254,24 @@ export function pivotJson<T>(
   json: T[],
   pivotColumn: string,
   fieldsToUnpivot: string[],
-): Record<string, any> {
-  const output = [];
-
-  json.forEach((obj) => {
+): Record<string, any>[] {
+  return json.map((obj) => {
     const pivotValues = getNestedValue(obj, pivotColumn);
+    const result = { ...obj };
 
-    // If the pivot column exists and is an array, create new rows for each value
+    // If the pivot column exists and is an array, create new columns for each value
     if (Array.isArray(pivotValues) && pivotValues.length > 0) {
-      pivotValues.forEach((pivotValue) => {
-        const newRow = { ...obj };
+      pivotValues.forEach((pivotValue, index) => {
         fieldsToUnpivot.forEach((field) => {
           const nestedValue = getNestedValue(pivotValue, field);
-          // Always set the field, even if undefined
-          newRow[field] = nestedValue;
+          // Create a new column with the format: field_index
+          result[`${field}_${index}`] = nestedValue;
         });
-        output.push(newRow);
       });
-    } else {
-      // If the pivot column doesn't exist or isn't an array, keep the original row
-      output.push({ ...obj });
     }
-  });
 
-  return output;
+    return result;
+  });
 }
 
 /**
