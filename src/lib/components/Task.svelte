@@ -475,12 +475,6 @@
                                     </div>
                                 {/if}
                             </div>
-                            <div class="tabular-nums text-xs">
-                                <span class="opacity-60">$</span><span
-                                    class="font-semibold"
-                                    >{run.usageTotalUsd.toFixed(3)}</span
-                                >
-                            </div>
                         </div>
                     </div>
                 {/each}
