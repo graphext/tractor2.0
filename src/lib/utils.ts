@@ -559,12 +559,14 @@ export async function generateDatasetName(queries: string) {
  */
 function truncateObject(information: any, maxTokens: number = 64000): any {
   let jsonString = JSON.stringify(information);
+  console.log('JSON string length:', jsonString.length);
   if (jsonString.length > maxTokens) {
     // Truncate the JSON string to the maximum allowed length
     jsonString = jsonString.substring(0, maxTokens);
     // Parse the truncated string back to an object
   }
-  return information;
+  console.log('Truncated JSON string length:', jsonString.length);
+  return jsonString;
 }
 
 export async function generateNames(actor: string, information: object) {
