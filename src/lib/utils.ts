@@ -557,7 +557,7 @@ export async function generateDatasetName(queries: string) {
  * @param {number} [maxTokens=64000] - The maximum number of tokens allowed in the JSON string.
  * @returns {any} - The original object if the JSON string length is within the limit, otherwise the truncated object.
  */
-function truncateObject(information: any, maxTokens: number = 64000): any {
+function truncateObject(information: any, maxTokens: number = 504857): any {
   let jsonString = JSON.stringify(information);
   console.log('JSON string length:', jsonString.length);
   if (jsonString.length > maxTokens) {
