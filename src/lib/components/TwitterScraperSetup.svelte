@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
+    import { run, preventDefault } from "svelte/legacy";
 
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
@@ -41,12 +41,14 @@
         queriesSpreadOverTime?: string;
     }
 
-    let { queries = $bindable(""), selectedRange, queriesSpreadOverTime = $bindable("") }: Props = $props();
-
+    let {
+        queries = $bindable(""),
+        selectedRange,
+        queriesSpreadOverTime = $bindable(""),
+    }: Props = $props();
 
     let loading = $state(false);
     let resuming = $state(false);
-
 
     let confirmChoice = $state(false);
 
@@ -58,9 +60,13 @@
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let numTweets = $state(5000);
-    let tweetOrder: Selected<string> = $state({ label: "Latest", value: "Latest" });
+    let tweetOrder: Selected<string> = $state({
+        label: "Latest",
+        value: "Latest",
+    });
 
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
 
     let datasetLink: string | null = null;
     let datasetData;
@@ -70,7 +76,6 @@
     let datasetSize: number | null = $state(null);
 
     let error: string | null = $state(null);
-
 
     const apifyClient = new ApifyClient(TWITTER_ACT_ID, "Twitter/X Scraper"); // Twitter Actor ID
     const socialMedia = "Twitter";
@@ -232,9 +237,11 @@
             },
         });
     }
-    let numQueries = $derived(queriesSpreadOverTime
-        ? queriesSpreadOverTime.trim().split("\n").length
-        : 0);
+    let numQueries = $derived(
+        queriesSpreadOverTime
+            ? queriesSpreadOverTime.trim().split("\n").length
+            : 0,
+    );
     run(() => {
         if (resuming) {
             loading = true;
@@ -251,11 +258,14 @@
 </script>
 
 <form
-    onsubmit={preventDefault(handleTwitterSubmit)}
+    onsubmit={(e) => {
+        e.preventDefault();
+        handleTwitterSubmit();
+    }}
     class="flex flex-col gap-3"
 >
     <PaneGroup direction="horizontal" class="items-center gap-1 mb-4 ">
-        <Pane defaultSize={30} class="p-1">
+        <Pane defaultSize={60} class="p-1">
             <div
                 class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
             >
@@ -266,10 +276,15 @@
                 bind:value={queries}
             />
         </Pane>
-        <PaneResizer class="text-base-content rounded-sm py-2 h-min">
-            <DotsSixVertical size={15} weight="bold" />
+        <PaneResizer class="text-base-content rounded-sm px-0 py-2">
+            <DotsSixVertical
+                class="hover:bg-primary hover:text-primary-content py-1
+                transition-all rounded-sm"
+                size={20}
+                weight="bold"
+            />
         </PaneResizer>
-        <Pane defaultSize={70} class="p-1">
+        <Pane defaultSize={40} class="p-1">
             <div
                 class="text-base-content/60 overflow-x-clip whitespace-nowrap mb-1"
             >
