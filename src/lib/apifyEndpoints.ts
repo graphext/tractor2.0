@@ -92,6 +92,7 @@ export async function getPrivateUserData() {
 export class ApifyClient {
   constructor(public actorId: string, public actorName: string) {
     this.actorName = actorName
+    this.actorId = actorId
   }
 
   get name() {

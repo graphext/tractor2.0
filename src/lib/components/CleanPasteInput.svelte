@@ -5,7 +5,7 @@
         [key: string]: any;
     }
 
-    let { placeholder = "", value = $bindable(""), ...rest }: Props = $props();
+    let { placeholder = "", value = $bindable(), ...rest }: Props = $props();
 
     let textarea: HTMLTextAreaElement = $state();
 </script>

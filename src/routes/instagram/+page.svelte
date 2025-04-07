@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import DatePicker from "$lib/components/DatePicker.svelte";
@@ -8,12 +6,8 @@
     import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
-    import LiveTable from "$lib/components/LiveTable.svelte";
-    import ResumeButton from "$lib/components/ResumeButton.svelte";
     import Section from "$lib/components/Section.svelte";
     import Select from "$lib/components/Select.svelte";
-    import Status from "$lib/components/Status.svelte";
-    import StopButton from "$lib/components/StopButton.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
     import WarningCost from "$lib/components/WarningCost.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
@@ -45,7 +39,6 @@
     let maxItems = $state(500);
     let confirmChoice = $state(false);
 
-
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
@@ -54,12 +47,12 @@
 
     let resuming: boolean = $state();
 
-
     let status: string = $state();
     let error: string = $state();
 
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string = $state();
     let datasetData: any;
     let filename: string = $state();
@@ -288,7 +281,7 @@
         });
     }
     let urlsLength = $derived(processInstagramInput(keywords).length);
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -297,21 +290,27 @@
             }, 500);
         }
     });
-    let buttonText = $derived(loading
-        ? `Loading ${selectedResultType.label}`
-        : `Get ${selectedResultType.label}`);
+    let buttonText = $derived(
+        loading
+            ? `Loading ${selectedResultType.label}`
+            : `Get ${selectedResultType.label}`,
+    );
 </script>
 
 <Section>
     <form
         class="flex flex-col gap-5"
-        onsubmit={preventDefault(handleInstagramSubmit)}
+        onsubmit={(e) => {
+            e.preventDefault();
+            handleInstagramSubmit();
+        }}
     >
         <div>
             <div class="flex items-center mb-2 gap-1">
                 <label for="keywords" class="text-sm text-base-content/60"
                     >Keywords:</label
                 >
+
                 <Tooltip.Root openDelay={0}>
                     <Tooltip.Trigger class="w-fit">
                         <QuestionMark
@@ -396,6 +395,7 @@
                         {maxItems * 3} results.
                     </TooltipContent>
                 </Tooltip.Root>
+
                 <input
                     class="input input-sm rounded-full h-[40px] tabular-nums bg-neutral"
                     inputmode="numeric"

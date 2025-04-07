@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from "svelte/legacy";
-
     import CleanPasteInput from "./CleanPasteInput.svelte";
     import { toast } from "svelte-sonner";
     import { PaneGroup, Pane, PaneResizer } from "paneforge";
@@ -12,7 +10,6 @@
     import {
         checkTaskStatus,
         createFileName,
-        generateDatasetName,
         jsonToCsv,
         sendEventData,
         submitTask,
@@ -21,9 +18,6 @@
 
     import { TWITTER_ACT_ID } from "$lib/actors";
     import { createFunctionString } from "$lib/postprocess";
-    import LiveTable from "./LiveTable.svelte";
-    import StopButton from "./StopButton.svelte";
-    import ResumeButton from "./ResumeButton.svelte";
     import { userQuery } from "$lib/stores/userQueryStore";
     import type { DateRange, Selected } from "bits-ui";
 
@@ -242,7 +236,7 @@
             ? queriesSpreadOverTime.trim().split("\n").length
             : 0,
     );
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -250,9 +244,6 @@
                 checkTwitterTaskStatus({ apifyClient, runId, numTweets });
             }, 500);
         }
-    });
-    run(() => {
-        console.log(tweetOrder.label);
     });
     let buttonText = $derived(loading ? "Loading tweets..." : "Get Tweets");
 </script>
