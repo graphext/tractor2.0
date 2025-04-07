@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { apifyKey } from "$lib/stores/apifyStore";
     import { slide, fly } from "svelte/transition";
     import { toast } from "svelte-sonner";
@@ -26,9 +24,12 @@
         }
     }
 
-    run(() => {
+    $effect(() => {
         if ($apifyKey) {
-            apifyClient = new ApifyClient("61RPP7dywgiy0JPD0"); // Twitter Actor ID
+            apifyClient = new ApifyClient(
+                "61RPP7dywgiy0JPD0",
+                "X/Twitter Scraper",
+            );
             getPlanId();
         } else {
             plan = null;
@@ -62,10 +63,10 @@
             : "Enter your Apify API key";
     });
 
-    run(() => {
+    $effect(() => {
         apikeyPresent = $apifyKey != "";
     });
-    run(() => {
+    $effect(() => {
         placeholder = apikeyPresent
             ? "Key already set. Good to go!"
             : "Enter your Apify API key";
@@ -79,7 +80,12 @@
             class="flex h-fit flex-col md:flex-row justify-between items-center w-full p-2 gap-3"
         >
             {#if !apikeyPresent}
-                <form onsubmit={preventDefault(handleSubmit)}>
+                <form
+                    onsubmit={(e) => {
+                        e.preventDefault();
+                        handleSubmit();
+                    }}
+                >
                     <div
                         class="flex flex-col md:join md:flex-row md:rounded-full h-fit"
                     >

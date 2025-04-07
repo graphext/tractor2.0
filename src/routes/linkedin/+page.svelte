@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
-
     import { LINKEDIN_ACTOR_ID } from "$lib/actors";
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import CleanPasteInput from "$lib/components/CleanPasteInput.svelte";
@@ -56,18 +54,16 @@
 
     const socialMedia = "linkedin";
 
-    let urls: string = $state(),
+    let urls: string = $state(""),
         loading = $state(false),
         maxItems = $state(100);
 
     let urlsSplit: string[] = $state([]);
 
-
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
 
     let resuming: boolean = $state();
-
 
     let datasetLink: string;
     let datasetData;
@@ -75,12 +71,13 @@
     let status: string = $state();
     let error: string = $state();
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string = $state();
     let filename: string = $state();
     let datasetSize: number = $state();
 
-    let cookieTextAreaValue: string = $state();
+    let cookieTextAreaValue: string = $state("");
 
     async function handleLinkedinSubmit() {
         datasetLink = "";
@@ -289,7 +286,7 @@
     function resetCookies() {
         $linkedInCookies = "";
     }
-    run(() => {
+    $effect(() => {
         if (urls) {
             urlsSplit = urls
                 .split("\n")
@@ -297,7 +294,7 @@
                 .filter((u) => u != "" && u.length > 0);
         }
     });
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -306,13 +303,18 @@
             }, 500);
         }
     });
-    let buttonText = $derived(loading ? "Getting results" : "Get LinkedIn posts");
+    let buttonText = $derived(
+        loading ? "Getting results" : "Get LinkedIn posts",
+    );
 </script>
 
 <Section>
     <form
         class="flex flex-col gap-5"
-        onsubmit={preventDefault(handleLinkedinSubmit)}
+        onsubmit={(e) => {
+            e.preventDefault();
+            handleLinkedinSubmit();
+        }}
     >
         <div class="flex flex-col gap-5">
             <div class="flex flex-col gap-2 w-full">
@@ -455,7 +457,9 @@
                             </TooltipContent>
                         </Tooltip.Root>
                     </div>
-                    {#if !$linkedInCookies}{:else}
+                    {#if !$linkedInCookies}
+                        <div></div>
+                    {:else}
                         <div
                             class="btn opacity-40 hover:opacity-100 btn-outline hover:btn-error rounded-full btn-xs"
                             tabindex="-1"
@@ -527,7 +531,7 @@ https://www.linkedin.com/search/results...
                 type="number"
                 id="maxItems"
                 disabled={loading}
-                bind:value={maxItems}
+                value={maxItems}
                 placeholder="Enter maximum number of items"
             />
         </div>
