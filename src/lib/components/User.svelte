@@ -2,6 +2,7 @@
     import { fly } from "svelte/transition";
     import { ApifyClient } from "$lib/apifyEndpoints";
     import { apifyKey } from "$lib/stores/apifyStore";
+    import { onMount } from "svelte";
 
     let name: string = $state("");
     let apifyClient: ApifyClient | null = $state(null);
@@ -12,9 +13,9 @@
             name = data.data.profile.name;
         }
     }
-    $effect(() => {
+    onMount(() => {
         if ($apifyKey) {
-            //apifyClient = new ApifyClient("61RPP7dywgiy0JPD0", "X/Twitter"); // Twitter Actor ID
+            apifyClient = new ApifyClient("61RPP7dywgiy0JPD0", "X/Twitter"); // Twitter Actor ID
             getUserName();
         }
     });

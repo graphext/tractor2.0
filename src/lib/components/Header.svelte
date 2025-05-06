@@ -18,7 +18,11 @@
 
   let currentSpent = $state(0);
   let maxLimitUsd = $state(0);
-  let monthCycle: { start: string; end: string } = $state({ start: "", end: "" });
+  let monthCycle: { start: string; end: string } = $state({
+    start: "",
+    end: "",
+  });
+
   onMount(async () => {
     const data = await getLimits();
     currentSpent = data.data.current.monthlyUsageUsd;
