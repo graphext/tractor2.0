@@ -16,8 +16,7 @@
     } from "$lib/utils";
     import { ApifyClient, getPrivateUserData } from "../apifyEndpoints";
 
-    import { TWITTER_ACT_ID } from "$lib/actors";
-    import { createFunctionString } from "$lib/postprocess";
+    import { TWITTER_ACT_ID_2 } from "$lib/actors";
     import { userQuery } from "$lib/stores/userQueryStore";
     import type { DateRange, Selected } from "bits-ui";
 
@@ -224,7 +223,7 @@
                         {
                             targetCol: "extendedEntities",
                             take: 4,
-                            fields: [{ field: "media", alias:"top_4_images" }],
+                            fields: [{ field: "media", alias: "top_4_images" }],
                         },
                     ],
                     customColumnOrder: [
@@ -239,7 +238,7 @@
                     ],
                     pivot: {
                         column: "extendedEntities.media",
-                        pivot: [ "expanded_url" ],
+                        pivot: ["expanded_url"],
                     },
                     removeColumns: ["extendedEntities.media"],
                 });
