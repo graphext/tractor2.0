@@ -1,6 +1,12 @@
 <script lang="ts">
   import User from "$lib/components/User.svelte";
-  import { Book, Gauge, FileText, File } from "phosphor-svelte";
+  import {
+    Book,
+    Gauge,
+    FileText,
+    File,
+    ClockCounterClockwise,
+  } from "phosphor-svelte";
   import ThemeToggler from "./ThemeToggler.svelte";
   import HeaderNavItem from "./HeaderNavItem.svelte";
   import { onMount } from "svelte";
@@ -86,12 +92,12 @@
           <button
             class="btn btn-circle btn-ghost border border-base-content/10 shadow-sm text-base-content/60 hover:text-base-content/80"
           >
-            <FileText size={24} weight="bold" />
+            <ClockCounterClockwise size={24} weight="bold" />
           </button>
         </Tooltip.Trigger>
 
         <TooltipContent transitionConfig={{ duration: 100, y: -5 }}>
-          Tasks
+          Recent Tasks
         </TooltipContent>
       </Tooltip.Root>
     </Drawer.Trigger>

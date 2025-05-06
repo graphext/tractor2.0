@@ -1,3 +1,24 @@
+
+import {
+	LinkedinLogo,
+	InstagramLogo,
+	GoogleLogo,
+	YoutubeLogo,
+	TiktokLogo,
+	TwitterLogo,
+	NewspaperClipping
+} from "phosphor-svelte";
+
+export const actorIconMap = {
+	'twitter-x-data-tweet-scraper-pay-per-result-cheapest': TwitterLogo,
+	'google-search-scraper': GoogleLogo,
+	'youtube-scraper': YoutubeLogo,
+	'instagram-scraper': InstagramLogo,
+	'linkedin-post-search-scraper': LinkedinLogo,
+	'free-tiktok-scraper': TiktokLogo,
+	'google-news-scraper': NewspaperClipping,
+}
+
 export const languageCodes = [
 	{ code: 'en', lang: 'English' },
 	{ code: 'es', lang: 'Spanish' },

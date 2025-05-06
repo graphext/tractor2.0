@@ -13,8 +13,7 @@ export async function getOpenAIResponse(prompt: string, systemPrompt: string) {
 	}
 
 	const stream = await openai.chat.completions.create({
-		model: "gpt-4o-mini",
-		temperature: 0.3,
+		model: "gpt-4o-mini-2024-07-18",
 		stream: true,
 		messages: [
 			{

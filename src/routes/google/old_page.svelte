@@ -34,7 +34,7 @@
     import { fly } from "svelte/transition";
 import { mount } from "svelte";
 
-    let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID);
+    let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID, "Google");
 
     const socialMedia = "google-search";
 

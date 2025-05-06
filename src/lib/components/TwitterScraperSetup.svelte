@@ -23,11 +23,12 @@
 
     import { frequencyStore, selectedLists } from "$lib/stores/store";
     import Error from "./Error.svelte";
-    import Status from "./Status.svelte";
     import DownloadButton from "./DownloadButton.svelte";
     import Select from "./Select.svelte";
-    import { Newspaper, ArrowsDownUp } from "phosphor-svelte";
+    import { ArrowsDownUp } from "phosphor-svelte";
     import LiveInfo from "./LiveInfo.svelte";
+    import { type TweetType } from "$lib/types";
+    import { appState } from "$lib/stores/appStateStore";
 
     interface Props {
         queries?: string;
@@ -71,7 +72,7 @@
 
     let error: string | null = $state(null);
 
-    const apifyClient = new ApifyClient(TWITTER_ACT_ID, "Twitter/X Scraper"); // Twitter Actor ID
+    const apifyClient = new ApifyClient(TWITTER_ACT_ID_2, "Twitter/X Scraper"); // Twitter Actor ID
     const socialMedia = "Twitter";
 
     async function handleTwitterSubmit() {
@@ -89,15 +90,18 @@
 
         const inputData = {
             searchTerms: queryList,
-            maxItems: numTweets,
-            maxTweetsPerQuery: maxTweetsPerQuery,
-            onlyImage: false,
-            onlyQuote: false,
-            onlyTwitterBlue: false,
-            onlyVerifiedUsers: false,
-            onlyVideo: false,
-            sort: tweetOrder.value,
-            customMapFunction: createFunctionString(),
+            maxItems: maxTweetsPerQuery,
+            queryType: tweetOrder.value,
+            since:
+                new Date(selectedRange.start!.toString())
+                    .toISOString()
+                    .replace("T", "_")
+                    .split(".")[0] + "_UTC",
+            until:
+                new Date(selectedRange.end!.toString())
+                    .toISOString()
+                    .replace("T", "_")
+                    .split(".")[0] + "_UTC",
         };
 
         sendEventData({
@@ -182,21 +186,62 @@
             }) => {
                 status = completedStatus;
 
+                $appState = "success";
+
                 datasetLink = await apifyClient.getDatasetLink({
                     runId: runId,
                     format: "json",
+                    omitColumns: [
+                        "profile_bio_entities_description_symbols",
+                        "profile_bio_entities_description_urls",
+                        "withheldInCountries",
+                        "isTranslator",
+                        "entities_description_urls",
+                        "description",
+                    ],
+                    includeOnly: [
+                        "createdAt",
+                        "text",
+                        "url",
+                        "viewCount",
+                        "retweetCount",
+                        "replyCount",
+                        "likeCount",
+                        "quoteCount",
+                        "author",
+                        "lang",
+                        "location",
+                        "author.location",
+                        "id",
+                        "extendedEntities",
+                    ],
                 });
 
-                csvBlob = await jsonToCsv({
+                csvBlob = await jsonToCsv<TweetType>({
                     url: datasetLink,
-                    dedupKey: "url<gx:url>",
-                    customColumnOrder: [
-                        "createdAt<gx:date>",
-                        "authorName<gx:category>",
-                        "text<gx:text>",
-                        "url<gx:url>",
-                        "viewCount<gx:number>",
+                    dedupKey: "id",
+                    unwind: [
+                        {
+                            targetCol: "extendedEntities",
+                            take: 4,
+                            fields: [{ field: "media", alias:"top_4_images" }],
+                        },
                     ],
+                    customColumnOrder: [
+                        "createdAt",
+                        "text",
+                        "url",
+                        "viewCount",
+                        "retweetCount",
+                        "replyCount",
+                        "likeCount",
+                        "quoteCount",
+                    ],
+                    pivot: {
+                        column: "extendedEntities.media",
+                        pivot: [ "expanded_url" ],
+                    },
+                    removeColumns: ["extendedEntities.media"],
                 });
 
                 datasetData = await apifyClient.getDatasetInfo(runId);
@@ -228,6 +273,7 @@
                     duration: 10000,
                 });
                 loading = false;
+                $appState = "error";
             },
         });
     }
@@ -344,7 +390,7 @@
                 {buttonText}
             </button>
         {:else}
-            <WarningCost unitPrice={0.4 / 1000} maxItems={numTweets} />
+            <WarningCost unitPrice={0.25 / 1000} maxItems={numTweets} />
             <button
                 class="btn btn-primary w-full shadow-primary/20 shado-md rounded-full"
                 disabled={!$apifyKey || !queries}

@@ -26,7 +26,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-svelte": "^2.45.1",
     "globals": "^15.0.0",
-    "openai": "^4.52.7",
+    "openai": "^4.85.2",
     "paneforge": "^0.0.5",
     "phosphor-svelte": "^2.0.1",
     "postcss": "^8.4.38",

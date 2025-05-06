@@ -9,19 +9,20 @@
     import { inject } from "@vercel/analytics";
     import ApifyKeyInput from "$lib/components/ApifyKeyInput.svelte";
     import Header from "$lib/components/Header.svelte";
-    import TwitterLogo from "phosphor-svelte/lib/TwitterLogo";
-    import NewspaperClipping from "phosphor-svelte/lib/NewspaperClipping";
 
     import { page } from "$app/stores";
     import ResetApiButton from "$lib/components/ResetApiButton.svelte";
     import { apifyKey } from "$lib/stores/apifyStore";
     import { MetaTags } from "svelte-meta-tags";
+    import { appState } from "$lib/stores/appStateStore";
     import {
         LinkedinLogo,
         InstagramLogo,
         GoogleLogo,
         YoutubeLogo,
         TiktokLogo,
+        TwitterLogo,
+        NewspaperClipping,
     } from "phosphor-svelte";
 
     import { getTasks } from "$lib/apifyEndpoints";
@@ -43,6 +44,7 @@
 
     let pageUrl = $derived($page.route.id);
 
+    appState.set("idle");
     let actors = [
         { id: "/", icon: GoogleLogo, title: "Google" },
         { id: "/twitter", icon: TwitterLogo, title: "Twitter" },
@@ -65,8 +67,10 @@
     description="Easiest way to Download & analyze Tweets"
     canonical="https://tractor.graphext.com"
     additionalLinkTags={[
-        { rel: "icon", href: "/favicon-32x32.png" },
-        { rel: "icon", href: "/favicon-16x16.png" },
+        {
+            rel: "icon",
+            href: `/favicon-${$appState}.png`,
+        },
         { rel: "apple-touch-icon", href: "apple-touch-icon.png" },
         { rel: "manifest", href: "/site.webmanifest" },
     ]}
@@ -162,7 +166,7 @@
         <Drawer.Overlay class="fixed inset-0 bg-black/10 backdrop-blur-[1px]" />
 
         <Drawer.Content
-            class="fixed bottom-0 left-0 top-0 w-[50%] lg:w-[30%] overflow-y-scroll
+            class="fixed bottom-0 left-0 top-0 min-w-[600px] w-[40%] overflow-y-scroll
             shadow-lg bg-base-100 p-10 flex-row rounded-r-[10px]
             h-full"
         >

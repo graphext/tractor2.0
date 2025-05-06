@@ -25,7 +25,8 @@
             >{label}</DatePicker.Label
         >
         <DatePicker.Input
-            class="flex tabular-nums w-full max-w-[320px] h-[40px] rounded-full select-none items-center bg-neutral px-3 py-1 text-sm"
+            class="flex tabular-nums w-full max-w-[320px] h-[40px] rounded-full
+            select-none items-center bg-neutral pr-1 pl-3 py-1 text-sm"
             let:segments
         >
             {#each segments as { part, value }}

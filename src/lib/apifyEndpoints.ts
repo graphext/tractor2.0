@@ -99,7 +99,8 @@ export class ApifyClient {
     return this.actorName
   }
 
-  async createTask(taskName, input: Record<string, unknown>) {
+  async createTask(taskName: string, input: Record<string, unknown>, build?: string) {
+    console.log(build, 'createTask')
     const token = get(apifyKey);
     const tokenEnd = token.slice(-4);
 
@@ -108,7 +109,8 @@ export class ApifyClient {
       actId: this.actorId,
       name: `${taskName}-${tokenEnd}`,
       options: {
-        build: "latest",
+        build: build || "latest",
+        memoryMbytes: 2048,
       },
       input: {
         ...input,
@@ -123,6 +125,11 @@ export class ApifyClient {
   async runTask(taskId: string) {
     const endpoint = `/actor-tasks/${taskId}/runs`;
     return apifyFetch(endpoint, { method: "POST" });
+  }
+
+  async runActor(actorId: string, inputData: any) {
+    const endpoint = `/acts/${actorId}/runs`;
+    return apifyFetch(endpoint, { method: "POST", body: JSON.stringify(inputData) });
   }
 
   async abortRun(runId: string) {

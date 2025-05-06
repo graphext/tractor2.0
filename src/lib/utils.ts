@@ -5,13 +5,14 @@ import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
 import type { Task, TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
+import { appState } from './stores/appStateStore';
 
 
 export async function createFileName({ actorName, information, datasetId }: { actorName: string, information: object, datasetId: string }) {
 
-  const fileKeyword = await generateNames(actorName, JSON.stringify(information));
+  const fileKeyword = await generateNames(actorName, information);
 
-  return `${fileKeyword}_${datasetId.slice(-6)}_TR`;
+  return `${fileKeyword}_${datasetId.slice(-6)}`;
 }
 
 export function cleanText(text: string): string {
@@ -204,27 +205,30 @@ function flattenObjectWithUnwind<T>(
       (target) => target.targetCol === key,
     );
 
-    if (unwindTarget && Array.isArray(value)) {
+    if (unwindTarget) {
       // Handle the unwind case for this target
       unwindTarget.fields.forEach((fieldDef) => {
         const take = unwindTarget.take || 1;
         const fieldPath = fieldDef.field;
 
-        if (take != "max") {
-          value.slice(0, take)
-        }
-
-        // Extract values from the array
-        const extractedValues = value
-          .map((item) => getNestedValue(item, fieldPath))
-          .filter((v) => v !== undefined);
-
         // Use alias if provided, otherwise construct default column name
         const outputKey = fieldDef.alias || `${pre}${key}.${fieldDef.field}`;
 
-        // If we're taking multiple values, store as an array
-        // If taking just one, store as a single value for backward compatibility
-        acc[outputKey] = take === 1 ? extractedValues[0] : extractedValues;
+        // Always include the field in the output, even if the array is empty or not an array
+        if (!Array.isArray(value) || value.length === 0) {
+          // If value is not an array or is empty, set to empty string or empty array
+          acc[outputKey] = take === 1 ? '' : [];
+        } else {
+          // If take is not "max", slice the array
+          const slicedValue = take !== "max" ? value.slice(0, take) : value;
+
+          // Extract values from the array without filtering
+          const extractedValues = slicedValue.map((item) => getNestedValue(item, fieldPath));
+
+          // If we're taking multiple values, store as an array
+          // If taking just one, store as a single value for backward compatibility
+          acc[outputKey] = take === 1 ? (extractedValues[0] ?? '') : extractedValues;
+        }
       });
 
       // Keep the original array as well
@@ -250,26 +254,24 @@ export function pivotJson<T>(
   json: T[],
   pivotColumn: string,
   fieldsToUnpivot: string[],
-): Record<string, any> {
-  const output = [];
-
-  json.forEach((obj) => {
+): Record<string, any>[] {
+  return json.map((obj) => {
     const pivotValues = getNestedValue(obj, pivotColumn);
-    if (Array.isArray(pivotValues)) {
-      pivotValues.forEach((pivotValue) => {
-        const newRow = { ...obj };
+    const result = { ...obj };
+
+    // If the pivot column exists and is an array, create new columns for each value
+    if (Array.isArray(pivotValues) && pivotValues.length > 0) {
+      pivotValues.forEach((pivotValue, index) => {
         fieldsToUnpivot.forEach((field) => {
           const nestedValue = getNestedValue(pivotValue, field);
-          if (nestedValue !== undefined) {
-            newRow[field] = nestedValue;
-          }
+          // Create a new column with the format: field_index
+          result[`${field}_${index}`] = nestedValue;
         });
-        output.push(newRow);
       });
     }
-  });
 
-  return output;
+    return result;
+  });
 }
 
 /**
@@ -315,20 +317,23 @@ export async function jsonToCsv<T>({
       throw emptyError;
     }
 
+    if (dedupKey && dedupKey !== "") {
+      console.log("items before deduplication", jsonData.length);
+      jsonData = unique(jsonData, dedupKey);
+      console.log("items after deduplication", jsonData.length);
+    }
+
+    console.log(jsonData.length)
     if (pivot != null) {
       jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot);
-      console.log(jsonData);
     }
+    console.log(jsonData.length)
 
-    if (dedupKey && dedupKey !== "") {
-      console.log(" items before deduplication", jsonData.length);
-      jsonData = unique(jsonData, dedupKey);
-      console.log(" items after deduplication", jsonData.length);
-    }
 
     const flattenedData = jsonData.map((item) =>
-      flattenObjectWithUnwind<T>(item, unwind),
+      flattenObjectWithUnwind<T>(item, unwind)
     );
+
 
     const allHeaders = [
       ...new Set(flattenedData.flatMap((item) => Object.keys(item))),
@@ -544,6 +549,26 @@ export async function generateDatasetName(queries: string) {
   }
 }
 
+/**
+ * Truncates the JSON representation of an object to a specified maximum number of tokens.
+ * Sometimes, large queries would prevent you from downloading data just because
+ * the name of the task gave an error. 
+ * @param {any} information - The object to be truncated.
+ * @param {number} [maxTokens=64000] - The maximum number of tokens allowed in the JSON string.
+ * @returns {any} - The original object if the JSON string length is within the limit, otherwise the truncated object.
+ */
+function truncateObject(information: any, maxTokens: number = 64000): any {
+  let jsonString = JSON.stringify(information);
+  console.log('JSON string length:', jsonString.length);
+  if (jsonString.length > maxTokens) {
+    // Truncate the JSON string to the maximum allowed length
+    jsonString = jsonString.substring(0, maxTokens);
+    // Parse the truncated string back to an object
+  }
+  console.log('Truncated JSON string length:', jsonString.length);
+  return jsonString;
+}
+
 export async function generateNames(actor: string, information: object) {
   try {
     const res = await fetch("/api/names", {
@@ -551,7 +576,7 @@ export async function generateNames(actor: string, information: object) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(({ inputData: information, actorName: actor })),
+      body: JSON.stringify(({ inputData: truncateObject(information), actorName: actor })),
     });
 
     if (!res.ok) {
@@ -588,14 +613,18 @@ export async function submitTask(
   let taskName
   let oldTaskName
 
+  const build = apifyClient.actorName === 'Twitter/X Scraper' ? 'latest0225' : 'latest'
+
   try {
     taskName = await generateNames(apifyClient.name, inputData)
-    console.log(taskName)
+    taskName = taskName.replace(/[^a-zA-Z0-9-\-]/g, "")
 
-    const task = await apifyClient.createTask(taskName, inputData);
+    const task = await apifyClient.createTask(taskName, inputData, build);
     runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
     onTaskCreated(runId);
+
+    appState.set('running')
 
     if (onStatusCheckStart)
       setTimeout(onStatusCheckStart, 1500);
@@ -607,7 +636,7 @@ export async function submitTask(
       oldTaskName = taskName
       taskName += `-${Math.floor(Math.random() * 1000)}`
 
-      const task = await apifyClient.createTask(taskName, inputData);
+      const task = await apifyClient.createTask(taskName!, inputData, build);
       runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
       onTaskCreated(runId);
@@ -616,6 +645,7 @@ export async function submitTask(
 
 
     } else {
+      appState.set('error')
       onError(err);
     }
 
@@ -648,6 +678,8 @@ export async function checkTaskStatus({
     const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId!);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
+
+      if (status === "SUCCEEDED") appState.set('success');
 
       try {
         await onComplete({
