@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { DateRange } from "bits-ui";
+    import { type DateValue, CalendarDate } from "@internationalized/date";
     import ApifyScraper from "$lib/components/TwitterScraperSetup.svelte";
     import TwitterSearchOptions from "$lib/components/TwitterSearchOptions.svelte";
 
@@ -7,6 +8,7 @@
 
     let queries: string = $state("");
     let enrichedQueries: string = $state("");
+
     let selectedRange: DateRange = $state();
     let frequency: DateRange;
 </script>
