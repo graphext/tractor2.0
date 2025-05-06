@@ -24,7 +24,7 @@
         }
     }
 
-    $effect(() => {
+    onMount(() => {
         if ($apifyKey) {
             apifyClient = new ApifyClient(
                 "61RPP7dywgiy0JPD0",
@@ -48,8 +48,12 @@
         }
     }
 
-    let apikeyPresent: boolean = $state();
-    let placeholder: string = $state();
+    let apikeyPresent: boolean = $derived($apifyKey != "");
+    let placeholder: string = $derived(
+        apikeyPresent
+            ? "Key already set. Good to go!"
+            : "Enter your Apify API key",
+    );
 
     onMount(() => {
         const apifyKeyParam = get(queryParam("apifyKey"));
@@ -57,19 +61,6 @@
         if (apifyKeyParam != "" && apifyKeyParam != undefined) {
             $apifyKey = apifyKeyParam;
         }
-        apikeyPresent = $apifyKey != "";
-        placeholder = apikeyPresent
-            ? "Key already set. Good to go!"
-            : "Enter your Apify API key";
-    });
-
-    $effect(() => {
-        apikeyPresent = $apifyKey != "";
-    });
-    $effect(() => {
-        placeholder = apikeyPresent
-            ? "Key already set. Good to go!"
-            : "Enter your Apify API key";
     });
 </script>
 
