@@ -36,8 +36,9 @@ Any changes will be reflected automatically.
 This application uses SvelteKit 4, Typescript, TailwindCSS with DaisyUI,
 Phosphor Icons and Bits UI as the main component library.
 
-> Component Structure
+> Repo Structure
 
+```
 .
 ├── bun.lockb
 ├── eslint.config.js
@@ -151,7 +152,7 @@ Phosphor Icons and Bits UI as the main component library.
 ├── tailwind.config.ts
 ├── tsconfig.json
 └── vite.config.ts
-
+```
 
 
 # Questions, support
