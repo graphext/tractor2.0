@@ -221,24 +221,36 @@ function flattenObjectWithUnwind<T>(
         // Use alias if provided, otherwise construct default column name
         const outputKey = fieldDef.alias || `${pre}${key}.${fieldDef.field}`;
 
-        // Handle different value types (null, non-array, empty array, populated array)
-        if (!value || !Array.isArray(value) || value.length === 0) {
-          // If value is not an array or is empty, set to empty string or empty array
-          acc[outputKey] = take === 1 ? "" : [];
-        } else {
-          // Extract values from the array
-          const extractedValues = value
-            .map((item) => getNestedValue(item, fieldPath))
-            .filter((v) => v !== undefined);
+        // Special handling for non-array objects (like searchQuery)
+        if (value && typeof value === "object" && !Array.isArray(value)) {
+          // For object values, directly extract the nested field
+          const extractedValue = getNestedValue(value, fieldPath);
+          acc[outputKey] = extractedValue !== undefined ? extractedValue : "";
+        }
+        // Handle arrays as before
+        else if (Array.isArray(value)) {
+          // If array is empty, handle according to take parameter
+          if (value.length === 0) {
+            acc[outputKey] = take === 1 ? "" : [];
+          } else {
+            // Extract values from the array
+            const extractedValues = value
+              .map((item) => getNestedValue(item, fieldPath))
+              .filter((v) => v !== undefined);
 
-          // If we're taking multiple values, store as an array
-          // If taking just one, store as a single value
-          acc[outputKey] =
-            take === 1
-              ? extractedValues[0] ?? ""
-              : take === "max"
-              ? extractedValues
-              : extractedValues.slice(0, take);
+            // If we're taking multiple values, store as an array
+            // If taking just one, store as a single value
+            acc[outputKey] =
+              take === 1
+                ? extractedValues[0] ?? ""
+                : take === "max"
+                ? extractedValues
+                : extractedValues.slice(0, take);
+          }
+        }
+        // Handle null or undefined values
+        else {
+          acc[outputKey] = take === 1 ? "" : [];
         }
       });
 
