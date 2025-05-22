@@ -71,7 +71,7 @@
 
   let error: string | null = $state(null);
 
-  const apifyClient = new ApifyClient(TWITTER_ACT_ID, "Twitter/X Scraper"); // Twitter Actor ID
+  const apifyClient = new ApifyClient(TWITTER_ACT_ID_2, "Twitter/X Scraper"); // Twitter Actor ID
   const socialMedia = "Twitter";
 
   async function handleTwitterSubmit() {
@@ -276,7 +276,7 @@
     });
   }
   let numQueries = $derived(
-    queriesSpreadOverTime ? queriesSpreadOverTime.trim().split("\n").length : 0
+    queriesSpreadOverTime ? queriesSpreadOverTime.trim().split("\n").length : 0,
   );
   $effect(() => {
     if (resuming) {
