@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints.js";
-    import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Input from "$lib/components/Input.svelte";
+    import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints.js";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
     import Section from "$lib/components/Section.svelte";
     import Select from "$lib/components/Select.svelte";
@@ -29,6 +28,7 @@
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
     import DatePicker from "$lib/components/DatePicker.svelte";
+    import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
 
     let apifyClient = new ApifyClient(INSTAGRAM_ACTOR_ID, "Instagram Scraper");
     const socialMedia = "instagram";
