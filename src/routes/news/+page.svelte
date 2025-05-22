@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
+    import { run, preventDefault } from "svelte/legacy";
 
     import Input from "$lib/components/Input.svelte";
     import { ApifyClient } from "$lib/apifyEndpoints";
@@ -43,7 +43,6 @@
 
     let resuming: boolean = $state(false);
 
-
     let error: string = $state();
     let status: string = $state();
 
@@ -54,7 +53,8 @@
 
     let loading: boolean = $state(false);
 
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
 
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
@@ -63,7 +63,6 @@
     let userId: string;
 
     let csvBlob: Blob = $state();
-
 
     async function handleNewsSubmit() {
         loading = true;
@@ -197,7 +196,7 @@
             },
         });
     }
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 

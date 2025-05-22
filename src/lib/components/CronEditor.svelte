@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import { composeCronExpression, identifyCronExpression } from "$lib/utils";
     import { Select, type Selected } from "bits-ui";
@@ -15,7 +15,6 @@
         selectedLists,
     } from "$lib/stores/store";
 
-
     interface Props {
         queries: string;
         queriesSpreadOverTime: string;
@@ -29,7 +28,7 @@
         queriesSpreadOverTime,
         numTweets,
         scheduleNumTweets = $bindable(100),
-        actorId
+        actorId,
     }: Props = $props();
 
     let options = [
@@ -43,28 +42,22 @@
     let selectedInterval: Selected<string> = $state(options[2]);
     let intervalNumber: number = $state(1);
 
-    let withinTimeParameter: string = $state(`within_time:${intervalNumber}d`);
-    run(() => {
+    let withinTimeParameter: string = $derived.by(() => {
         switch (selectedInterval.value) {
             case "minute":
-                withinTimeParameter = `within_time:${intervalNumber}m`;
-                break;
+                return `within_time:${intervalNumber}m`;
 
             case "hour":
-                withinTimeParameter = `within_time:${intervalNumber}h`;
-                break;
+                return `within_time:${intervalNumber}h`;
 
             case "days":
-                withinTimeParameter = `within_time:${intervalNumber}d`;
-                break;
+                return `within_time:${intervalNumber}d`;
 
             case "month":
-                withinTimeParameter = `within_time:${intervalNumber * 30}d`;
-                break;
+                return `within_time:${intervalNumber * 30}d`;
 
             case "year":
-                withinTimeParameter = `within_time:${intervalNumber * 365}d`;
-                break;
+                return `within_time:${intervalNumber * 365}d`;
         }
     });
 
@@ -73,11 +66,9 @@
 
     let time = $derived({ hour: hour, minute: minute });
 
-    let cronExpression: string = $state(composeCronExpression(
-        intervalNumber,
-        selectedInterval.value,
-        time,
-    ));
+    let cronExpression: string = $state(
+        composeCronExpression(intervalNumber, selectedInterval.value, time),
+    );
 
     let loading: boolean = $state(false),
         error;

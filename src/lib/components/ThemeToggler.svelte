@@ -1,5 +1,5 @@
 <script>
-    import { run } from 'svelte/legacy';
+    import { run } from "svelte/legacy";
 
     import { browser } from "$app/environment";
     import { Moon, Sun } from "phosphor-svelte";
@@ -30,9 +30,11 @@
         localStorage.setItem("theme", theme); // Save the theme preference
     };
 
-    run(() => {
+    $effect(() => {
         if (browser) {
-            prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            prefersDark = window.matchMedia(
+                "(prefers-color-scheme: dark)",
+            ).matches;
             theme = prefersDark ? "dark" : "light";
         }
     });
