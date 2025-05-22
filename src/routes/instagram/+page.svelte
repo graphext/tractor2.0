@@ -1,6 +1,6 @@
 <script lang="ts">
+    import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints.js";
     import { INSTAGRAM_ACTOR_ID } from "$lib/actors";
-    import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
     import Input from "$lib/components/Input.svelte";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
