@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
+    import { run, preventDefault } from "svelte/legacy";
 
     import { GOOGLE_ACTOR_ID } from "$lib/actors";
     import { ApifyClient } from "$lib/apifyEndpoints";
@@ -32,7 +32,7 @@
     import { cubicInOut } from "svelte/easing";
     import { tweened } from "svelte/motion";
     import { fly } from "svelte/transition";
-import { mount } from "svelte";
+    import { mount } from "svelte";
 
     let apifyClient = new ApifyClient(GOOGLE_ACTOR_ID, "Google");
 
@@ -56,14 +56,14 @@ import { mount } from "svelte";
 
     let resuming: boolean = $state();
 
-
     let datasetLink: string;
     let datasetData;
     let runId: string = $state();
     let status: string = $state();
     let error: string = $state();
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string;
     let filename: string = $state();
     let datasetSize: number = $state();
@@ -318,7 +318,10 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw mount(Error, errorData.error || `HTTP error! status: ${res.status}`);
+                throw mount(
+                    Error,
+                    errorData.error || `HTTP error! status: ${res.status}`,
+                );
             }
 
             const reader = res.body.getReader();
@@ -341,7 +344,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
             loading = false;
         }
     }
-    run(() => {
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -539,7 +542,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
                     id="keywords"
                     placeholder="Enter keywords separated by commas"
                     disabled={loading}
-></textarea>
+                ></textarea>
             </div>
             <div>
                 <div class="flex w-full justify-between gap-3 items-center">

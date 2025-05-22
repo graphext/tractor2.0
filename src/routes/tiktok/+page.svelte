@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { run, preventDefault } from 'svelte/legacy';
+    import { run, preventDefault } from "svelte/legacy";
 
     import Section from "$lib/components/Section.svelte";
     import TooltipContent from "$lib/components/TooltipContent.svelte";
@@ -37,18 +37,39 @@
     let apifyClient = new ApifyClient(TIKTOK_ACTOR_ID, "Tiktok Data Extractor");
     const socialMedia = "youtube";
 
-    let maxItems = $state(100);
-    let maxItemsWarning: number = $derived((hashtagArray?.length + profileArray?.length + keywordArray?.length) *
-        maxItems);
-
     let hashtagInput: string = $state(""),
         profileInput: string = $state(""),
         keywordInput: string = $state("");
 
-
-
-
-
+    let hashtagArray = $derived(
+        hashtagInput
+            ? hashtagInput
+                  .split(",")
+                  .filter((e) => !/^\s*$/g.test(e))
+                  .map((e) => e.trim().toLowerCase())
+            : [],
+    );
+    let profileArray = $derived(
+        profileInput
+            ? profileInput
+                  .split(",")
+                  .filter((e) => !/^\s*$/g.test(e))
+                  .map((e) => e.trim().toLowerCase())
+            : [],
+    );
+    let keywordArray = $derived(
+        keywordInput
+            ? keywordInput
+                  .split(",")
+                  .filter((e) => !/^\s*$/g.test(e))
+                  .map((e) => e.trim().toLowerCase())
+            : [],
+    );
+    let maxItems = $state(100);
+    let maxItemsWarning: number = $derived(
+        (hashtagArray?.length + profileArray?.length + keywordArray?.length) *
+            maxItems,
+    );
 
     let outputProgress: number = $state(0);
     const springProgress = tweened(outputProgress, { easing: cubicInOut });
@@ -60,12 +81,12 @@
     let loading: boolean = $state(false);
     let confirmChoice = $state(false);
 
-
     let status: string = $state();
     let error: string = $state();
 
     let csvBlob: Blob = $state();
-    let headers: string[] = $state(), rows: Array<string[]> = $state();
+    let headers: string[] = $state(),
+        rows: Array<string[]> = $state();
     let userId: string = $state();
     let datasetData: any;
     let filename: string = $state();
@@ -204,7 +225,9 @@
             },
         });
     }
-    async function handleTikTokSubmit() {
+    async function handleTikTokSubmit(e: Event) {
+        e.preventDefault();
+
         loading = true;
         datasetLink = "";
         filename = "";
@@ -213,15 +236,15 @@
         status = "STARTING";
         error = "";
 
-        hashtagArray = hashtagInput
+        const hsArray = hashtagInput
             .split(",")
             .map((e) => e.trim().toLowerCase());
 
-        profileArray = profileInput
+        const prflArray = profileInput
             .split(",")
             .map((e) => e.trim().toLowerCase());
 
-        keywordArray = keywordInput
+        const kwArray = keywordInput
             .split(",")
             .map((e) => e.trim().toLowerCase());
 
@@ -230,19 +253,19 @@
         sendEventData({
             event: "tractor-fetch-data",
             tr_social_media: "tiktok",
-            tr_keywords: keywordArray,
-            tr_profiles: profileArray,
-            tr_hashtags: hashtagArray,
+            tr_keywords: kwArray,
+            tr_profiles: prflArray,
+            tr_hashtags: hsArray,
             tr_posts_newer_than: selectedDate ? selectedDate.toString() : "",
             tr_num_items_retrieved: maxItems,
         });
 
         const inputData = {
             excludePinnedPosts: false,
-            hashtags: hashtagArray,
-            profiles: profileArray,
+            hashtags: hsArray,
+            profiles: prflArray,
             resultsPerPage: maxItems,
-            searchQueries: keywordArray,
+            searchQueries: kwArray,
             shouldDownloadCovers: false,
             shouldDownloadSlideshowImages: false,
             shouldDownloadSubtitles: false,
@@ -272,35 +295,8 @@
             },
         });
     }
-    let hashtagArray;
-    run(() => {
-        hashtagArray = hashtagInput
-            ? hashtagInput
-                  .split(",")
-                  .filter((e) => !/^\s*$/g.test(e))
-                  .map((e) => e.trim().toLowerCase())
-            : [];
-    });
-    let profileArray;
-    run(() => {
-        profileArray = profileInput
-            ? profileInput
-                  .split(",")
-                  .filter((e) => !/^\s*$/g.test(e))
-                  .map((e) => e.trim().toLowerCase())
-            : [];
-    });
-    let keywordArray;
-    run(() => {
-        keywordArray = keywordInput
-            ? keywordInput
-                  .split(",")
-                  .filter((e) => !/^\s*$/g.test(e))
-                  .map((e) => e.trim().toLowerCase())
-            : [];
-    });
-    
-    run(() => {
+
+    $effect(() => {
         if (resuming) {
             loading = true;
 
@@ -309,14 +305,14 @@
             }, 500);
         }
     });
-    let buttonText = $derived(loading ? `Fetching Tiktok data...` : `Get Tiktok data`);
+
+    let buttonText = $derived(
+        loading ? `Fetching Tiktok data...` : `Get Tiktok data`,
+    );
 </script>
 
 <Section>
-    <form
-        onsubmit={preventDefault(handleTikTokSubmit)}
-        class="flex flex-col gap-5"
-    >
+    <form onsubmit={handleTikTokSubmit} class="flex flex-col gap-5">
         <div>
             <div class="flex items-center mb-2 gap-1">
                 <label for="keywords" class="text-sm text-base-content/60"

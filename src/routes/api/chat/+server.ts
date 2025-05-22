@@ -8,6 +8,7 @@ export const POST: RequestHandler = async ({ fetch, request }) => {
 	try {
 		const { prompt } = await request.json();
 		const response = await getOpenAIResponse(prompt, systemPrompt);
+		console.log(response)
 		return response;
 	} catch (error) {
 		console.error("Error in API route:", error);
