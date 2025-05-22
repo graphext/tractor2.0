@@ -3,7 +3,6 @@
     import { ApifyClient, getPrivateUserData } from "$lib/apifyEndpoints";
     import DatePicker from "$lib/components/DatePicker.svelte";
     import DownloadButton from "$lib/components/DownloadButton.svelte";
-    import Error from "$lib/components/Error.svelte";
     import Input from "$lib/components/Input.svelte";
     import LiveInfo from "$lib/components/LiveInfo.svelte";
     import Section from "$lib/components/Section.svelte";
