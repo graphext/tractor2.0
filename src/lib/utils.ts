@@ -1,15 +1,22 @@
-import { toast } from 'svelte-sonner'
+import { toast } from "svelte-sonner";
 import type { DateRange, Selected } from "bits-ui";
 import type { ApifyClient } from "./apifyEndpoints";
 import { frequencyStore } from "./stores/store";
 import { get } from "svelte/store";
 
 import type { Task, TypedJsonToCsvOptions, TypedUnwindTarget } from "./types";
-import { appState } from './stores/appStateStore';
+import { appState } from "./stores/appStateStore";
+import { flattenDiagnosticMessageText } from "typescript";
 
-
-export async function createFileName({ actorName, information, datasetId }: { actorName: string, information: object, datasetId: string }) {
-
+export async function createFileName({
+  actorName,
+  information,
+  datasetId,
+}: {
+  actorName: string;
+  information: object;
+  datasetId: string;
+}) {
   const fileKeyword = await generateNames(actorName, information);
 
   return `${fileKeyword}_${datasetId.slice(-6)}`;
@@ -138,8 +145,8 @@ export function groupTimeRanges(timeSteps: Date[], selectedRange: DateRange) {
       new Date(
         selectedRange.end?.year,
         selectedRange.end?.month - 1,
-        selectedRange.end?.day,
-      ),
+        selectedRange.end?.day
+      )
     ),
   });
 
@@ -194,7 +201,7 @@ function getNestedValue(obj: any, path: string): any {
 function flattenObjectWithUnwind<T>(
   obj: any,
   unwindTargets: TypedUnwindTarget<T>[] | null = null,
-  prefix: string = "",
+  prefix: string = ""
 ): Record<string, any> {
   return Object.keys(obj).reduce((acc: Record<string, any>, key: string) => {
     const pre = prefix.length ? `${prefix}.` : "";
@@ -202,7 +209,7 @@ function flattenObjectWithUnwind<T>(
 
     // Check if this key is one of our unwind targets
     const unwindTarget = unwindTargets?.find(
-      (target) => target.targetCol === key,
+      (target) => target.targetCol === key
     );
 
     if (unwindTarget) {
@@ -214,20 +221,24 @@ function flattenObjectWithUnwind<T>(
         // Use alias if provided, otherwise construct default column name
         const outputKey = fieldDef.alias || `${pre}${key}.${fieldDef.field}`;
 
-        // Always include the field in the output, even if the array is empty or not an array
-        if (!Array.isArray(value) || value.length === 0) {
+        // Handle different value types (null, non-array, empty array, populated array)
+        if (!value || !Array.isArray(value) || value.length === 0) {
           // If value is not an array or is empty, set to empty string or empty array
-          acc[outputKey] = take === 1 ? '' : [];
+          acc[outputKey] = take === 1 ? "" : [];
         } else {
-          // If take is not "max", slice the array
-          const slicedValue = take !== "max" ? value.slice(0, take) : value;
-
-          // Extract values from the array without filtering
-          const extractedValues = slicedValue.map((item) => getNestedValue(item, fieldPath));
+          // Extract values from the array
+          const extractedValues = value
+            .map((item) => getNestedValue(item, fieldPath))
+            .filter((v) => v !== undefined);
 
           // If we're taking multiple values, store as an array
-          // If taking just one, store as a single value for backward compatibility
-          acc[outputKey] = take === 1 ? (extractedValues[0] ?? '') : extractedValues;
+          // If taking just one, store as a single value
+          acc[outputKey] =
+            take === 1
+              ? extractedValues[0] ?? ""
+              : take === "max"
+              ? extractedValues
+              : extractedValues.slice(0, take);
         }
       });
 
@@ -238,11 +249,13 @@ function flattenObjectWithUnwind<T>(
       value !== null &&
       !Array.isArray(value)
     ) {
+      // Recursively flatten nested objects
       Object.assign(
         acc,
-        flattenObjectWithUnwind(value, unwindTargets, pre + key),
+        flattenObjectWithUnwind(value, unwindTargets, pre + key)
       );
     } else {
+      // Handle primitive values
       acc[pre + key] = value;
     }
 
@@ -250,28 +263,50 @@ function flattenObjectWithUnwind<T>(
   }, {});
 }
 
+/**
+ * Transforms JSON data by creating multiple rows for nested array items
+ * This creates a "long format" where each array element becomes its own row
+ */
 export function pivotJson<T>(
   json: T[],
   pivotColumn: string,
-  fieldsToUnpivot: string[],
+  fieldsToExtract: string[]
 ): Record<string, any>[] {
-  return json.map((obj) => {
-    const pivotValues = getNestedValue(obj, pivotColumn);
-    const result = { ...obj };
+  if (!json || json.length === 0) {
+    return [];
+  }
 
-    // If the pivot column exists and is an array, create new columns for each value
-    if (Array.isArray(pivotValues) && pivotValues.length > 0) {
-      pivotValues.forEach((pivotValue, index) => {
-        fieldsToUnpivot.forEach((field) => {
-          const nestedValue = getNestedValue(pivotValue, field);
-          // Create a new column with the format: field_index
-          result[`${field}_${index}`] = nestedValue;
-        });
-      });
+  const result: Record<string, any>[] = [];
+
+  // Process each item in the original JSON array
+  for (const obj of json) {
+    const pivotValues = getNestedValue(obj, pivotColumn);
+
+    // If no pivot values or not an array, add the original object
+    if (!Array.isArray(pivotValues) || pivotValues.length === 0) {
+      result.push({ ...obj });
+      continue;
     }
 
-    return result;
-  });
+    // Create a new row for each item in the pivot array
+    for (let i = 0; i < pivotValues.length; i++) {
+      const pivotItem = pivotValues[i];
+      const newRow = { ...obj }; // Copy non-pivot fields
+
+      // Remove the original array to avoid duplication
+      delete newRow[pivotColumn];
+
+      // Add each field from the pivot item to the new row
+      for (const field of fieldsToExtract) {
+        const value = getNestedValue(pivotItem, field);
+        newRow[field] = value;
+      }
+
+      result.push(newRow);
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -292,8 +327,8 @@ export async function jsonToCsv<T>({
   dedupKey = null,
   customColumnOrder,
   unwind,
-  removeColumns,
-  pivot = null
+  removeColumns = [],
+  pivot = null,
 }: TypedJsonToCsvOptions<T>): Promise<Blob> {
   try {
     // Fetch JSON data from the provided URL
@@ -303,7 +338,9 @@ export async function jsonToCsv<T>({
     }
     let jsonData: T[] = await response.json();
 
-    const emptyError = new Error("Apify returned an empty table. This could mean your search is too narrow. Try searching for broader topics or dates.");
+    const emptyError = new Error(
+      "Apify returned an empty table. This could mean your search is too narrow. Try searching for broader topics or dates."
+    );
 
     if (
       !Array.isArray(jsonData) ||
@@ -317,46 +354,71 @@ export async function jsonToCsv<T>({
       throw emptyError;
     }
 
+    // Deduplicate data if a key is provided
     if (dedupKey && dedupKey !== "") {
       console.log("items before deduplication", jsonData.length);
       jsonData = unique(jsonData, dedupKey);
       console.log("items after deduplication", jsonData.length);
     }
 
-    console.log(jsonData.length)
+    // Convert nested arrays to rows first (this is the key change)
     if (pivot != null) {
+      console.log("before pivot", jsonData.length);
       jsonData = pivotJson<T>(jsonData, pivot.column, pivot.pivot);
+      console.log("after pivot", jsonData.length, jsonData[0]);
     }
-    console.log(jsonData.length)
 
-
+    // Then flatten each object and unwind specified fields
     const flattenedData = jsonData.map((item) =>
       flattenObjectWithUnwind<T>(item, unwind)
     );
 
-
-    const allHeaders = [
+    // Get all unique headers from the flattened data
+    let allHeaders = [
       ...new Set(flattenedData.flatMap((item) => Object.keys(item))),
     ];
 
+    // Remove any columns specified in removeColumns
+    if (removeColumns && removeColumns.length > 0) {
+      allHeaders = allHeaders.filter(
+        (header) => !removeColumns.includes(header)
+      );
+    }
+
+    // Determine the final column order
     let headers: string[];
-    if (customColumnOrder) {
-      const missingHeaders = allHeaders
-        .filter((h) => !customColumnOrder.includes(h))
-        .filter((h) => !removeColumns?.includes(h));
-      headers = [...customColumnOrder, ...missingHeaders];
+    if (customColumnOrder && customColumnOrder.length > 0) {
+      // Start with the custom order, then add any remaining headers not in the custom order
+      const missingHeaders = allHeaders.filter(
+        (h) => !customColumnOrder.includes(h)
+      );
+      headers = [
+        ...customColumnOrder.filter((h) => allHeaders.includes(h)),
+        ...missingHeaders,
+      ];
     } else {
       headers = allHeaders;
     }
 
+    // Create CSV rows from the flattened data
     const rows = flattenedData.map((item) =>
       headers.map((header) => {
         const value = item[header] ?? "";
-        // Handle different types of values
-        const stringValue = Array.isArray(value)
-          ? JSON.stringify(value)
-          : String(value);
-        // Check if value needs to be quoted
+
+        // Handle different value types
+        let stringValue: string;
+        if (Array.isArray(value)) {
+          // For arrays, convert to JSON string while handling empty arrays
+          stringValue = value.length > 0 ? JSON.stringify(value) : "";
+        } else if (typeof value === "object" && value !== null) {
+          // For objects, convert to JSON string
+          stringValue = JSON.stringify(value);
+        } else {
+          // For primitives, convert to string
+          stringValue = String(value);
+        }
+
+        // Check if value needs to be quoted (contains commas, newlines, or quotes)
         const needsQuoting =
           stringValue.includes(",") ||
           stringValue.includes("\n") ||
@@ -367,11 +429,13 @@ export async function jsonToCsv<T>({
           return `"${stringValue.replace(/"/g, '""')}"`;
         }
         return stringValue;
-      }),
+      })
     );
 
+    // Combine headers and rows into a CSV string
     const csvString = [headers, ...rows].map((row) => row.join(",")).join("\n");
 
+    // Return the CSV as a Blob
     return new Blob([csvString], { type: "text/csv;charset=utf-8;" });
   } catch (error) {
     console.error("Error converting JSON to CSV:", error);
@@ -383,14 +447,14 @@ export function enrichQueries(
   queries: string,
   timeSteps: Date[],
   selectedRange: DateRange,
-  lists: Selected<string>[],
+  lists: Selected<string>[]
 ) {
   if (queries == "" || !queries) return "";
 
   const queriesOverTime = spreadQueriesOverTime(
     queries,
     timeSteps,
-    selectedRange,
+    selectedRange
   );
 
   const queriesWithLists = addListsToQueries(queriesOverTime, lists);
@@ -401,7 +465,7 @@ export function enrichQueries(
 export function spreadQueriesOverTime(
   queries: string,
   timeSteps: Date[],
-  selectedRange: DateRange,
+  selectedRange: DateRange
 ) {
   if (queries == "" || !queries) return "";
   if (!timeSteps || !selectedRange) return queries;
@@ -437,22 +501,18 @@ export function twitterDateFormat(date: Date) {
   return `${year}-${month}-${day}`;
 }
 
-/*************/
-`
-n is the intervalNumber chosen by user
-
-minutely: */n * * * *
-hourly: 0 */n * * *
-daily: 0 0 */n * * -> maybe substitute initial 0's for minute and hour
-weekly: 0 0 * * 1 -> maybe substitute 1 for day of week, 0's for minute and hour
-montly: 0 0 1 */1 * -> maybe substitute initial 0's for minute and hour, substitute 1 for current day of month
-yearly: 0 0 1 */n * -> maybe substitute initial 0's for minute and hour
-`;
+// n is the intervalNumber chosen by user
+// minutely: */n * * * *
+// hourly: 0 */n * * *
+// daily: 0 0 */n * * -> maybe substitute initial 0's for minute and hour
+// weekly: 0 0 * * 1 -> maybe substitute 1 for day of week, 0's for minute and hour
+// montly: 0 0 1 */1 * -> maybe substitute initial 0's for minute and hour, substitute 1 for current day of month
+// yearly: 0 0 1 */n * -> maybe substitute initial 0's for minute and hour
 
 export function composeCronExpression(
   intervalNumber: number,
   frequency: string,
-  time?: { hour: number; minute: number },
+  time?: { hour: number; minute: number }
 ) {
   if (intervalNumber === null || intervalNumber === undefined) {
     intervalNumber = 1;
@@ -492,7 +552,7 @@ export function composeCronExpression(
 
 export function identifyCronExpression(
   cronExpression: string,
-  intervalNumber: number,
+  intervalNumber: number
 ) {
   if (intervalNumber === null || intervalNumber === undefined) {
     intervalNumber = 1;
@@ -502,7 +562,7 @@ export function identifyCronExpression(
   const dRegex = /\d \d \*\/\d \* \*/;
 
   const MRegex = new RegExp(
-    String.raw`\d \d \d */${intervalNumber.toString()} *`,
+    String.raw`\d \d \d */${intervalNumber.toString()} *`
   );
   const yRegex = /\d \d \d \*\/\d \*/;
 
@@ -524,7 +584,6 @@ export function identifyCronExpression(
   }
 }
 
-
 export async function generateDatasetName(queries: string) {
   try {
     const res = await fetch("/api/ids", {
@@ -537,9 +596,7 @@ export async function generateDatasetName(queries: string) {
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(
-        errorData.error || `HTTP error! status: ${res.status}`,
-      );
+      throw new Error(errorData.error || `HTTP error! status: ${res.status}`);
     }
 
     return res.text();
@@ -552,20 +609,20 @@ export async function generateDatasetName(queries: string) {
 /**
  * Truncates the JSON representation of an object to a specified maximum number of tokens.
  * Sometimes, large queries would prevent you from downloading data just because
- * the name of the task gave an error. 
+ * the name of the task gave an error.
  * @param {any} information - The object to be truncated.
  * @param {number} [maxTokens=64000] - The maximum number of tokens allowed in the JSON string.
  * @returns {any} - The original object if the JSON string length is within the limit, otherwise the truncated object.
  */
 function truncateObject(information: any, maxTokens: number = 64000): any {
   let jsonString = JSON.stringify(information);
-  console.log('JSON string length:', jsonString.length);
+  console.log("JSON string length:", jsonString.length);
   if (jsonString.length > maxTokens) {
     // Truncate the JSON string to the maximum allowed length
     jsonString = jsonString.substring(0, maxTokens);
     // Parse the truncated string back to an object
   }
-  console.log('Truncated JSON string length:', jsonString.length);
+  console.log("Truncated JSON string length:", jsonString.length);
   return jsonString;
 }
 
@@ -576,14 +633,15 @@ export async function generateNames(actor: string, information: object) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(({ inputData: truncateObject(information), actorName: actor })),
+      body: JSON.stringify({
+        inputData: truncateObject(information),
+        actorName: actor,
+      }),
     });
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(
-        errorData.error || `HTTP error! status: ${res.status}`,
-      );
+      throw new Error(errorData.error || `HTTP error! status: ${res.status}`);
     }
 
     return res.text();
@@ -593,65 +651,61 @@ export async function generateNames(actor: string, information: object) {
   }
 }
 
-
-export async function submitTask(
-  {
-    apifyClient,
-    inputData,
-    onTaskCreated,
-    onError,
-    onStatusCheckStart,
-  }:
-    {
-      apifyClient: ApifyClient,
-      inputData: any,
-      onTaskCreated: Function,
-      onError: Function,
-      onStatusCheckStart?: Function,
-    }) {
+export async function submitTask({
+  apifyClient,
+  inputData,
+  onTaskCreated,
+  onError,
+  onStatusCheckStart,
+}: {
+  apifyClient: ApifyClient;
+  inputData: any;
+  onTaskCreated: Function;
+  onError: Function;
+  onStatusCheckStart?: Function;
+}) {
   let runId;
-  let taskName
-  let oldTaskName
+  let taskName;
+  let oldTaskName;
 
-  const build = apifyClient.actorName === 'Twitter/X Scraper' ? 'latest0225' : 'latest'
+  const build =
+    apifyClient.actorName === "Twitter/X Scraper" ? "latest0225" : "latest";
 
   try {
-    taskName = await generateNames(apifyClient.name, inputData)
-    taskName = taskName.replace(/[^a-zA-Z0-9-\-]/g, "")
+    taskName = await generateNames(apifyClient.name, inputData);
+    taskName = taskName.replace(/[^a-zA-Z0-9-\-]/g, "");
 
     const task = await apifyClient.createTask(taskName, inputData, build);
     runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
 
     onTaskCreated(runId);
 
-    appState.set('running')
+    appState.set("running");
 
-    if (onStatusCheckStart)
-      setTimeout(onStatusCheckStart, 1500);
+    if (onStatusCheckStart) setTimeout(onStatusCheckStart, 1500);
   } catch (err: any) {
-
-    const stringError = err.toString()
+    const stringError = err.toString();
 
     if (stringError.includes("actor-task-name-not-unique")) {
-      oldTaskName = taskName
-      taskName += `-${Math.floor(Math.random() * 1000)}`
+      oldTaskName = taskName;
+      taskName += `-${Math.floor(Math.random() * 1000)}`;
 
       const task = await apifyClient.createTask(taskName!, inputData, build);
-      runId = await apifyClient.runTask(task.data.id).then((run) => run.data.id);
+      runId = await apifyClient
+        .runTask(task.data.id)
+        .then((run) => run.data.id);
 
       onTaskCreated(runId);
 
-      toast.warning(`${oldTaskName} was already in use, renamed to ${taskName}`)
-
-
+      toast.warning(
+        `${oldTaskName} was already in use, renamed to ${taskName}`
+      );
     } else {
-      appState.set('error')
+      appState.set("error");
       onError(err);
     }
-
   }
 }
-
 
 export async function checkTaskStatus({
   apifyClient,
@@ -661,13 +715,12 @@ export async function checkTaskStatus({
   onComplete,
   onError,
 }: {
-  apifyClient: ApifyClient,
-  runId: string | null,
-  maxResults: number,
-  onStatusUpdate: Function,
-  onComplete: Function,
-  onError: Function,
-
+  apifyClient: ApifyClient;
+  runId: string | null;
+  maxResults: number;
+  onStatusUpdate: Function;
+  onComplete: Function;
+  onError: Function;
 }) {
   let status;
 
@@ -675,18 +728,17 @@ export async function checkTaskStatus({
     const runData = await apifyClient.getRunStatus(runId!);
     status = runData.data.status;
 
-    const { data: liveData, length: dataLength } = await apifyClient.getDatasetContent(runId!);
+    const { data: liveData, length: dataLength } =
+      await apifyClient.getDatasetContent(runId!);
 
     if (status === "SUCCEEDED" || status === "ABORTED") {
-
-      if (status === "SUCCEEDED") appState.set('success');
+      if (status === "SUCCEEDED") appState.set("success");
 
       try {
         await onComplete({
           runId,
-          status
+          status,
         });
-
       } catch (e) {
         onError(e);
       }
@@ -695,22 +747,31 @@ export async function checkTaskStatus({
     }
 
     if (status !== "FAILED" && status !== "TIMED-OUT") {
-      setTimeout(() => checkTaskStatus({ apifyClient, runId, maxResults, onStatusUpdate, onComplete, onError }), 1000);
+      setTimeout(
+        () =>
+          checkTaskStatus({
+            apifyClient,
+            runId,
+            maxResults,
+            onStatusUpdate,
+            onComplete,
+            onError,
+          }),
+        1000
+      );
     } else {
       throw new Error("Run failed or timed-out.");
     }
 
     onStatusUpdate({ status, dataLength, liveData });
-
   } catch (err) {
     onError(err);
     throw err;
   }
-
 }
 
 export function sendEventData(eventData: any) {
   if (window.dataLayer) {
-    window.dataLayer.push(eventData)
+    window.dataLayer.push(eventData);
   }
 }

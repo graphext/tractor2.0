@@ -74,7 +74,9 @@
     let datasetSize: number = $state();
     let confirmChoice: boolean = $state(false);
 
-    async function handleGoogleSubmit() {
+    async function handleGoogleSubmit(e: Event) {
+        e.preventDefault();
+
         datasetLink = "";
         filename = "";
         outputProgress = 0;
@@ -268,6 +270,8 @@
                         "emphasizedKeywords",
                     ],
                 });
+
+                console.log(csvBlob);
 
                 datasetSize = datasetData.data.itemCount;
 
@@ -532,10 +536,7 @@ ${mention ? "Include queries where you mention the companies explicitly wherever
     </Section>
 
     <Section>
-        <form
-            class="flex flex-col gap-5"
-            onsubmit={preventDefault(handleGoogleSubmit)}
-        >
+        <form class="flex flex-col gap-5" onsubmit={handleGoogleSubmit}>
             <div class="flex flex-col gap-2 w-full">
                 <label for="keywords" class="text-sm text-base-content/60"
                     >Keywords:</label
