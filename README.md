@@ -33,8 +33,8 @@ Any changes will be reflected automatically.
 
 # Technical Details
 
-This application uses SvelteKit 4, Typescript, TailwindCSS with DaisyUI,
-Phosphor Icons and Bits UI as the main component library.
+This application uses [SvelteKit 5](https://svelte.dev/), Typescript, [TailwindCSS](https://tailwindcss.com/) with [DaisyUI](https://daisyui.com/),
+[Phosphor Icons](https://phosphoricons.com/) and [Bits UI](https://www.bits-ui.com/) as the main component library.
 
 > Repo Structure
 
